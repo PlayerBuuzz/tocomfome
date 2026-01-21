@@ -9,7 +9,7 @@
 body {
   margin: 0;
   background: radial-gradient(circle at top, #1a1a1a, #000 70%);
-  font-family: 'Poppins', Arial, sans-serif;
+  font-family: Arial, sans-serif;
   color: #fff;
   display: flex;
   align-items: center;
@@ -33,7 +33,7 @@ body {
 .jogador {
   text-align: center;
   font-size: 18px;
-  font-weight: 600;
+  font-weight: bold;
 }
 
 .centro {
@@ -44,13 +44,8 @@ body {
   background: rgba(0,0,0,0.4);
 }
 
-.aguardando {
-  color: #ffeb3b;
-}
-
-.jogando {
-  color: #00ff99;
-}
+.aguardando { color: #ffeb3b; }
+.jogando { color: #00ff99; }
 </style>
 </head>
 
@@ -70,14 +65,13 @@ body {
 const status = document.getElementById("status");
 const oponente = document.getElementById("oponente");
 
-// 🔑 cria ou reaproveita ID do jogador
+// 🔑 ID fixo do jogador
 let playerId = localStorage.getItem("playerId");
 if (!playerId) {
   playerId = crypto.randomUUID();
   localStorage.setItem("playerId", playerId);
 }
 
-// 🔌 URL DO SERVIDOR
 const ws = new WebSocket("wss://truco-da-sorte.onrender.com");
 
 ws.onopen = () => {
@@ -89,7 +83,6 @@ ws.onmessage = (msg) => {
 
   if (data.type === "WAITING") {
     status.innerHTML = "⏳ Aguardando oponente...";
-    status.className = "centro aguardando";
   }
 
   if (data.type === "START_GAME") {
@@ -97,19 +90,15 @@ ws.onmessage = (msg) => {
     status.className = "centro jogando";
     oponente.innerHTML = "🧑 Oponente conectado";
 
-    iniciarJogo();
+    setTimeout(() => {
+      window.location.href = "jogo.html";
+    }, 800);
   }
 };
 
 ws.onerror = () => {
-  status.innerHTML = "❌ Erro ao conectar";
+  status.innerHTML = "❌ Erro de conexão";
 };
-
-function iniciarJogo() {
-  setTimeout(() => {
-    window.location.href = "jogo.html";
-  }, 800);
-}
 </script>
 
 </body>
