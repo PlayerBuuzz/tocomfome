@@ -1,73 +1,104 @@
-import { WebSocketServer } from "ws";
+import http from "http";
+import WebSocket, { WebSocketServer } from "ws";
 
-const wss = new WebSocketServer({ port: 8080 });
+const PORT = process.env.PORT || 3000;
+const server = http.createServer();
+const wss = new WebSocketServer({ server });
 
-let jogadores = [];
+let mesas = [];
 
-const baralho = [
-  "4♣","4♥","4♠","4♦",
-  "5♣","5♥","5♠","5♦",
-  "6♣","6♥","6♠","6♦",
-  "7♣","7♥","7♠","7♦",
-  "Q♣","Q♥","Q♠","Q♦",
-  "J♣","J♥","J♠","J♦",
-  "K♣","K♥","K♠","K♦",
-  "A♣","A♥","A♠","A♦",
-  "2♣","2♥","2♠","2♦",
-  "3♣","3♥","3♠","3♦"
+// 🃏 Baralho simples (truco simplificado)
+const baralhoBase = [
+  "4♣","5♣","6♣","7♣","Q♣","J♣","K♣","A♣","2♣","3♣",
+  "4♦","5♦","6♦","7♦","Q♦","J♦","K♦","A♦","2♦","3♦",
+  "4♥","5♥","6♥","7♥","Q♥","J♥","K♥","A♥","2♥","3♥",
+  "4♠","5♠","6♠","7♠","Q♠","J♠","K♠","A♠","2♠","3♠"
 ];
 
-function embaralhar(cartas) {
-  return cartas.sort(() => Math.random() - 0.5);
+function embaralhar(baralho) {
+  return [...baralho].sort(() => Math.random() - 0.5);
 }
 
-wss.on("connection", ws => {
-  jogadores.push(ws);
+function criarMesa(jogador1, jogador2) {
+  const baralho = embaralhar(baralhoBase);
 
-  if (jogadores.length < 2) {
+  const mesa = {
+    jogadores: [jogador1, jogador2],
+    maos: [
+      baralho.splice(0, 3),
+      baralho.splice(0, 3)
+    ],
+    turno: 0
+  };
+
+  mesas.push(mesa);
+
+  // 🎮 Inicia jogo
+  mesa.jogadores.forEach(j => {
+    j.send(JSON.stringify({ type: "START_GAME" }));
+  });
+
+  // 🃏 Envia cartas
+  mesa.jogadores[0].send(JSON.stringify({
+    type: "HAND",
+    cartas: mesa.maos[0]
+  }));
+
+  mesa.jogadores[1].send(JSON.stringify({
+    type: "HAND",
+    cartas: mesa.maos[1]
+  }));
+
+  // 👉 Primeiro jogador começa
+  mesa.jogadores[0].send(JSON.stringify({ type: "YOUR_TURN" }));
+  mesa.jogadores[1].send(JSON.stringify({ type: "WAIT_TURN" }));
+}
+
+wss.on("connection", (ws) => {
+  console.log("Jogador conectado");
+
+  ws.mesa = null;
+
+  const esperando = mesas.find(m => m.jogadores.length === 1);
+
+  if (esperando) {
+    esperando.jogadores.push(ws);
+    ws.mesa = esperando;
+    esperando.jogadores[0].mesa = esperando;
+
+    criarMesa(esperando.jogadores[0], ws);
+  } else {
+    mesas.push({ jogadores: [ws] });
     ws.send(JSON.stringify({ type: "WAITING" }));
-    return;
   }
 
-  // 🔥 JOGO COMEÇA
-  const [j1, j2] = jogadores;
-  jogadores = [];
-
-  const deck = embaralhar([...baralho]);
-
-  const mao1 = deck.splice(0, 3);
-  const mao2 = deck.splice(0, 3);
-
-  j1.send(JSON.stringify({ type: "START_GAME" }));
-  j2.send(JSON.stringify({ type: "START_GAME" }));
-
-  j1.send(JSON.stringify({ type: "HAND", cartas: mao1 }));
-  j2.send(JSON.stringify({ type: "HAND", cartas: mao2 }));
-
-  j1.send(JSON.stringify({ type: "YOUR_TURN" }));
-  j2.send(JSON.stringify({ type: "WAIT_TURN" }));
-
-  j1.on("message", msg => {
+  ws.on("message", (msg) => {
     const data = JSON.parse(msg);
+
     if (data.type === "PLAY_CARD") {
-      j2.send(JSON.stringify({
+      const mesa = mesas.find(m => m.jogadores.includes(ws));
+      if (!mesa) return;
+
+      const idx = mesa.jogadores.indexOf(ws);
+      const outro = mesa.jogadores[1 - idx];
+
+      // envia carta pro oponente
+      outro.send(JSON.stringify({
         type: "OPPONENT_PLAY",
         carta: data.carta
       }));
-      j2.send(JSON.stringify({ type: "YOUR_TURN" }));
+
+      // troca turno
+      ws.send(JSON.stringify({ type: "WAIT_TURN" }));
+      outro.send(JSON.stringify({ type: "YOUR_TURN" }));
     }
   });
 
-  j2.on("message", msg => {
-    const data = JSON.parse(msg);
-    if (data.type === "PLAY_CARD") {
-      j1.send(JSON.stringify({
-        type: "OPPONENT_PLAY",
-        carta: data.carta
-      }));
-      j1.send(JSON.stringify({ type: "YOUR_TURN" }));
-    }
+  ws.on("close", () => {
+    mesas = mesas.filter(m => !m.jogadores.includes(ws));
   });
 });
 
-console.log("🃏 Servidor Truco rodando na porta 8080");
+server.listen(PORT, () => {
+  console.log("🃏 Servidor Truco rodando na porta", PORT);
+});
