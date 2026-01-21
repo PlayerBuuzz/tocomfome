@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Jogo</title>
+<title>Truco - Jogo</title>
 <style>
 body{
   background:#121212;
@@ -13,7 +13,7 @@ body{
 #cartas button{
   margin:10px;
   padding:15px;
-  font-size:18px;
+  font-size:20px;
 }
 </style>
 </head>
@@ -26,10 +26,11 @@ body{
 const status = document.getElementById("status");
 const cartasDiv = document.getElementById("cartas");
 
-const ws = new WebSocket("ws://localhost:3000");
+// 🔐 WSS OBRIGATÓRIO NO RENDER
+const ws = new WebSocket("wss://truco-da-sorte.onrender.com");
 
 ws.onopen = () => {
-  status.innerText = "Conectado. Aguardando jogador...";
+  status.innerText = "Conectado! Aguardando jogador...";
 };
 
 ws.onmessage = (event) => {
@@ -40,7 +41,7 @@ ws.onmessage = (event) => {
   }
 
   if (data.type === "START") {
-    status.innerText = data.turno ? "Sua vez" : "Vez do oponente";
+    status.innerText = data.suaVez ? "Sua vez" : "Vez do oponente";
     cartasDiv.innerHTML = "";
 
     data.cartas.forEach(carta => {
@@ -59,16 +60,16 @@ ws.onmessage = (event) => {
   }
 
   if (data.type === "WAIT_TURN") {
-    status.innerText = "Aguarde";
+    status.innerText = "Aguarde o oponente";
   }
 
-  if (data.type === "OPPONENT") {
+  if (data.type === "OPPONENT_PLAY") {
     alert("Oponente jogou: " + data.carta);
   }
 };
 
 ws.onerror = () => {
-  status.innerText = "Erro na conexão";
+  status.innerText = "Erro na conexão com o servidor";
 };
 </script>
 
