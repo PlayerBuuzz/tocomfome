@@ -1,12 +1,11 @@
 import http from "http";
-import WebSocket, { WebSocketServer } from "ws";
+import { WebSocketServer } from "ws";
 
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 const server = http.createServer();
 const wss = new WebSocketServer({ server });
 
 let fila = [];
-let mesas = [];
 
 // 🃏 Baralho
 const baralhoBase = [
@@ -23,35 +22,26 @@ function embaralhar(baralho) {
 function criarMesa(j1, j2) {
   const baralho = embaralhar(baralhoBase);
 
-  const mesa = {
-    jogadores: [j1, j2],
-    maos: [
-      baralho.splice(0, 3),
-      baralho.splice(0, 3)
-    ],
-    turno: 0
-  };
+  const mao1 = baralho.splice(0, 3);
+  const mao2 = baralho.splice(0, 3);
 
-  j1.mesa = mesa;
-  j2.mesa = mesa;
-  mesas.push(mesa);
+  j1.mesa = j2.mesa = { jogadores: [j1, j2], turno: 0 };
 
-  // 🎮 START GAME + CARTAS (CORRETO)
   j1.send(JSON.stringify({
-    type: "START_GAME",
-    cartas: mesa.maos[0],
+    type: "START",
+    cartas: mao1,
     turno: true
   }));
 
   j2.send(JSON.stringify({
-    type: "START_GAME",
-    cartas: mesa.maos[1],
+    type: "START",
+    cartas: mao2,
     turno: false
   }));
 }
 
 wss.on("connection", (ws) => {
-  console.log("Jogador conectado");
+  console.log("🟢 Jogador conectado");
 
   ws.mesa = null;
 
@@ -60,20 +50,19 @@ wss.on("connection", (ws) => {
     criarMesa(oponente, ws);
   } else {
     fila.push(ws);
-    ws.send(JSON.stringify({ type: "WAITING" }));
+    ws.send(JSON.stringify({ type: "WAIT" }));
   }
 
   ws.on("message", (msg) => {
     const data = JSON.parse(msg);
-    const mesa = ws.mesa;
-    if (!mesa) return;
+    if (!ws.mesa) return;
 
-    if (data.type === "PLAY_CARD") {
-      const idx = mesa.jogadores.indexOf(ws);
-      const outro = mesa.jogadores[1 - idx];
+    if (data.type === "PLAY") {
+      const [j1, j2] = ws.mesa.jogadores;
+      const outro = ws === j1 ? j2 : j1;
 
       outro.send(JSON.stringify({
-        type: "OPPONENT_PLAY",
+        type: "OPPONENT",
         carta: data.carta
       }));
 
@@ -84,10 +73,10 @@ wss.on("connection", (ws) => {
 
   ws.on("close", () => {
     fila = fila.filter(j => j !== ws);
-    mesas = mesas.filter(m => !m.jogadores.includes(ws));
+    console.log("🔴 Jogador saiu");
   });
 });
 
 server.listen(PORT, () => {
-  console.log("🃏 Servidor Truco rodando na porta", PORT);
+  console.log("🃏 Servidor rodando em http://localhost:" + PORT);
 });
