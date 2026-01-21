@@ -1,13 +1,19 @@
 import http from "http";
 import { WebSocketServer } from "ws";
 
-const PORT = 3000;
-const server = http.createServer();
+const PORT = process.env.PORT || 3000;
+
+// Render exige servidor HTTP ativo
+const server = http.createServer((req, res) => {
+  res.writeHead(200);
+  res.end("Truco server rodando");
+});
+
 const wss = new WebSocketServer({ server });
 
 let fila = [];
 
-// 🃏 Baralho
+// 🃏 Baralho Truco
 const baralhoBase = [
   "4♣","5♣","6♣","7♣","Q♣","J♣","K♣","A♣","2♣","3♣",
   "4♦","5♦","6♦","7♦","Q♦","J♦","K♦","A♦","2♦","3♦",
@@ -25,18 +31,20 @@ function criarMesa(j1, j2) {
   const mao1 = baralho.splice(0, 3);
   const mao2 = baralho.splice(0, 3);
 
-  j1.mesa = j2.mesa = { jogadores: [j1, j2], turno: 0 };
+  const mesa = { jogadores: [j1, j2], turno: 0 };
+  j1.mesa = mesa;
+  j2.mesa = mesa;
 
   j1.send(JSON.stringify({
     type: "START",
     cartas: mao1,
-    turno: true
+    suaVez: true
   }));
 
   j2.send(JSON.stringify({
     type: "START",
     cartas: mao2,
-    turno: false
+    suaVez: false
   }));
 }
 
@@ -62,7 +70,7 @@ wss.on("connection", (ws) => {
       const outro = ws === j1 ? j2 : j1;
 
       outro.send(JSON.stringify({
-        type: "OPPONENT",
+        type: "OPPONENT_PLAY",
         carta: data.carta
       }));
 
@@ -73,10 +81,10 @@ wss.on("connection", (ws) => {
 
   ws.on("close", () => {
     fila = fila.filter(j => j !== ws);
-    console.log("🔴 Jogador saiu");
+    console.log("🔴 Jogador desconectou");
   });
 });
 
 server.listen(PORT, () => {
-  console.log("🃏 Servidor rodando em http://localhost:" + PORT);
+  console.log("🃏 Truco Online rodando na porta", PORT);
 });
