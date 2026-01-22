@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Truco da Sorte</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Truco Paulista 1x1</h1>
+    <input type="text" id="roomInput" placeholder="Nome da sala" />
+    <button onclick="joinRoom()">Entrar</button>
+
+    <div id="gameArea" style="display:none;">
+      <h2>Sala: <span id="roomName"></span></h2>
+      <button onclick="playCard('Ás de Espadas')">Jogar Ás de Espadas</button>
+      <button onclick="callTruco()">Pedir TRUCO</button>
+      <ul id="messages"></ul>
+    </div>
+  </div>
+
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
