@@ -112,7 +112,7 @@ ws.onmessage = (msg) => {
 function jogarCarta(carta, div) {
   ws.send(JSON.stringify({ type: "PLAY_CARD", card: carta }));
   document.getElementById("mesa-cartas").innerText = `Você jogou: ${carta}`;
-  div.remove(); // remove carta da mão
+  div.remove();
 }
 </script>
 
