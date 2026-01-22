@@ -8,19 +8,23 @@
 </head>
 <body>
   <div class="container">
-    <h1>Truco Paulista 1x1</h1>
-    <input type="text" id="roomInput" placeholder="Nome da sala" />
-    <button onclick="joinRoom()">Entrar</button>
-
-    <div id="gameArea" style="display:none;">
-      <h2>Sala: <span id="roomName"></span></h2>
-      <button onclick="playCard('Ás de Espadas')">Jogar Ás de Espadas</button>
-      <button onclick="callTruco()">Pedir TRUCO</button>
-      <ul id="messages"></ul>
-    </div>
+    <h1>Truco da Sorte</h1>
+    <p>Aguardando oponente...</p>
   </div>
-
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-  <script src="script.js"></script>
+  <script>
+    const socket = io("https://truco-da-sorte.onrender.com");
+
+    socket.on("waiting", () => {
+      console.log("Esperando outro jogador...");
+    });
+
+    socket.on("startGame", (data) => {
+      localStorage.setItem("sala", data.sala);
+      localStorage.setItem("id", socket.id);
+      localStorage.setItem("cartas", JSON.stringify(data.cartas[socket.id]));
+      window.location.href = "jogo.html";
+    });
+  </script>
 </body>
 </html>
