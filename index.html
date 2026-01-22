@@ -4,98 +4,22 @@
 <meta charset="UTF-8">
 <title>Truco Paulista 1x1</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<style>
-body {
-  margin: 0;
-  background: radial-gradient(circle at top, #1a1a1a, #000 70%);
-  color: white;
-  font-family: 'Poppins', Arial, sans-serif;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-}
-
-#mesa {
-  width: 360px;
-  height: 520px;
-  background: linear-gradient(180deg, #1e7f3b, #145c2a);
-  border-radius: 20px;
-  border: 4px solid #00ff88;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 20px;
-  box-shadow: 0 0 30px rgba(0,255,136,0.4);
-}
-
-.jogador {
-  text-align: center;
-  font-size: 18px;
-  font-weight: 600;
-}
-
-.centro {
-  text-align: center;
-  font-size: 18px;
-  padding: 16px;
-  border-radius: 12px;
-  background: rgba(0,0,0,0.4);
-}
-
-.aguardando {
-  color: #ffeb3b;
-}
-
-.jogando {
-  color: #00ff99;
-}
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-
 <div id="mesa">
   <div class="jogador" id="oponente">❓ Oponente</div>
+  <div class="mao" id="mao-oponente"></div>
 
-  <div class="centro" id="status">
-    🔌 Conectando ao servidor...
-  </div>
+  <div class="centro" id="status">🔌 Conectando ao servidor...</div>
 
+  <div class="mao" id="mao-jogador"></div>
   <div class="jogador">🧑 Você</div>
+
+  <div id="acoes">
+    <button onclick="pedirTruco()">Truco</button>
+  </div>
 </div>
-
-<script>
-const status = document.getElementById("status");
-const oponente = document.getElementById("oponente");
-
-// ✅ URL FINAL DO RENDER
-const ws = new WebSocket("wss://truco-da-sorte.onrender.com");
-
-ws.onopen = () => {
-  status.innerHTML = "🔗 Conectado ao servidor";
-};
-
-ws.onmessage = (msg) => {
-  const data = JSON.parse(msg.data);
-
-  if (data.type === "WAITING") {
-    status.innerHTML = "⏳ Aguardando oponente...";
-    status.className = "centro aguardando";
-  }
-
-  if (data.type === "START_GAME") {
-    status.innerHTML = "🎉 Oponente encontrado!";
-    status.className = "centro jogando";
-    oponente.innerHTML = "🧑 Oponente conectado";
-  }
-};
-
-ws.onerror = () => {
-  status.innerHTML = "❌ Erro de conexão";
-};
-</script>
-
+<script src="client.js"></script>
 </body>
 </html>
