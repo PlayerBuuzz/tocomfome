@@ -85,7 +85,7 @@ ws.onmessage = (msg) => {
       const div = document.createElement("div");
       div.className = "carta";
       div.innerText = carta;
-      div.onclick = () => jogarCarta(carta);
+      div.onclick = () => jogarCarta(carta, div);
       mao.appendChild(div);
     });
   }
@@ -94,15 +94,24 @@ ws.onmessage = (msg) => {
     document.getElementById("mesa-cartas").innerText = `Oponente jogou: ${data.card}`;
   }
 
-  if (data.type === "UPDATE_SCORE") {
-    document.getElementById("pontos-voce").innerText = data.you;
-    document.getElementById("pontos-oponente").innerText = data.opponent;
+  if (data.type === "ROUND_RESULT") {
+    if (data.vencedor === -1) {
+      document.getElementById("mesa-cartas").innerText = "Rodada empatada!";
+    } else if (data.vencedor === 0) {
+      document.getElementById("mesa-cartas").innerText = "Você venceu a rodada!";
+    } else {
+      document.getElementById("mesa-cartas").innerText = "Oponente venceu a rodada!";
+    }
+
+    document.getElementById("pontos-voce").innerText = data.pontos[0];
+    document.getElementById("pontos-oponente").innerText = data.pontos[1];
   }
 };
 
-function jogarCarta(carta) {
+function jogarCarta(carta, div) {
   ws.send(JSON.stringify({ type: "PLAY_CARD", card: carta }));
   document.getElementById("mesa-cartas").innerText = `Você jogou: ${carta}`;
+  div.remove(); // remove carta da mão
 }
 </script>
 
