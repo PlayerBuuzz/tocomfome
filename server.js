@@ -7,14 +7,13 @@ const wss = new WebSocketServer({ server });
 
 let mesas = [];
 
-// força das cartas (simplificada para Truco Paulista)
 const ranking = {
   "4": 1, "5": 2, "6": 3, "7": 4,
   "Q": 5, "J": 6, "K": 7, "A": 8
 };
 
 function valorCarta(carta) {
-  return ranking[carta[0]]; // pega só o número/letra
+  return ranking[carta[0]];
 }
 
 function criarMesa(ws) {
@@ -39,8 +38,7 @@ function distribuirCartas() {
     "4♦","5♦","6♦","7♦","Q♦","J♦","K♦","A♦",
     "4♣","5♣","6♣","7♣","Q♣","J♣","K♣","A♣"
   ];
-  const embaralhado = baralho.sort(() => Math.random() - 0.5);
-  return embaralhado.slice(0, 6); // 3 cartas pra cada
+  return baralho.sort(() => Math.random() - 0.5).slice(0, 6);
 }
 
 wss.on("connection", (ws) => {
@@ -51,48 +49,39 @@ wss.on("connection", (ws) => {
   if (mesa) {
     mesa.jogadores.push(ws);
 
-    // Inicia jogo
-    mesa.jogadores.forEach(jogador => {
-      jogador.send(JSON.stringify({ type: "START_GAME" }));
-    });
+    mesa.jogadores.forEach(j => j.send(JSON.stringify({ type: "START_GAME" })));
 
-    // Distribui cartas
     const cartas = distribuirCartas();
-    mesa.jogadores[0].send(JSON.stringify({ type: "DEAL_CARDS", cards: cartas.slice(0,3) }));
-    mesa.jogadores[1].send(JSON.stringify({ type: "DEAL_CARDS", cards: cartas.slice(3,6) }));
+    console.log("Cartas distribuídas:", cartas);
 
-    // Recebe jogadas
+    mesa.jogadores[0].send(JSON.stringify({ type: "DEAL_CARDS", cards: cartas.slice(0, 3) }));
+    mesa.jogadores[1].send(JSON.stringify({ type: "DEAL_CARDS", cards: cartas.slice(3, 6) }));
+
     mesa.jogadores.forEach((j, idx) => {
       j.on("message", (msg) => {
         const data = JSON.parse(msg);
-
         if (data.type === "PLAY_CARD") {
           mesa.cartasJogadas.push({ jogador: idx, carta: data.card });
 
-          // repassa jogada pro outro
           mesa.jogadores.forEach(p => {
             if (p !== j) p.send(JSON.stringify(data));
           });
 
-          // se os dois jogaram, comparar
           if (mesa.cartasJogadas.length === 2) {
             const [c1, c2] = mesa.cartasJogadas;
             const v1 = valorCarta(c1.carta);
             const v2 = valorCarta(c2.carta);
 
-            let vencedor;
+            let vencedor = -1;
             if (v1 > v2) {
-              mesa.pontos[c1.jogador] += 1;
+              mesa.pontos[c1.jogador]++;
               vencedor = c1.jogador;
             } else if (v2 > v1) {
-              mesa.pontos[c2.jogador] += 1;
+              mesa.pontos[c2.jogador]++;
               vencedor = c2.jogador;
-            } else {
-              vencedor = -1; // empate
             }
 
-            // avisa resultado
-            mesa.jogadores.forEach((p) => {
+            mesa.jogadores.forEach(p => {
               p.send(JSON.stringify({
                 type: "ROUND_RESULT",
                 vencedor,
@@ -100,7 +89,6 @@ wss.on("connection", (ws) => {
               }));
             });
 
-            // limpa jogadas
             mesa.cartasJogadas = [];
           }
         }
