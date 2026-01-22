@@ -7,6 +7,7 @@ const wss = new WebSocketServer({ server });
 
 let mesas = [];
 
+// força das cartas (simplificada para Truco Paulista)
 const ranking = {
   "4": 1, "5": 2, "6": 3, "7": 4,
   "Q": 5, "J": 6, "K": 7, "A": 8
@@ -38,7 +39,8 @@ function distribuirCartas() {
     "4♦","5♦","6♦","7♦","Q♦","J♦","K♦","A♦",
     "4♣","5♣","6♣","7♣","Q♣","J♣","K♣","A♣"
   ];
-  return baralho.sort(() => Math.random() - 0.5).slice(0, 6);
+  const embaralhado = baralho.sort(() => Math.random() - 0.5);
+  return [embaralhado.slice(0, 3), embaralhado.slice(3, 6)]; // retorna 3 cartas para cada
 }
 
 wss.on("connection", (ws) => {
@@ -49,24 +51,29 @@ wss.on("connection", (ws) => {
   if (mesa) {
     mesa.jogadores.push(ws);
 
+    // Inicia jogo
     mesa.jogadores.forEach(j => j.send(JSON.stringify({ type: "START_GAME" })));
 
-    const cartas = distribuirCartas();
-    console.log("Cartas distribuídas:", cartas);
+    // Distribui cartas
+    const [cartasJogador1, cartasJogador2] = distribuirCartas();
+    console.log("Cartas distribuídas:", cartasJogador1, cartasJogador2);
 
-    mesa.jogadores[0].send(JSON.stringify({ type: "DEAL_CARDS", cards: cartas.slice(0, 3) }));
-    mesa.jogadores[1].send(JSON.stringify({ type: "DEAL_CARDS", cards: cartas.slice(3, 6) }));
+    mesa.jogadores[0].send(JSON.stringify({ type: "DEAL_CARDS", cards: cartasJogador1 }));
+    mesa.jogadores[1].send(JSON.stringify({ type: "DEAL_CARDS", cards: cartasJogador2 }));
 
+    // Recebe jogadas
     mesa.jogadores.forEach((j, idx) => {
       j.on("message", (msg) => {
         const data = JSON.parse(msg);
         if (data.type === "PLAY_CARD") {
           mesa.cartasJogadas.push({ jogador: idx, carta: data.card });
 
+          // repassa jogada pro outro
           mesa.jogadores.forEach(p => {
             if (p !== j) p.send(JSON.stringify(data));
           });
 
+          // se os dois jogaram, comparar
           if (mesa.cartasJogadas.length === 2) {
             const [c1, c2] = mesa.cartasJogadas;
             const v1 = valorCarta(c1.carta);
