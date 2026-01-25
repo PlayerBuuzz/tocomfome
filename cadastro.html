@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Tôcomfome 🍔 | Colina - SP</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+:root{
+  --laranja:#ff8c1a;
+  --laranja-escuro:#e67300;
+  --branco:#ffffff;
+  --cinza:#f4f4f4;
+  --texto:#333;
+}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+body{
+  background:var(--laranja);
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:flex-end;
+}
+
+.container{
+  background:var(--branco);
+  width:100%;
+  max-width:420px;
+  border-radius:20px 20px 0 0;
+  padding:20px 18px 25px;
+  text-align:center;
+}
+
+.logo{
+  font-size:1.9em;
+  font-weight:700;
+  color:var(--laranja);
+}
+
+.slogan{
+  font-size:0.9em;
+  color:#666;
+  margin-top:6px;
+}
+
+.area{
+  margin-top:20px;
+  font-size:0.85em;
+  font-weight:600;
+  color:#777;
+  text-transform:uppercase;
+  letter-spacing:0.5px;
+}
+
+.btn{
+  width:100%;
+  padding:14px;
+  margin-top:12px;
+  border:none;
+  border-radius:12px;
+  font-size:1em;
+  font-weight:600;
+  cursor:pointer;
+}
+
+.btn-cliente{
+  background:var(--laranja);
+  color:#fff;
+}
+
+.btn-comercio{
+  background:var(--cinza);
+  color:var(--texto);
+}
+
+.btn:active{
+  transform:scale(0.97);
+}
+</style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="logo">🍔 Tôcomfome</div>
+    <div class="slogan">Deixa que a gente te ajuda a matar sua fome!</div>
+
+    <div class="area">Área de login / cadastro</div>
+
+    <button class="btn btn-cliente" onclick="location.href='cliente.html'">
+      Sou Cliente
+    </button>
+
+    <button class="btn btn-comercio" onclick="location.href='comercio.html'">
+      Sou Comércio
+    </button>
+  </div>
+</body>
+</html>
