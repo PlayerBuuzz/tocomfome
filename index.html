@@ -2,15 +2,16 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>TôComFome 🍔 | Colina - SP</title>
+<title>Tôcomfome 🍔 | Colina - SP</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 :root{
   --laranja:#ff8c1a;
   --laranja-escuro:#e67300;
-  --branco:#fff;
-  --cinza:#f2f2f2;
+  --branco:#ffffff;
+  --cinza:#f4f4f4;
+  --texto:#333;
 }
 
 *{
@@ -25,37 +26,46 @@ body{
   min-height:100vh;
   display:flex;
   justify-content:center;
-  align-items:center;
+  align-items:flex-end;
 }
 
 .container{
   background:var(--branco);
   width:100%;
-  max-width:430px;
-  border-radius:24px 24px 0 0;
-  padding:30px 20px;
+  max-width:420px;
+  border-radius:20px 20px 0 0;
+  padding:20px 18px 25px;
   text-align:center;
 }
 
 .logo{
-  font-size:2.4em;
-  font-weight:bold;
+  font-size:1.9em;
+  font-weight:700;
   color:var(--laranja);
 }
 
-.city{
+.slogan{
   font-size:0.9em;
+  color:#666;
+  margin-top:6px;
+}
+
+.area{
+  margin-top:20px;
+  font-size:0.85em;
+  font-weight:600;
   color:#777;
-  margin-bottom:30px;
+  text-transform:uppercase;
+  letter-spacing:0.5px;
 }
 
 .btn{
   width:100%;
-  padding:18px;
-  margin-bottom:15px;
+  padding:14px;
+  margin-top:12px;
   border:none;
-  border-radius:14px;
-  font-size:1.1em;
+  border-radius:12px;
+  font-size:1em;
   font-weight:600;
   cursor:pointer;
 }
@@ -67,25 +77,21 @@ body{
 
 .btn-comercio{
   background:var(--cinza);
-  color:#333;
+  color:var(--texto);
 }
 
 .btn:active{
   transform:scale(0.97);
-}
-
-footer{
-  font-size:0.8em;
-  color:#aaa;
-  margin-top:20px;
 }
 </style>
 </head>
 
 <body>
   <div class="container">
-    <div class="logo">🍔 TôComFome</div>
-    <div class="city">Colina • SP</div>
+    <div class="logo">🍔 Tôcomfome</div>
+    <div class="slogan">Deixa que a gente te ajuda a matar sua fome!</div>
+
+    <div class="area">Área de login / cadastro</div>
 
     <button class="btn btn-cliente" onclick="location.href='cliente.html'">
       Sou Cliente
@@ -94,10 +100,6 @@ footer{
     <button class="btn btn-comercio" onclick="location.href='comercio.html'">
       Sou Comércio
     </button>
-
-    <footer>
-      Comida perto de você 😋
-    </footer>
   </div>
 </body>
 </html>
