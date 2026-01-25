@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Tôcomfome 🍔 | Buscar</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+:root{
+  --laranja:#ff8c1a;
+  --cinza:#f5f5f5;
+  --texto:#333;
+}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+body{
+  background:var(--cinza);
+}
+
+/* TOPO */
+.header{
+  background:var(--laranja);
+  color:#fff;
+  padding:14px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.menu-btn{
+  font-size:1.4em;
+  cursor:pointer;
+}
+
+.header input{
+  flex:1;
+  padding:10px 12px;
+  border:none;
+  border-radius:10px;
+  font-size:1em;
+}
+
+/* MENU LATERAL */
+.sidebar{
+  position:fixed;
+  top:0;
+  left:-260px;
+  width:260px;
+  height:100%;
+  background:#fff;
+  box-shadow:2px 0 10px rgba(0,0,0,0.2);
+  padding:20px;
+  transition:0.3s;
+  z-index:10;
+}
+
+.sidebar.active{
+  left:0;
+}
+
+.sidebar h3{
+  margin-bottom:15px;
+  color:var(--laranja);
+}
+
+.sidebar a{
+  display:block;
+  margin-bottom:12px;
+  color:var(--texto);
+  text-decoration:none;
+  font-weight:500;
+}
+
+/* LISTA */
+.lista{
+  padding:15px;
+}
+
+.card{
+  background:#fff;
+  border-radius:14px;
+  padding:15px;
+  margin-bottom:12px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.08);
+}
+
+.card h4{
+  font-size:1.1em;
+}
+
+.preco{
+  color:var(--laranja);
+  font-weight:700;
+  margin-top:5px;
+}
+
+.comercio{
+  font-size:0.9em;
+  color:#666;
+}
+
+.endereco{
+  font-size:0.85em;
+  color:#999;
+}
+
+.btn{
+  margin-top:10px;
+  width:100%;
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  background:var(--laranja);
+  color:#fff;
+  font-weight:600;
+}
+</style>
+</head>
+
+<body>
+
+<!-- MENU -->
+<div class="sidebar" id="sidebar">
+  <h3>🍔 Categorias</h3>
+  <a href="#">Hambúrguer</a>
+  <a href="#">Pastel</a>
+  <a href="#">Pizza</a>
+  <a href="#">Lanches</a>
+</div>
+
+<!-- TOPO -->
+<div class="header">
+  <div class="menu-btn" onclick="toggleMenu()">☰</div>
+  <input type="text" placeholder="Buscar comida...">
+</div>
+
+<!-- LISTA DE PRODUTOS -->
+<div class="lista">
+
+  <div class="card">
+    <h4>X-Burger</h4>
+    <div class="preco">R$ 16,00</div>
+    <div class="comercio">Lanchonete do Zé</div>
+    <div class="endereco">Centro • Colina</div>
+    <button class="btn">Pedir</button>
+  </div>
+
+  <div class="card">
+    <h4>X-Salada</h4>
+    <div class="preco">R$ 18,00</div>
+    <div class="comercio">Burger House</div>
+    <div class="endereco">Bairro São José</div>
+    <button class="btn">Pedir</button>
+  </div>
+
+</div>
+
+<script>
+function toggleMenu(){
+  document.getElementById("sidebar").classList.toggle("active");
+}
+</script>
+
+</body>
+</html>
