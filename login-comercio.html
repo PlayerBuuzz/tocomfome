@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Tôcomfome 🍔 | Login Comércio</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+:root{
+  --laranja:#ff8c1a;
+  --laranja-escuro:#e67300;
+  --branco:#ffffff;
+  --cinza:#f4f4f4;
+  --texto:#333;
+}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Segoe UI', Arial, sans-serif;
+}
+
+body{
+  background:var(--laranja);
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:flex-end;
+}
+
+.container{
+  background:var(--branco);
+  width:100%;
+  max-width:420px;
+  border-radius:20px 20px 0 0;
+  padding:20px 18px 25px;
+}
+
+.logo{
+  font-size:1.7em;
+  font-weight:700;
+  color:var(--laranja);
+  text-align:center;
+}
+
+.slogan{
+  font-size:0.9em;
+  color:#666;
+  margin-top:6px;
+  text-align:center;
+}
+
+.area{
+  margin:18px 0 12px;
+  font-size:0.85em;
+  font-weight:600;
+  color:#777;
+  text-transform:uppercase;
+  letter-spacing:0.5px;
+  text-align:center;
+}
+
+form{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+input{
+  padding:14px;
+  border-radius:12px;
+  border:1px solid #ddd;
+  font-size:0.95em;
+}
+
+input:focus{
+  outline:none;
+  border-color:var(--laranja);
+}
+
+button{
+  width:100%;
+  padding:14px;
+  margin-top:10px;
+  border:none;
+  border-radius:12px;
+  font-size:1em;
+  font-weight:600;
+  cursor:pointer;
+  background:var(--laranja);
+  color:#fff;
+}
+
+button:active{
+  transform:scale(0.97);
+}
+
+.link{
+  margin-top:14px;
+  text-align:center;
+  font-size:0.85em;
+}
+
+.link a{
+  color:var(--laranja);
+  text-decoration:none;
+  font-weight:600;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+  <div class="logo">🍔 Tôcomfome</div>
+  <div class="slogan">Login do Comércio</div>
+
+  <div class="area">Acesso ao painel</div>
+
+  <form id="formLogin">
+    <input id="email" type="email" placeholder="Email" required>
+    <input id="senha" type="password" placeholder="Senha" required>
+    <button type="submit">Entrar</button>
+  </form>
+
+  <div class="link">
+    Não tem cadastro?  
+    <a href="comercio.html">Cadastrar comércio</a>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD6a29L24aFSgVjmC7NFGXpdWW4g1uQsio",
+  authDomain: "tocomfome-754e1.firebaseapp.com",
+  projectId: "tocomfome-754e1",
+  storageBucket: "tocomfome-754e1.firebasestorage.app",
+  messagingSenderId: "997975886937",
+  appId: "1:997975886937:web:9bf408c35f1ed8aea13548"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+document.getElementById("formLogin").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const email = document.getElementById("email").value;
+  const senha = document.getElementById("senha").value;
+
+  try {
+    const cred = await signInWithEmailAndPassword(auth, email, senha);
+    const uid = cred.user.uid;
+
+    const userDoc = await getDoc(doc(db, "users", uid));
+
+    if (!userDoc.exists() || userDoc.data().tipo !== "comercio") {
+      alert("❌ Acesso permitido apenas para comércios");
+      return;
+    }
+
+    window.location.href = "painel-comercio.html";
+
+  } catch (err) {
+    alert("❌ Email ou senha inválidos");
+  }
+});
+</script>
+
+</body>
+</html>
