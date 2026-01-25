@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Tôcomfome 🍔 | Cadastro Comércio</title>
+<title>Tôcomfome 🍔 | Colina - SP</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -35,61 +35,49 @@ body{
   max-width:420px;
   border-radius:20px 20px 0 0;
   padding:20px 18px 25px;
+  text-align:center;
 }
 
 .logo{
-  font-size:1.7em;
+  font-size:1.9em;
   font-weight:700;
   color:var(--laranja);
-  text-align:center;
 }
 
 .slogan{
   font-size:0.9em;
   color:#666;
   margin-top:6px;
-  text-align:center;
 }
 
 .area{
-  margin:18px 0 12px;
+  margin-top:20px;
   font-size:0.85em;
   font-weight:600;
   color:#777;
   text-transform:uppercase;
   letter-spacing:0.5px;
-  text-align:center;
-}
-
-form{
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-}
-
-input, select{
-  padding:13px;
-  border-radius:12px;
-  border:1px solid #ddd;
-  font-size:0.95em;
-}
-
-input:focus, select:focus{
-  outline:none;
-  border-color:var(--laranja);
 }
 
 .btn{
   width:100%;
   padding:14px;
-  margin-top:14px;
+  margin-top:12px;
   border:none;
   border-radius:12px;
   font-size:1em;
   font-weight:600;
   cursor:pointer;
+}
+
+.btn-cliente{
   background:var(--laranja);
   color:#fff;
+}
+
+.btn-comercio{
+  background:var(--cinza);
+  color:var(--texto);
 }
 
 .btn:active{
@@ -101,31 +89,17 @@ input:focus, select:focus{
 <body>
   <div class="container">
     <div class="logo">🍔 Tôcomfome</div>
-    <div class="slogan">Cadastro de Comércio</div>
+    <div class="slogan">Deixa que a gente te ajuda a matar sua fome!</div>
 
-    <div class="area">Dados do estabelecimento</div>
+    <div class="area">Área de login / cadastro</div>
 
-    <form id="formComercio">
-      <input type="text" placeholder="Nome do comércio" required>
-      <input type="email" placeholder="Email" required>
-      <input type="password" placeholder="Senha" required>
-      <input type="tel" placeholder="WhatsApp / Telefone" required>
-      <input type="text" placeholder="CNPJ ou MEI" required>
-      <select required>
-        <option value="">Tipo de comércio</option>
-        <option>Hamburgueria</option>
-        <option>Pizzaria</option>
-        <option>Lanchonete</option>
-        <option>Pastelaria</option>
-        <option>Açaí / Sorveteria</option>
-      </select>
-      <input type="text" placeholder="Rua">
-      <input type="text" placeholder="Número">
-      <input type="text" placeholder="Bairro">
-      <input type="text" value="Colina - SP" disabled>
+    <button class="btn btn-cliente" onclick="location.href='cliente.html'">
+      Sou Cliente
+    </button>
 
-      <button class="btn" type="submit">Cadastrar comércio</button>
-    </form>
+    <button class="btn btn-comercio" onclick="location.href='comercio.html'">
+      Sou Comércio
+    </button>
   </div>
 </body>
 </html>
