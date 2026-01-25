@@ -18,7 +18,7 @@
   margin:0;
   padding:0;
   box-sizing:border-box;
-  font-family: 'Segoe UI', Arial, sans-serif;
+  font-family:'Segoe UI', Arial, sans-serif;
 }
 
 body{
@@ -79,7 +79,7 @@ input:focus, select:focus{
   border-color:var(--laranja);
 }
 
-.btn{
+button{
   width:100%;
   padding:14px;
   margin-top:14px;
@@ -92,40 +92,111 @@ input:focus, select:focus{
   color:#fff;
 }
 
-.btn:active{
+button:active{
   transform:scale(0.97);
 }
 </style>
 </head>
 
 <body>
-  <div class="container">
-    <div class="logo">🍔 Tôcomfome</div>
-    <div class="slogan">Cadastro de Comércio</div>
+<div class="container">
+  <div class="logo">🍔 Tôcomfome</div>
+  <div class="slogan">Cadastro de Comércio</div>
 
-    <div class="area">Dados do estabelecimento</div>
+  <div class="area">Dados do estabelecimento</div>
 
-    <form id="formComercio">
-      <input type="text" placeholder="Nome do comércio" required>
-      <input type="email" placeholder="Email" required>
-      <input type="password" placeholder="Senha" required>
-      <input type="tel" placeholder="WhatsApp / Telefone" required>
-      <input type="text" placeholder="CNPJ ou MEI" required>
-      <select required>
-        <option value="">Tipo de comércio</option>
-        <option>Hamburgueria</option>
-        <option>Pizzaria</option>
-        <option>Lanchonete</option>
-        <option>Pastelaria</option>
-        <option>Açaí / Sorveteria</option>
-      </select>
-      <input type="text" placeholder="Rua">
-      <input type="text" placeholder="Número">
-      <input type="text" placeholder="Bairro">
-      <input type="text" value="Colina - SP" disabled>
+  <form id="formComercio">
+    <input id="nome" type="text" placeholder="Nome do comércio" required>
+    <input id="email" type="email" placeholder="Email" required>
+    <input id="senha" type="password" placeholder="Senha" required>
+    <input id="telefone" type="tel" placeholder="WhatsApp / Telefone" required>
+    <input id="cnpj" type="text" placeholder="CNPJ ou MEI" required>
 
-      <button class="btn" type="submit">Cadastrar comércio</button>
-    </form>
-  </div>
+    <select id="tipoComercio" required>
+      <option value="">Tipo de comércio</option>
+      <option>Hamburgueria</option>
+      <option>Pizzaria</option>
+      <option>Lanchonete</option>
+      <option>Pastelaria</option>
+      <option>Açaí / Sorveteria</option>
+    </select>
+
+    <input id="rua" type="text" placeholder="Rua">
+    <input id="numero" type="text" placeholder="Número">
+    <input id="bairro" type="text" placeholder="Bairro">
+    <input type="text" value="Colina - SP" disabled>
+
+    <button type="submit">Cadastrar comércio</button>
+  </form>
+</div>
+
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD6a29L24aFSgVjmC7NFGXpdWW4g1uQsio",
+  authDomain: "tocomfome-754e1.firebaseapp.com",
+  projectId: "tocomfome-754e1",
+  storageBucket: "tocomfome-754e1.firebasestorage.app",
+  messagingSenderId: "997975886937",
+  appId: "1:997975886937:web:9bf408c35f1ed8aea13548"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const form = document.getElementById("formComercio");
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const nome = document.getElementById("nome").value;
+  const email = document.getElementById("email").value;
+  const senha = document.getElementById("senha").value;
+  const telefone = document.getElementById("telefone").value;
+  const cnpj = document.getElementById("cnpj").value;
+  const tipo = document.getElementById("tipoComercio").value;
+  const rua = document.getElementById("rua").value;
+  const numero = document.getElementById("numero").value;
+  const bairro = document.getElementById("bairro").value;
+
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, senha);
+    const uid = cred.user.uid;
+
+    await setDoc(doc(db, "users", uid), {
+      tipo: "comercio",
+      email,
+      criadoEm: serverTimestamp()
+    });
+
+    await setDoc(doc(db, "comercios", uid), {
+      nome,
+      telefone,
+      cnpj,
+      tipoComercio: tipo,
+      endereco: {
+        rua,
+        numero,
+        bairro,
+        cidade: "Colina - SP"
+      },
+      ativo: true,
+      criadoEm: serverTimestamp()
+    });
+
+    alert("✅ Comércio cadastrado com sucesso!");
+    // window.location.href = "painel-comercio.html";
+
+  } catch (error) {
+    alert("❌ Erro: " + error.message);
+  }
+});
+</script>
+
 </body>
 </html>
