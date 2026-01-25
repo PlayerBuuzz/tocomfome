@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cadastro de Comércio</title>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <style>
+    body{
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      background:#0f0f0f;
+      color:#fff;
+    }
+    .container{
+      padding:20px;
+      max-width:480px;
+      margin:auto;
+    }
+    h1{
+      text-align:center;
+      color:#00c853;
+    }
+    input, select{
+      width:100%;
+      padding:14px;
+      margin-top:10px;
+      border-radius:8px;
+      border:none;
+      outline:none;
+      font-size:16px;
+    }
+    button{
+      width:100%;
+      padding:16px;
+      margin-top:20px;
+      border:none;
+      border-radius:10px;
+      background:#00c853;
+      color:#000;
+      font-size:18px;
+      font-weight:bold;
+      cursor:pointer;
+    }
+    button:hover{opacity:.9}
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Cadastro do Comércio</h1>
+
+  <input id="nome" placeholder="Nome do comércio" />
+  <input id="email" placeholder="Email" type="email" />
+  <input id="senha" placeholder="Senha" type="password" />
+  <input id="telefone" placeholder="Telefone / WhatsApp" />
+  <input id="cnpj" placeholder="CNPJ ou MEI" />
+
+  <input id="rua" placeholder="Rua" />
+  <input id="numero" placeholder="Número" />
+  <input id="bairro" placeholder="Bairro" />
+  <input id="cidade" placeholder="Cidade" />
+
+  <select id="tipo">
+    <option value="">Tipo de comércio</option>
+    <option>Hamburgueria</option>
+    <option>Pizzaria</option>
+    <option>Lanchonete</option>
+    <option>Açaí</option>
+    <option>Outro</option>
+  </select>
+
+  <button onclick="cadastrar()">Cadastrar comércio</button>
+</div>
+
+<script>
+  // 🔥 CONFIG DO FIREBASE (COLE A SUA AQUI)
+  const firebaseConfig = {
+    apiKey: "",
+    authDomain: "",
+    projectId: "",
+    storageBucket: "",
+    messagingSenderId: "",
+    appId: ""
+  };
+
+  firebase.initializeApp(firebaseConfig);
+
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  function cadastrar(){
+    const nome = nomeEl.value;
+    const email = emailEl.value;
+    const senha = senhaEl.value;
+    const telefone = telefoneEl.value;
+    const cnpj = cnpjEl.value;
+    const tipo = tipoEl.value;
+
+    if(!nome || !email || !senha){
+      alert('Preencha os campos obrigatórios');
+      return;
+    }
+
+    auth.createUserWithEmailAndPassword(email, senha)
+      .then(res => {
+        const uid = res.user.uid;
+
+        return db.collection('users').doc(uid).set({
+          tipo: 'comercio',
+          email,
+          criadoEm: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(() => {
+          return db.collection('comercios').doc(uid).set({
+            nome,
+            telefone,
+            cnpj,
+            tipoComercio: tipo,
+            endereco: {
+              rua: ruaEl.value,
+              numero: numeroEl.value,
+              bairro: bairroEl.value,
+              cidade: cidadeEl.value
+            },
+            ativo: true,
+            criadoEm: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        });
+      })
+      .then(() => {
+        alert('Comércio cadastrado com sucesso!');
+        window.location.href = 'index.html';
+      })
+      .catch(err => alert(err.message));
+  }
+
+  const nomeEl = document.getElementById('nome');
+  const emailEl = document.getElementById('email');
+  const senhaEl = document.getElementById('senha');
+  const telefoneEl = document.getElementById('telefone');
+  const cnpjEl = document.getElementById('cnpj');
+  const ruaEl = document.getElementById('rua');
+  const numeroEl = document.getElementById('numero');
+  const bairroEl = document.getElementById('bairro');
+  const cidadeEl = document.getElementById('cidade');
+  const tipoEl = document.getElementById('tipo');
+</script>
+
+</body>
+</html>
