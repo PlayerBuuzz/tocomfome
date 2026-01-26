@@ -112,14 +112,13 @@ window.finalizarPedido = async () =>{
   if(!user || !produtoSelecionado) return;
 
   await addDoc(collection(db, "pedidos"), {
-    comercioId: produtoSelecionado.comercioId,
+    comercioId: produtoSelecionado.comercioId || "",
     comercioNome: produtoSelecionado.comercio,
     clienteId: user.uid,
     clienteNome: clienteNome,
     produtoNome: produtoSelecionado.nome,
     valor: produtoSelecionado.valor,
     status: "novo",
-    notificar: true,
     criadoEm: serverTimestamp()
   });
 
