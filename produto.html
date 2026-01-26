@@ -37,7 +37,7 @@ body{
 
 <body>
 
-<div class="card" style="display:none" id="conteudo">
+<div class="card" id="conteudo" style="display:none">
   <h2 id="nome"></h2>
   <div class="preco" id="preco"></div>
   <p id="descricao"></p>
@@ -46,76 +46,56 @@ body{
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { 
-  getAuth, 
-  onAuthStateChanged 
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-import { 
-  getFirestore, 
-  doc, 
-  getDoc 
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-/* 🔥 CONFIG FIREBASE */
+/* 🔥 FIREBASE (MESMO DO INDEX) */
 const firebaseConfig = {
-  apiKey: "SUA_API_KEY",
-  authDomain: "SEU_DOMINIO",
-  projectId: "SEU_PROJECT_ID",
+  apiKey: "AIzaSyD6a29L24aFSgVjmC7NFGXpdWW4g1uQsio",
+  authDomain: "tocomfome-754e1.firebaseapp.com",
+  projectId: "tocomfome-754e1",
+  storageBucket: "tocomfome-754e1.firebasestorage.app",
+  messagingSenderId: "997975886937",
+  appId: "1:997975886937:web:9bf408c35f1ed8aea13548"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-let validado = false;
-
-/* 🔐 VERIFICA LOGIN + TIPO */
-onAuthStateChanged(auth, async (user) => {
-  if (!user && validado) {
+/* 🔐 VERIFICA LOGIN + CLIENTE */
+onAuthStateChanged(auth, async (user)=>{
+  if(!user){
     window.location.href = "cadastro.html";
     return;
   }
 
-  if (user) {
-    validado = true;
+  const snap = await getDoc(doc(db, "clientes", user.uid));
 
-    const ref = doc(db, "usuarios", user.uid);
-    const snap = await getDoc(ref);
-
-    if (!snap.exists()) {
-      window.location.href = "cadastro.html";
-      return;
-    }
-
-    const dados = snap.data();
-
-    // ❌ SE NÃO FOR CLIENTE
-    if (dados.tipo !== "cliente") {
-      alert("Apenas clientes podem acessar produtos.");
-      window.location.href = "index.html";
-      return;
-    }
-
-    // ✅ CLIENTE OK
-    carregarProduto();
+  if(!snap.exists()){
+    alert("Apenas clientes podem acessar produtos.");
+    window.location.href = "index.html";
+    return;
   }
+
+  carregarProduto();
 });
 
-/* ⏳ FALLBACK */
-setTimeout(() => {
-  if (!validado) {
-    window.location.href = "cadastro.html";
-  }
-}, 2500);
-
-/* 🍔 PRODUTO (EXEMPLO) */
+/* 🍔 CARREGA PRODUTO SELECIONADO */
 function carregarProduto(){
+  const produto = JSON.parse(localStorage.getItem("produtoSelecionado"));
+
+  if(!produto){
+    window.location.href = "index.html";
+    return;
+  }
+
   document.getElementById("conteudo").style.display = "block";
-  document.getElementById("nome").innerText = "X-Burger";
-  document.getElementById("preco").innerText = "R$ 16,00";
+  document.getElementById("nome").innerText = produto.nome;
+  document.getElementById("preco").innerText =
+    "R$ " + Number(produto.valor).toFixed(2);
   document.getElementById("descricao").innerText =
-    "Hambúrguer artesanal com queijo, carne suculenta e pão macio.";
+    produto.descricao || "Descrição não informada";
 }
 </script>
 
