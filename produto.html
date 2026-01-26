@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Tôcomfome 🍔 | Produto</title>
+<title>Tô com fome 🍔 | Produto</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -21,22 +21,43 @@ body{
   font-size:1.3em;
   font-weight:700;
 }
+.btn{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:12px;
+  background:#ff8c1a;
+  color:#fff;
+  font-size:1em;
+  font-weight:600;
+  cursor:pointer;
+}
 </style>
 </head>
 
 <body>
 
-<div class="card">
+<div class="card" style="display:none" id="conteudo">
   <h2 id="nome"></h2>
   <div class="preco" id="preco"></div>
   <p id="descricao"></p>
-  <button style="margin-top:12px" class="btn">Finalizar Pedido</button>
+  <button class="btn">Finalizar Pedido</button>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { 
+  getAuth, 
+  onAuthStateChanged 
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
+import { 
+  getFirestore, 
+  doc, 
+  getDoc 
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+/* 🔥 CONFIG FIREBASE */
 const firebaseConfig = {
   apiKey: "SUA_API_KEY",
   authDomain: "SEU_DOMINIO",
@@ -45,18 +66,57 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
 
-// segurança
-onAuthStateChanged(auth, (user)=>{
-  if(!user){
+let validado = false;
+
+/* 🔐 VERIFICA LOGIN + TIPO */
+onAuthStateChanged(auth, async (user) => {
+  if (!user && validado) {
     window.location.href = "cadastro.html";
+    return;
+  }
+
+  if (user) {
+    validado = true;
+
+    const ref = doc(db, "usuarios", user.uid);
+    const snap = await getDoc(ref);
+
+    if (!snap.exists()) {
+      window.location.href = "cadastro.html";
+      return;
+    }
+
+    const dados = snap.data();
+
+    // ❌ SE NÃO FOR CLIENTE
+    if (dados.tipo !== "cliente") {
+      alert("Apenas clientes podem acessar produtos.");
+      window.location.href = "index.html";
+      return;
+    }
+
+    // ✅ CLIENTE OK
+    carregarProduto();
   }
 });
 
-// exemplo (depois puxa do Firestore)
-document.getElementById("nome").innerText = "X-Burger";
-document.getElementById("preco").innerText = "R$ 16,00";
-document.getElementById("descricao").innerText = "Hambúrguer artesanal com queijo";
+/* ⏳ FALLBACK */
+setTimeout(() => {
+  if (!validado) {
+    window.location.href = "cadastro.html";
+  }
+}, 2500);
+
+/* 🍔 PRODUTO (EXEMPLO) */
+function carregarProduto(){
+  document.getElementById("conteudo").style.display = "block";
+  document.getElementById("nome").innerText = "X-Burger";
+  document.getElementById("preco").innerText = "R$ 16,00";
+  document.getElementById("descricao").innerText =
+    "Hambúrguer artesanal com queijo, carne suculenta e pão macio.";
+}
 </script>
 
 </body>
