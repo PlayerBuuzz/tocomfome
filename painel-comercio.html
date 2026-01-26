@@ -2,162 +2,38 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Tôcomfome 🍔 | Painel do Comércio</title>
+<title>Tôcomfome 🍔 | Painel</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-:root{
-  --laranja:#ff8c1a;
-  --branco:#ffffff;
-  --cinza:#f4f4f4;
-  --texto:#333;
-}
-
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:'Segoe UI', Arial, sans-serif;
-}
-
 body{
-  background:var(--laranja);
-  min-height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:flex-end;
-}
-
-.container{
-  background:var(--branco);
-  width:100%;
-  max-width:420px;
-  border-radius:20px 20px 0 0;
-  padding:20px 18px 25px;
-}
-
-.logo{
-  font-size:1.6em;
-  font-weight:700;
-  color:var(--laranja);
-  text-align:center;
-}
-
-.sub{
-  font-size:0.9em;
-  color:#666;
-  text-align:center;
-  margin-top:4px;
-}
-
-.box{
-  background:var(--cinza);
-  padding:12px;
-  border-radius:12px;
-  margin-top:14px;
-  font-size:0.85em;
-}
-
-.box strong{
-  display:block;
-  color:#000;
-}
-
-.area{
-  margin:18px 0 10px;
-  font-size:0.85em;
-  font-weight:600;
-  color:#777;
-  text-transform:uppercase;
-  text-align:center;
-}
-
-button{
-  width:100%;
-  padding:14px;
-  margin-top:12px;
-  border:none;
-  border-radius:12px;
-  font-size:1em;
-  font-weight:600;
-  cursor:pointer;
-  background:var(--laranja);
-  color:#fff;
-}
-
-button:active{
-  transform:scale(0.97);
-}
-
-form{
-  display:none;
-  margin-top:12px;
-  gap:10px;
-  flex-direction:column;
-}
-
-input, textarea{
-  padding:13px;
-  border-radius:12px;
-  border:1px solid #ddd;
-  font-size:0.95em;
-}
-
-textarea{
-  resize:none;
-  height:70px;
-}
-
-.produto{
-  background:#fff;
-  border:1px solid #eee;
-  border-radius:12px;
+  font-family:Arial;
+  background:#ff8c1a;
   padding:10px;
-  margin-top:10px;
 }
-
-.produto strong{
-  font-size:0.95em;
-}
-
-.preco{
-  color:var(--laranja);
-  font-weight:700;
-  margin-top:4px;
+.box{
+  background:#fff;
+  padding:16px;
+  border-radius:16px;
+  margin-bottom:12px;
 }
 </style>
 </head>
 
 <body>
-<div class="container">
 
-  <div class="logo">🍔 Tôcomfome</div>
-  <div class="sub" id="nomeComercio">Painel do Comércio</div>
-
-  <div class="box">
-    <strong id="endereco"></strong>
-    <span id="telefone"></span>
-  </div>
-
-  <div class="area">Produtos</div>
-
-  <button onclick="toggleForm()">➕ Adicionar produto</button>
-
-  <form id="formProduto">
-    <input id="nomeProduto" type="text" placeholder="Nome do produto" required>
-    <input id="valorProduto" type="number" step="0.01" placeholder="Valor (R$)" required>
-    <textarea id="descricaoProduto" placeholder="Descrição do produto"></textarea>
-    <button type="submit">Salvar produto</button>
-  </form>
-
-  <div id="listaProdutos"></div>
-
+<div class="box">
+  <h2>🍔 Painel do Comércio</h2>
+  <button onclick="ativarNotificacao()">🔔 Ativar notificações</button>
 </div>
+
+<div class="box" id="pedidos"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, doc, getDoc, collection, addDoc, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, query, where, onSnapshot, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyD6a29L24aFSgVjmC7NFGXpdWW4g1uQsio",
@@ -171,70 +47,62 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const messaging = getMessaging(app);
 
-const nomeComercio = document.getElementById("nomeComercio");
-const endereco = document.getElementById("endereco");
-const telefone = document.getElementById("telefone");
-const listaProdutos = document.getElementById("listaProdutos");
+const pedidosDiv = document.getElementById("pedidos");
 
-const form = document.getElementById("formProduto");
-
-onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    window.location.href = "login-comercio.html";
+window.ativarNotificacao = async function(){
+  const permission = await Notification.requestPermission();
+  if(permission !== "granted"){
+    alert("Permissão negada");
     return;
   }
 
-  const uid = user.uid;
-
-  const comercioSnap = await getDoc(doc(db, "comercios", uid));
-  if (!comercioSnap.exists()) return;
-
-  const c = comercioSnap.data();
-  nomeComercio.textContent = c.nome;
-  endereco.textContent = `${c.endereco.rua}, ${c.endereco.numero} - ${c.endereco.bairro}`;
-  telefone.textContent = `📞 ${c.telefone}`;
-
-  carregarProdutos(uid);
-});
-
-async function carregarProdutos(uid){
-  listaProdutos.innerHTML = "";
-  const produtosSnap = await getDocs(collection(db, "comercios", uid, "produtos"));
-
-  produtosSnap.forEach(docu => {
-    const p = docu.data();
-    listaProdutos.innerHTML += `
-      <div class="produto">
-        <strong>${p.nome}</strong>
-        <div class="preco">R$ ${p.valor}</div>
-        <div>${p.descricao || ""}</div>
-      </div>
-    `;
+  const token = await getToken(messaging, {
+    vapidKey: "BB3N1EQpjWRYNQQpB_Dwo1lCScMl03xYIq_WrJo_nxs5HcKbRrUze3ATLLlW9B0xV3Trm6Fm_NwAMvQeLcJBTgU"
   });
-}
-
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
 
   const user = auth.currentUser;
-  if (!user) return;
+  if(user){
+    await setDoc(doc(db, "tokens", user.uid), { token });
+    alert("Notificação ativada 🔔");
+  }
+};
 
-  await addDoc(collection(db, "comercios", user.uid, "produtos"), {
-    nome: nomeProduto.value,
-    valor: valorProduto.value,
-    descricao: descricaoProduto.value,
-    criadoEm: serverTimestamp()
+onAuthStateChanged(auth, (user) => {
+  if(!user) return;
+
+  const q = query(
+    collection(db, "pedidos"),
+    where("comercioId", "==", user.uid)
+  );
+
+  onSnapshot(q, (snapshot) => {
+    pedidosDiv.innerHTML = "<h3>📦 Pedidos</h3>";
+
+    snapshot.forEach(docu => {
+      const p = docu.data();
+
+      pedidosDiv.innerHTML += `
+        <div style="border-bottom:1px solid #ddd;padding:8px 0">
+          <strong>${p.nome}</strong><br>
+          ${p.itens}<br>
+          📞 ${p.telefone}
+        </div>
+      `;
+
+      new Notification("🍔 Novo pedido!", {
+        body: `${p.nome} fez um pedido`
+      });
+    });
   });
-
-  form.reset();
-  form.style.display = "none";
-  carregarProdutos(user.uid);
 });
 
-window.toggleForm = function(){
-  form.style.display = form.style.display === "flex" ? "none" : "flex";
-}
+onMessage(messaging, (payload) => {
+  new Notification(payload.notification.title, {
+    body: payload.notification.body
+  });
+});
 </script>
 
 </body>
