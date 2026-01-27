@@ -160,7 +160,7 @@ textarea{
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { 
-  getFirestore, doc, getDoc, collection, addDoc, getDocs, serverTimestamp,
+  getFirestore, doc, getDoc, collection, addDoc, getDocs, setDoc, serverTimestamp,
   onSnapshot, query, where
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { 
@@ -197,10 +197,10 @@ async function registrarNotificacao(uid){
   const permission = await Notification.requestPermission();
   if (permission !== "granted") return;
 
-const token = await getToken(messaging, {
-  vapidKey: "BB3NEQpjWYRNQGpB_Dwo1ICScMI03xYlq_WrJo_nxs5HcKbRrUze3ATLLIW9B0xV3Trm6Fm_NwAMvQeLcJBTgU",
-  serviceWorkerRegistration: sw
-});
+  const token = await getToken(messaging, {
+    vapidKey: "BB3NEQpjWYRNQGpB_Dwo1ICScMI03xYlq_WrJo_nxs5HcKbRrUze3ATLLIW9B0xV3Trm6Fm_NwAMvQeLcJBTgU",
+    serviceWorkerRegistration: sw
+  });
 
   if (token){
     await setDoc(
@@ -308,4 +308,3 @@ window.toggleForm = function(){
 
 </body>
 </html>
-
