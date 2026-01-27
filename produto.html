@@ -111,6 +111,7 @@ window.finalizarPedido = async () =>{
   const user = auth.currentUser;
   if(!user || !produtoSelecionado) return;
 
+  // Salva na coleção geral de pedidos
   await addDoc(collection(db, "pedidos"), {
     comercioId: produtoSelecionado.comercioId || "",
     comercioNome: produtoSelecionado.comercio,
@@ -121,6 +122,18 @@ window.finalizarPedido = async () =>{
     status: "novo",
     criadoEm: serverTimestamp()
   });
+
+  // 🔥 Também salva dentro do comércio
+  if(produtoSelecionado.comercioId){
+    await addDoc(collection(db, "comercios", produtoSelecionado.comercioId, "pedidos"), {
+      clienteId: user.uid,
+      clienteNome: clienteNome,
+      produtoNome: produtoSelecionado.nome,
+      valor: produtoSelecionado.valor,
+      status: "novo",
+      criadoEm: serverTimestamp()
+    });
+  }
 
   alert("✅ Pedido enviado com sucesso!");
   window.location.href = "index.html";
