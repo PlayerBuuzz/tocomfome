@@ -93,7 +93,8 @@ onAuthStateChanged(auth, async (user)=>{
 function carregarProduto(){
   produtoSelecionado = JSON.parse(localStorage.getItem("produtoSelecionado"));
 
-  if(!produtoSelecionado){
+  if(!produtoSelecionado || !produtoSelecionado.comercioId){
+    alert("Produto inválido.");
     window.location.href = "index.html";
     return;
   }
@@ -112,12 +113,12 @@ window.finalizarPedido = async () =>{
   if(!user || !produtoSelecionado) return;
 
   await addDoc(collection(db, "pedidos"), {
-    comercioId: produtoSelecionado.comercioId || "",
+    comercioId: produtoSelecionado.comercioId,
     comercioNome: produtoSelecionado.comercio,
     clienteId: user.uid,
     clienteNome: clienteNome,
     produtoNome: produtoSelecionado.nome,
-    valor: produtoSelecionado.valor,
+    valor: Number(produtoSelecionado.valor),
     status: "novo",
     criadoEm: serverTimestamp()
   });
