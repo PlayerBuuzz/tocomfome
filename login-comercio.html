@@ -160,7 +160,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// 🔥 FIREBASE CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyD6a29L24aFSgVjmC7NFGXpdWW4g1uQsio",
   authDomain: "tocomfome-754e1.firebaseapp.com",
@@ -174,7 +173,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-/* 👁️ MOSTRAR / OCULTAR SENHA */
+/* 👁️ OLHO */
 const senhaInput = document.getElementById("senha");
 const btnOlho = document.getElementById("btnOlho");
 
@@ -192,7 +191,7 @@ btnOlho.addEventListener("click", () => {
 document.getElementById("formLogin").addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const email = emailInput = document.getElementById("email").value;
+  const email = document.getElementById("email").value; // ✅ CORRETO
   const senha = senhaInput.value;
 
   try {
