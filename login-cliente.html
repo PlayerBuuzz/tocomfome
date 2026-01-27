@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -70,13 +70,13 @@ input:focus{
   border-color:var(--laranja);
 }
 
-/* 👁️ SENHA */
+/* 👁️ OLHO DA SENHA */
 .senha-box{
   position:relative;
 }
 
 .senha-box input{
-  padding-right:46px;
+  padding-right:44px;
 }
 
 .olho{
@@ -163,14 +163,14 @@ const db = getFirestore(app);
 
 /* 👁️ MOSTRAR / OCULTAR SENHA */
 window.toggleSenha = ()=>{
-  const senha = document.getElementById("senha");
+  const senhaInput = document.getElementById("senha");
   const olho = document.querySelector(".olho");
 
-  if(senha.type === "password"){
-    senha.type = "text";
+  if(senhaInput.type === "password"){
+    senhaInput.type = "text";
     olho.textContent = "🙈";
   }else{
-    senha.type = "password";
+    senhaInput.type = "password";
     olho.textContent = "👁️";
   }
 };
@@ -178,8 +178,8 @@ window.toggleSenha = ()=>{
 document.getElementById("loginCliente").addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const email = email.value;
-  const senha = senha.value;
+  const email = document.getElementById("email").value;
+  const senha = document.getElementById("senha").value;
 
   try {
     const cred = await signInWithEmailAndPassword(auth, email, senha);
