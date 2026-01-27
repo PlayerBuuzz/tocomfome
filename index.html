@@ -6,115 +6,143 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-:root{
-  --laranja:#ff8c1a;
-  --cinza:#f5f5f5;
-  --texto:#333;
+:root {
+  --laranja: #ff8c1a;
+  --cinza: #f5f5f5;
+  --texto: #333;
 }
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:'Segoe UI',Arial
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Arial;
 }
-body{
-  background:var(--cinza)
+body {
+  background: var(--cinza);
+  padding-bottom: 60px; /* espaço para menu inferior */
 }
-.header{
-  background:var(--laranja);
-  color:#fff;
-  padding:14px;
-  display:flex;
-  align-items:center;
-  gap:10px;
+.header {
+  background: var(--laranja);
+  color: #fff;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
-.menu-btn{
-  font-size:1.4em;
-  cursor:pointer
+.menu-btn {
+  font-size: 1.4em;
+  cursor: pointer;
 }
-.header input{
-  flex:1;
-  padding:10px;
-  border:none;
-  border-radius:10px
+.header input {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
 }
-.usuario{
-  font-size:.85em;
-  font-weight:600;
-  white-space:nowrap;
+.usuario {
+  font-size: .85em;
+  font-weight: 600;
+  white-space: nowrap;
 }
-.sidebar{
-  position:fixed;
-  top:0;
-  left:-260px;
-  width:260px;
-  height:100%;
-  background:#fff;
-  box-shadow:2px 0 10px rgba(0,0,0,.2);
-  padding:20px;
-  transition:.3s;
-  z-index:10
+.endereco {
+  background: #fff;
+  padding: 10px 14px;
+  font-weight: 500;
+  color: var(--texto);
+  box-shadow: 0 2px 4px rgba(0,0,0,.05);
 }
-.sidebar.active{
-  left:0
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -260px;
+  width: 260px;
+  height: 100%;
+  background: #fff;
+  box-shadow: 2px 0 10px rgba(0,0,0,.2);
+  padding: 20px;
+  transition: .3s;
+  z-index: 10;
 }
-.sidebar h3{
-  color:var(--laranja);
-  margin-bottom:10px
+.sidebar.active {
+  left: 0;
 }
-.sidebar a{
-  display:block;
-  margin-bottom:10px;
-  color:var(--texto);
-  text-decoration:none;
-  font-weight:500;
-  padding:6px 0;
-  border-bottom:1px solid #eee;
+.sidebar h3 {
+  color: var(--laranja);
+  margin-bottom: 10px;
 }
-.lista{
-  padding:15px;
-  margin-top:10px
+.sidebar a {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--texto);
+  text-decoration: none;
+  font-weight: 500;
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
 }
-.card{
-  background:#fff;
-  border-radius:14px;
-  padding:15px;
-  margin-bottom:12px;
-  box-shadow:0 2px 8px rgba(0,0,0,.08);
-  display:flex;
-  gap:10px;
-  align-items:center;
+.lista {
+  padding: 15px;
+  margin-top: 10px;
 }
-.card img{
-  width:80px;
-  height:80px;
-  border-radius:12px;
-  object-fit:cover
+.card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 15px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+  display: flex;
+  gap: 10px;
+  align-items: center;
 }
-.card-info{
-  flex:1
+.card img {
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+  object-fit: cover;
 }
-.card-info h4{
-  margin-bottom:6px
+.card-info {
+  flex: 1;
 }
-.preco{
-  color:var(--laranja);
-  font-weight:700;
-  margin-bottom:6px
+.card-info h4 {
+  margin-bottom: 6px;
 }
-.btn{
-  margin-top:10px;
-  width:100%;
-  padding:10px;
-  border:none;
-  border-radius:10px;
-  background:var(--laranja);
-  color:#fff;
-  cursor:pointer;
+.preco {
+  color: var(--laranja);
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.btn {
+  margin-top: 10px;
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  background: var(--laranja);
+  color: #fff;
+  cursor: pointer;
+}
+.menu-inferior {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: #fff;
+  display: flex;
+  justify-content: space-around;
+  padding: 8px 0;
+  box-shadow: 0 -2px 6px rgba(0,0,0,.1);
+  font-size: 0.85em;
+  z-index: 20;
+}
+.menu-inferior div {
+  text-align: center;
+  color: var(--texto);
+  cursor: pointer;
+}
+.menu-inferior div:hover {
+  color: var(--laranja);
 }
 </style>
 </head>
-
 <body>
 
 <!-- MENU LATERAL -->
@@ -137,10 +165,23 @@ body{
   <div class="usuario" id="usuario">Carregando...</div>
 </div>
 
+<!-- ENDEREÇO -->
+<div class="endereco">
+  📍 Av. Quatro, 7
+</div>
+
 <!-- LISTA -->
 <div class="lista" id="listaProdutos"></div>
 
-<script type="module">
+<!-- MENU INFERIOR -->
+<div class="menu-inferior">
+  <div onclick="irInicio()">🏠<br>Início</div>
+  <div onclick="irBusca()">🔍<br>Busca</div>
+  <div onclick="irPedidos()">📦<br>Pedidos</div>
+  <div onclick="irPerfil()">👤<br>Perfil</div>
+</div>
+
+  <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { 
   getFirestore, 
@@ -224,7 +265,7 @@ async function carregarProdutos(){
         valor: p.valor,
         descricao: p.descricao || "",
         img: p.img || "https://via.placeholder.com/80",
-
+        categoria: p.categoria || "",   // agora suporta filtro por categoria
         comercioId: comercioDoc.id,
         comercio: comercio.nome,
         bairro: comercio.endereco?.bairro || "",
@@ -241,16 +282,22 @@ async function carregarProdutos(){
 window.filtrarBusca = () =>{
   const termo = buscaInput.value.toLowerCase();
   lista.innerHTML = "";
-  produtosCarregados
-    .filter(p => p.nome.toLowerCase().includes(termo))
-    .forEach(renderCard);
+  const filtrados = produtosCarregados.filter(p => p.nome.toLowerCase().includes(termo));
+  if(filtrados.length === 0){
+    lista.innerHTML = "<p>Nenhum produto encontrado.</p>";
+  } else {
+    filtrados.forEach(renderCard);
+  }
 }
 
 window.filtrarCategoria = (cat)=>{
   lista.innerHTML = "";
-  produtosCarregados
-    .filter(p => p.categoria === cat)
-    .forEach(renderCard);
+  const filtrados = produtosCarregados.filter(p => p.categoria === cat);
+  if(filtrados.length === 0){
+    lista.innerHTML = "<p>Nenhum produto nessa categoria.</p>";
+  } else {
+    filtrados.forEach(renderCard);
+  }
 }
 
 window.filtrarMaisProcurados = ()=>{
@@ -268,7 +315,8 @@ window.filtrarDescontos = ()=>{
 }
 
 /* PEDIR */
-window.pedir = (produto)=>{
+window.pedir = (id)=>{
+  const produto = produtosCarregados.find(p => p.id === id);
   localStorage.setItem("produtoSelecionado", JSON.stringify(produto));
   window.location.href = "produto.html";
 }
@@ -280,17 +328,28 @@ function renderCard(p){
       <img src="${p.img}">
       <div class="card-info">
         <h4>${p.nome}</h4>
-        <div class="preco">R$ ${Number(p.valor).toFixed(2)}</div>
+        <div class="preco">${Number(p.valor).toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}</div>
         <div>${p.comercio}</div>
         <div>${p.bairro} • ${p.cidade}</div>
-        <button class="btn" onclick='pedir(${JSON.stringify(p)})'>Pedir</button>
+        <button class="btn" onclick="pedir('${p.id}')">Pedir</button>
       </div>
     </div>
   `;
 }
 
+/* MENU INFERIOR */
+window.irInicio = () =>{
+  window.location.href = "index.html";
+}
+window.irBusca = () =>{
+  document.getElementById("buscaInput").focus();
+}
+window.irPedidos = () =>{
+  window.location.href = "pedidos.html";
+}
+
 carregarProdutos();
 </script>
-
 </body>
 </html>
+
