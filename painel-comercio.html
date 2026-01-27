@@ -197,10 +197,10 @@ async function registrarNotificacao(uid){
   const permission = await Notification.requestPermission();
   if (permission !== "granted") return;
 
-  const token = await getToken(messaging, {
-    vapidKey: "COLE_AQUI_SUA_VAPID_KEY",
-    serviceWorkerRegistration: sw
-  });
+const token = await getToken(messaging, {
+  vapidKey: "BB3NEQpjWYRNQGpB_Dwo1ICScMI03xYlq_WrJo_nxs5HcKbRrUze3ATLLIW9B0xV3Trm6Fm_NwAMvQeLcJBTgU",
+  serviceWorkerRegistration: sw
+});
 
   if (token){
     await setDoc(
