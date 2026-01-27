@@ -152,7 +152,6 @@ textarea{
 
   <div id="listaProdutos"></div>
 
-  <!-- 🔥 NOVA ÁREA DE PEDIDOS -->
   <div class="area">Pedidos</div>
   <div id="listaPedidos"></div>
 
@@ -170,8 +169,7 @@ const firebaseConfig = {
   projectId: "tocomfome-754e1",
   storageBucket: "tocomfome-754e1.firebasestorage.app",
   messagingSenderId: "997975886937",
-  appId: "1:997975886937:web:9bf408c35f1ed8aea13548",
-  measurementId: "G-PYJME2PXRD"
+  appId: "1:997975886937:web:9bf408c35f1ed8aea13548"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -184,10 +182,9 @@ const endereco = document.getElementById("endereco");
 const telefone = document.getElementById("telefone");
 const listaProdutos = document.getElementById("listaProdutos");
 const listaPedidos = document.getElementById("listaPedidos");
-
 const form = document.getElementById("formProduto");
 
-// Registrar o service worker para notificações
+// Registrar o service worker
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/firebase-messaging-sw.js')
     .then((registration) => {
@@ -217,20 +214,20 @@ onAuthStateChanged(auth, async (user) => {
   carregarProdutos(uid);
   carregarPedidos(uid);
 
-  // 🔥 Ativar notificações e salvar token FCM
+  // Ativar notificações e salvar token
   try {
     const permission = await Notification.requestPermission();
     if (permission === "granted") {
       const token = await getToken(messaging, { vapidKey: "SUA_VAPID_KEY" }); // substitua pela sua VAPID KEY
       if(token){
         await setDoc(doc(db, "comercios", uid), { fcmToken: token }, { merge: true });
-        console.log("Token FCM do comércio salvo:", token);
+        console.log("Token FCM salvo:", token);
       }
     } else {
       console.warn("Permissão de notificação negada");
     }
   } catch(err){
-    console.error("Erro ao obter token FCM:", err);
+    console.error("Erro ao ativar notificações:", err);
   }
 });
 
@@ -285,4 +282,10 @@ form.addEventListener("submit", async (e) => {
 });
 
 window.toggleForm = function(){
-  form.style.display =
+  form.style.display = form.style.display === "flex" ? "none" : "flex";
+}
+
+// Receber notificações em tempo real
+onMessage(messaging, (payload) => {
+  console.log("Mensagem recebida:", payload);
+  alert(`🔔 Notificação: ${payload.notification.title}\n${payload
