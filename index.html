@@ -336,6 +336,7 @@ async function carregarProdutos(){
 
       const produto = {
         id: prodDoc.id,
+        comercioId: comercioDoc.id, // 🔥 ESSENCIAL
         nome: p.nome,
         valor: p.valor,
         descricao: p.descricao || "",
