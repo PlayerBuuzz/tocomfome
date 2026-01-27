@@ -1,3 +1,15 @@
+Perfeito, Alessandro 🙌  
+Aqui está o **painel do comércio completo e corrigido**, já com:
+
+- Registro do **Service Worker** para ativar notificações.  
+- Pedido explícito de **permissão de notificação**.  
+- Salvamento do **token FCM** do comércio no Firestore.  
+- Função para **puxar os pedidos** corretamente da subcoleção `comercios/{uid}/pedidos`.  
+- Listener para receber notificações em **foreground**.  
+
+---
+
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -170,7 +182,8 @@ const firebaseConfig = {
   projectId: "tocomfome-754e1",
   storageBucket: "tocomfome-754e1.firebasestorage.app",
   messagingSenderId: "997975886937",
-  appId: "1:997975886937:web:9bf408c35f1ed8aea13548"
+  appId: "1:997975886937:web:9bf408c35f1ed8aea13548",
+  measurementId: "G-PYJME2PXRD"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -185,6 +198,17 @@ const listaProdutos = document.getElementById("listaProdutos");
 const listaPedidos = document.getElementById("listaPedidos");
 
 const form = document.getElementById("formProduto");
+
+// Registrar o service worker para notificações
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/firebase-messaging-sw.js')
+    .then((registration) => {
+      console.log("Service Worker registrado:", registration);
+    })
+    .catch((err) => {
+      console.error("Erro ao registrar Service Worker:", err);
+    });
+}
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
@@ -205,12 +229,17 @@ onAuthStateChanged(auth, async (user) => {
   carregarProdutos(uid);
   carregarPedidos(uid);
 
-  // 🔥 Registrar token FCM do comércio
+  // 🔥 Ativar notificações e salvar token FCM
   try {
-    const token = await getToken(messaging, { vapidKey: "SUA_VAPID_KEY" }); // substitua pela sua VAPID KEY
-    if(token){
-      await setDoc(doc(db, "comercios", uid), { fcmToken: token }, { merge: true });
-      console.log("Token FCM do comércio salvo:", token);
+    const permission = await Notification.requestPermission();
+    if (permission === "granted") {
+      const token = await getToken(messaging, { vapidKey: "SUA_VAPID_KEY" }); // substitua pela sua VAPID KEY
+      if(token){
+        await setDoc(doc(db, "comercios", uid), { fcmToken: token }, { merge: true });
+        console.log("Token FCM do comércio salvo:", token);
+      }
+    } else {
+      console.warn("Permissão de notificação negada");
     }
   } catch(err){
     console.error("Erro ao obter token FCM:", err);
@@ -268,15 +297,4 @@ form.addEventListener("submit", async (e) => {
 });
 
 window.toggleForm = function(){
-  form.style.display = form.style.display === "flex" ? "none" : "flex";
-}
-
-// 🔔 Receber notificações em tempo real no painel
-onMessage(messaging, (payload) => {
-  console.log("Mensagem recebida:", payload);
-  alert(`🔔 Notificação: ${payload.notification.title}\n${payload.notification.body}`);
-});
-</script>
-
-</body>
-</html>
+  form.style.display =
