@@ -12,14 +12,12 @@
   --cinza:#f4f4f4;
   --texto:#333;
 }
-
 *{
   margin:0;
   padding:0;
   box-sizing:border-box;
   font-family:'Segoe UI', Arial, sans-serif;
 }
-
 body{
   background:var(--laranja);
   min-height:100vh;
@@ -27,7 +25,6 @@ body{
   justify-content:center;
   align-items:flex-end;
 }
-
 .container{
   background:var(--branco);
   width:100%;
@@ -35,21 +32,18 @@ body{
   border-radius:20px 20px 0 0;
   padding:20px 18px 25px;
 }
-
 .logo{
   font-size:1.6em;
   font-weight:700;
   color:var(--laranja);
   text-align:center;
 }
-
 .sub{
   font-size:0.9em;
   color:#666;
   text-align:center;
   margin-top:4px;
 }
-
 .box{
   background:var(--cinza);
   padding:12px;
@@ -57,12 +51,10 @@ body{
   margin-top:14px;
   font-size:0.85em;
 }
-
 .box strong{
   display:block;
   color:#000;
 }
-
 .area{
   margin:18px 0 10px;
   font-size:0.85em;
@@ -71,7 +63,6 @@ body{
   text-transform:uppercase;
   text-align:center;
 }
-
 button{
   width:100%;
   padding:14px;
@@ -84,30 +75,23 @@ button{
   background:var(--laranja);
   color:#fff;
 }
-
-button:active{
-  transform:scale(0.97);
-}
-
+button:active{ transform:scale(0.97); }
 form{
   display:none;
   margin-top:12px;
   gap:10px;
   flex-direction:column;
 }
-
 input, textarea{
   padding:13px;
   border-radius:12px;
   border:1px solid #ddd;
   font-size:0.95em;
 }
-
 textarea{
   resize:none;
   height:70px;
 }
-
 .produto{
   background:#fff;
   border:1px solid #eee;
@@ -115,11 +99,7 @@ textarea{
   padding:10px;
   margin-top:10px;
 }
-
-.produto strong{
-  font-size:0.95em;
-}
-
+.produto strong{ font-size:0.95em; }
 .preco{
   color:var(--laranja);
   font-weight:700;
@@ -140,7 +120,6 @@ textarea{
   </div>
 
   <div class="area">Produtos</div>
-
   <button onclick="toggleForm()">➕ Adicionar produto</button>
 
   <form id="formProduto">
@@ -157,13 +136,17 @@ textarea{
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, doc, getDoc, collection, addDoc, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { 
+  getFirestore, doc, getDoc, collection, addDoc, getDocs, setDoc, serverTimestamp 
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { 
+  getMessaging, getToken 
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyD6a29L24aFSgVjmC7NFGXpdWW4g1uQsio",
   authDomain: "tocomfome-754e1.firebaseapp.com",
   projectId: "tocomfome-754e1",
-  storageBucket: "tocomfome-754e1.firebasestorage.app",
   messagingSenderId: "997975886937",
   appId: "1:997975886937:web:9bf408c35f1ed8aea13548"
 };
@@ -171,16 +154,38 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const messaging = getMessaging(app);
 
 const nomeComercio = document.getElementById("nomeComercio");
 const endereco = document.getElementById("endereco");
 const telefone = document.getElementById("telefone");
 const listaProdutos = document.getElementById("listaProdutos");
-
 const form = document.getElementById("formProduto");
 
+/* 🔔 REGISTRAR NOTIFICAÇÃO */
+async function registrarNotificacao(uid){
+  if (!("serviceWorker" in navigator)) return;
+
+  const sw = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
+
+  const permission = await Notification.requestPermission();
+  if (permission !== "granted") return;
+
+  const token = await getToken(messaging, {
+    vapidKey: "COLE_AQUI_SUA_VAPID_KEY",
+    serviceWorkerRegistration: sw
+  });
+
+  if (token){
+    await setDoc(
+      doc(db, "comercios", uid, "tokens", token),
+      { criadoEm: serverTimestamp() }
+    );
+  }
+}
+
 onAuthStateChanged(auth, async (user) => {
-  if (!user) {
+  if (!user){
     window.location.href = "login-comercio.html";
     return;
   }
@@ -195,13 +200,13 @@ onAuthStateChanged(auth, async (user) => {
   endereco.textContent = `${c.endereco.rua}, ${c.endereco.numero} - ${c.endereco.bairro}`;
   telefone.textContent = `📞 ${c.telefone}`;
 
+  registrarNotificacao(uid);
   carregarProdutos(uid);
 });
 
 async function carregarProdutos(uid){
   listaProdutos.innerHTML = "";
   const produtosSnap = await getDocs(collection(db, "comercios", uid, "produtos"));
-
   produtosSnap.forEach(docu => {
     const p = docu.data();
     listaProdutos.innerHTML += `
@@ -216,7 +221,6 @@ async function carregarProdutos(uid){
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
-
   const user = auth.currentUser;
   if (!user) return;
 
