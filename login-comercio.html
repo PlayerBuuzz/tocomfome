@@ -148,7 +148,7 @@ button:active{
   </form>
 
   <div class="link">
-    Não tem cadastro?
+    Não tem cadastro?  
     <a href="cadastro-comercio.html">Cadastrar comércio</a>
   </div>
 </div>
@@ -158,6 +158,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+// 🔥 CONFIG FIREBASE
 const firebaseConfig = {
   apiKey: "AIzaSyD6a29L24aFSgVjmC7NFGXpdWW4g1uQsio",
   authDomain: "tocomfome-754e1.firebaseapp.com",
@@ -203,6 +204,7 @@ document.getElementById("formLogin").addEventListener("submit", async (e) => {
     }
 
     window.location.href = "painel-comercio.html";
+
   } catch (err) {
     alert("❌ Email ou senha inválidos");
   }
