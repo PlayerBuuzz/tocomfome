@@ -108,7 +108,7 @@ textarea{
   height:70px;
 }
 
-.produto{
+.produto, .pedido{
   background:#fff;
   border:1px solid #eee;
   border-radius:12px;
@@ -116,7 +116,7 @@ textarea{
   margin-top:10px;
 }
 
-.produto strong{
+.produto strong, .pedido strong{
   font-size:0.95em;
 }
 
@@ -152,6 +152,10 @@ textarea{
 
   <div id="listaProdutos"></div>
 
+  <!-- 🔥 NOVA ÁREA DE PEDIDOS -->
+  <div class="area">Pedidos</div>
+  <div id="listaPedidos"></div>
+
 </div>
 
 <script type="module">
@@ -176,6 +180,7 @@ const nomeComercio = document.getElementById("nomeComercio");
 const endereco = document.getElementById("endereco");
 const telefone = document.getElementById("telefone");
 const listaProdutos = document.getElementById("listaProdutos");
+const listaPedidos = document.getElementById("listaPedidos");
 
 const form = document.getElementById("formProduto");
 
@@ -196,6 +201,7 @@ onAuthStateChanged(auth, async (user) => {
   telefone.textContent = `📞 ${c.telefone}`;
 
   carregarProdutos(uid);
+  carregarPedidos(uid); // 🔥 agora também carrega pedidos
 });
 
 async function carregarProdutos(uid){
@@ -209,6 +215,22 @@ async function carregarProdutos(uid){
         <strong>${p.nome}</strong>
         <div class="preco">R$ ${p.valor}</div>
         <div>${p.descricao || ""}</div>
+      </div>
+    `;
+  });
+}
+
+async function carregarPedidos(uid){
+  listaPedidos.innerHTML = "";
+  const pedidosSnap = await getDocs(collection(db, "comercios", uid, "pedidos"));
+
+  pedidosSnap.forEach(docu => {
+    const p = docu.data();
+    listaPedidos.innerHTML += `
+      <div class="pedido">
+        <strong>${p.clienteNome}</strong> pediu <em>${p.produtoNome}</em>
+        <div class="preco">R$ ${p.valor}</div>
+        <div>Status: ${p.status}</div>
       </div>
     `;
   });
