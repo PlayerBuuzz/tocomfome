@@ -291,4 +291,21 @@ form.addEventListener("submit", async (e) => {
 
   await addDoc(collection(db, "comercios", user.uid, "produtos"), {
     nome: nomeProduto.value,
-    valor: valor
+    valor: valorProduto.value,
+    descricao: descricaoProduto.value,
+    criadoEm: serverTimestamp()
+  });
+
+  form.reset();
+  form.style.display = "none";
+  carregarProdutos(user.uid);
+});
+
+window.toggleForm = function(){
+  form.style.display = form.style.display === "flex" ? "none" : "flex";
+}
+</script>
+
+</body>
+</html>
+
