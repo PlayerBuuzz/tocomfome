@@ -78,6 +78,20 @@ input:focus{
   border-color:var(--laranja);
 }
 
+.senha-box{
+  position:relative;
+}
+
+.senha-box span{
+  position:absolute;
+  right:14px;
+  top:50%;
+  transform:translateY(-50%);
+  cursor:pointer;
+  font-size:1.1em;
+  opacity:0.6;
+}
+
 button{
   width:100%;
   padding:14px;
@@ -118,7 +132,12 @@ button:active{
 
   <form id="formLogin">
     <input id="email" type="email" placeholder="Email" required>
-    <input id="senha" type="password" placeholder="Senha" required>
+
+    <div class="senha-box">
+      <input id="senha" type="password" placeholder="Senha" required>
+      <span onclick="toggleSenha()">👁️</span>
+    </div>
+
     <button type="submit">Entrar</button>
   </form>
 
@@ -127,6 +146,13 @@ button:active{
     <a href="cadastro-comercio.html">Cadastrar comércio</a>
   </div>
 </div>
+
+<script>
+function toggleSenha(){
+  const senha = document.getElementById("senha");
+  senha.type = senha.type === "password" ? "text" : "password";
+}
+</script>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -154,11 +180,9 @@ document.getElementById("formLogin").addEventListener("submit", async (e) => {
   const senha = document.getElementById("senha").value;
 
   try {
-    // Login Auth
     const cred = await signInWithEmailAndPassword(auth, email, senha);
     const uid = cred.user.uid;
 
-    // Verifica se é comércio
     const snap = await getDoc(doc(db, "comercios", uid));
     if (!snap.exists()) {
       alert("❌ Conta não é de comércio");
@@ -166,7 +190,6 @@ document.getElementById("formLogin").addEventListener("submit", async (e) => {
       return;
     }
 
-    // Redireciona para painel do comércio
     window.location.href = "painel-comercio.html";
 
   } catch (err) {
