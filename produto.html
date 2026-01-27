@@ -91,9 +91,18 @@ onAuthStateChanged(auth, async (user)=>{
 
 /* 🍔 CARREGAR PRODUTO */
 function carregarProduto(){
-  produtoSelecionado = JSON.parse(localStorage.getItem("produtoSelecionado"));
+  try{
+    produtoSelecionado = JSON.parse(localStorage.getItem("produtoSelecionado"));
+  }catch(e){
+    produtoSelecionado = null;
+  }
 
-  if(!produtoSelecionado || !produtoSelecionado.comercioId){
+  if(
+    !produtoSelecionado ||
+    !produtoSelecionado.nome ||
+    !produtoSelecionado.valor ||
+    !produtoSelecionado.comercioId
+  ){
     alert("Produto inválido.");
     window.location.href = "index.html";
     return;
@@ -114,7 +123,7 @@ window.finalizarPedido = async () =>{
 
   await addDoc(collection(db, "pedidos"), {
     comercioId: produtoSelecionado.comercioId,
-    comercioNome: produtoSelecionado.comercio,
+    comercioNome: produtoSelecionado.comercio || "",
     clienteId: user.uid,
     clienteNome: clienteNome,
     produtoNome: produtoSelecionado.nome,
@@ -122,6 +131,8 @@ window.finalizarPedido = async () =>{
     status: "novo",
     criadoEm: serverTimestamp()
   });
+
+  localStorage.removeItem("produtoSelecionado");
 
   alert("✅ Pedido enviado com sucesso!");
   window.location.href = "index.html";
