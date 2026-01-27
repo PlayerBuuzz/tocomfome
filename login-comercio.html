@@ -78,18 +78,24 @@ input:focus{
   border-color:var(--laranja);
 }
 
+/* 👁️ OLHO DA SENHA */
 .senha-box{
   position:relative;
 }
 
-.senha-box span{
+.senha-box input{
+  padding-right:44px;
+}
+
+.olho{
   position:absolute;
   right:14px;
   top:50%;
   transform:translateY(-50%);
+  font-size:1.2em;
   cursor:pointer;
-  font-size:1.1em;
-  opacity:0.6;
+  color:#999;
+  user-select:none;
 }
 
 button{
@@ -135,31 +141,23 @@ button:active{
 
     <div class="senha-box">
       <input id="senha" type="password" placeholder="Senha" required>
-      <span onclick="toggleSenha()">👁️</span>
+      <span class="olho" onclick="toggleSenha()">👁️</span>
     </div>
 
     <button type="submit">Entrar</button>
   </form>
 
   <div class="link">
-    Não tem cadastro?  
+    Não tem cadastro?
     <a href="cadastro-comercio.html">Cadastrar comércio</a>
   </div>
 </div>
-
-<script>
-function toggleSenha(){
-  const senha = document.getElementById("senha");
-  senha.type = senha.type === "password" ? "text" : "password";
-}
-</script>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// 🔥 CONFIG FIREBASE
 const firebaseConfig = {
   apiKey: "AIzaSyD6a29L24aFSgVjmC7NFGXpdWW4g1uQsio",
   authDomain: "tocomfome-754e1.firebaseapp.com",
@@ -172,6 +170,20 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+
+/* 👁️ MOSTRAR / OCULTAR SENHA */
+window.toggleSenha = ()=>{
+  const senhaInput = document.getElementById("senha");
+  const olho = document.querySelector(".olho");
+
+  if(senhaInput.type === "password"){
+    senhaInput.type = "text";
+    olho.textContent = "🙈";
+  }else{
+    senhaInput.type = "password";
+    olho.textContent = "👁️";
+  }
+};
 
 document.getElementById("formLogin").addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -191,7 +203,6 @@ document.getElementById("formLogin").addEventListener("submit", async (e) => {
     }
 
     window.location.href = "painel-comercio.html";
-
   } catch (err) {
     alert("❌ Email ou senha inválidos");
   }
