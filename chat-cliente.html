@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>💼 Atendimento ao Cliente | TôComFome</title>
+<title>Atendimento | TôComFome</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 :root{
@@ -15,18 +15,18 @@
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial,sans-serif;}
 body{display:flex;flex-direction:column;height:100vh;background:var(--cinza);color:var(--texto);}
 
-/* Cabeçalho */
+/* Cabeçalho refinado */
 .header{
   background:#fff;
-  padding:16px 24px;
+  padding:12px 20px;
   display:flex;
   justify-content:space-between;
   align-items:center;
-  box-shadow:0 2px 8px var(--sombra);
+  box-shadow:0 2px 6px var(--sombra);
   position:sticky;
   top:0;
   z-index:10;
-  border-bottom:3px solid var(--laranja);
+  border-bottom:2px solid var(--laranja);
 }
 .header .logo-area{
   display:flex;
@@ -34,33 +34,31 @@ body{display:flex;flex-direction:column;height:100vh;background:var(--cinza);col
   gap:10px;
 }
 .header .logo-icon{
-  width:32px;
-  height:32px;
+  width:28px;
+  height:28px;
   background:var(--laranja);
   border-radius:6px;
   display:flex;
   align-items:center;
   justify-content:center;
   color:#fff;
-  font-weight:700;
-  font-size:1.1em;
-  box-shadow:0 2px 4px var(--sombra);
+  font-weight:bold;
+  font-size:1em;
 }
 .header h3{
+  font-size:1.15em;
+  font-weight:600;
   color:var(--texto);
-  font-size:1.3em;
-  font-weight:700;
-  letter-spacing:.5px;
 }
 .encerrar{
   font-size:.85em;
   color:#c00;
   font-weight:600;
   cursor:pointer;
-  transition:.2s;
-  padding:8px 14px;
+  padding:6px 12px;
   border:1px solid #c00;
   border-radius:6px;
+  transition:.2s;
 }
 .encerrar:hover{background:#c00;color:#fff;}
 
@@ -116,7 +114,7 @@ body{display:flex;flex-direction:column;height:100vh;background:var(--cinza);col
   gap:10px;
   padding:14px;
   background:#fff;
-  box-shadow:0 -2px 8px var(--sombra);
+  box-shadow:0 -2px 6px var(--sombra);
   position:sticky;
   bottom:0;
   z-index:10;
@@ -146,7 +144,7 @@ body{display:flex;flex-direction:column;height:100vh;background:var(--cinza);col
 @media(max-width:480px){
   .msg{max-width:90%;font-size:.9em;}
   .footer input, .footer button{font-size:.9em;padding:10px;}
-  .header h3{font-size:1.2em;}
+  .header h3{font-size:1.05em;}
 }
 </style>
 </head>
@@ -155,8 +153,8 @@ body{display:flex;flex-direction:column;height:100vh;background:var(--cinza);col
 
 <div class="header">
   <div class="logo-area">
-    <div class="logo-icon">💼</div>
-    <h3>Atendimento ao Cliente | TôComFome</h3>
+    <div class="logo-icon">🍽️</div>
+    <h3>Atendimento</h3>
   </div>
   <div class="encerrar" onclick="encerrarChat()">Encerrar Chat</div>
 </div>
@@ -220,7 +218,7 @@ window.enviar = async ()=>{
   if(!input.value.trim()) return;
   await addDoc(collection(db,"chats",chatId,"mensagens"),{
     texto: input.value,
-    autor: "cliente",  // Cliente sempre laranja/direita
+    autor: "cliente",
     nome: "Você",
     criadoEm: serverTimestamp()
   });
