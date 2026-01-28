@@ -33,7 +33,7 @@ body{
   width:100%;
   max-width:420px;
   border-radius:20px 20px 0 0;
-  padding:20px 18px 25px;
+  padding:20px 18px 80px; /* espaço para menu inferior */
 }
 
 .logo{
@@ -125,6 +125,38 @@ textarea{
   font-weight:700;
   margin-top:4px;
 }
+
+/* Abas */
+.aba{
+  display:none;
+}
+.aba.ativa{
+  display:block;
+}
+
+/* Menu inferior */
+.menu-inferior{
+  position:fixed;
+  bottom:0;
+  left:0;
+  width:100%;
+  max-width:420px;
+  background:var(--branco);
+  border-top:1px solid #ddd;
+  display:flex;
+  justify-content:space-around;
+  padding:10px 0;
+}
+
+.menu-inferior button{
+  flex:1;
+  border:none;
+  background:none;
+  font-size:0.9em;
+  font-weight:600;
+  color:var(--laranja);
+  cursor:pointer;
+}
 </style>
 </head>
 
@@ -139,21 +171,62 @@ textarea{
     <span id="telefone"></span>
   </div>
 
-  <div class="area">Produtos</div>
-  <button onclick="toggleForm()">➕ Adicionar produto</button>
+  <!-- Abas -->
+  <div id="abaProdutos" class="aba ativa">
+    <div class="area">Produtos</div>
+    <button onclick="toggleForm()">➕ Adicionar produto</button>
+    <form id="formProduto">
+      <input id="nomeProduto" type="text" placeholder="Nome do produto" required>
+      <input id="valorProduto" type="number" step="0.01" placeholder="Valor (R$)" required>
+      <textarea id="descricaoProduto" placeholder="Descrição do produto"></textarea>
+      <button type="submit">Salvar produto</button>
+    </form>
+    <div id="listaProdutos"></div>
+  </div>
 
-  <form id="formProduto">
-    <input id="nomeProduto" type="text" placeholder="Nome do produto" required>
-    <input id="valorProduto" type="number" step="0.01" placeholder="Valor (R$)" required>
-    <textarea id="descricaoProduto" placeholder="Descrição do produto"></textarea>
-    <button type="submit">Salvar produto</button>
-  </form>
+  <div id="abaPedidos" class="aba">
+    <div class="area">Comanda de Pedidos</div>
+    <div id="listaPedidos"></div>
+  </div>
 
-  <div id="listaProdutos"></div>
+  <div id="abaCupons" class="aba">
+    <div class="area">Lançar Cupons</div>
+    <form id="formCupom" style="display:flex;flex-direction:column;gap:10px;">
+      <input id="codigoCupom" type="text" placeholder="Código do cupom" required>
+      <input id="descontoCupom" type="number" placeholder="Desconto (%)" required>
+      <button type="submit">Salvar cupom</button>
+    </form>
+    <div id="listaCupons"></div>
+  </div>
 
-  <div class="area">Pedidos</div>
-  <div id="listaPedidos"></div>
+  <div id="abaInfo" class="aba">
+    <div class="area">Alterar Informações</div>
+    <form id="formInfo" style="display:flex;flex-direction:column;gap:10px;">
+      <input id="novoNome" type="text" placeholder="Nome do comércio">
+      <input id="novoTelefone" type="text" placeholder="Telefone">
+      <textarea id="novoEndereco" placeholder="Endereço"></textarea>
+      <button type="submit">Salvar alterações</button>
+    </form>
+  </div>
 
+  <div id="abaChat" class="aba">
+    <div class="area">Chat com Cliente</div>
+    <div id="chatMensagens"></div>
+    <form id="formChat" style="display:flex;gap:10px;margin-top:10px;">
+      <input id="mensagemChat" type="text" placeholder="Digite sua mensagem">
+      <button type="submit">Enviar</button>
+    </form>
+  </div>
+
+</div>
+
+<!-- Menu inferior -->
+<div class="menu-inferior">
+  <button onclick="mostrarAba('abaProdutos')">Produtos</button>
+  <button onclick="mostrarAba('abaPedidos')">Pedidos</button>
+  <button onclick="mostrarAba('abaCupons')">Cupons</button>
+  <button onclick="mostrarAba('abaInfo')">Informações</button>
+  <button onclick="mostrarAba('abaChat')">Chat</button>
 </div>
 
 <script type="module">
@@ -163,15 +236,13 @@ import {
   getFirestore, doc, getDoc, collection, addDoc, getDocs, setDoc, serverTimestamp,
   onSnapshot, query, where
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { 
-  getMessaging, getToken, onMessage
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js";
+import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyD6a29L24aFSgVjmC7NFGXpdWW4g1uQsio",
   authDomain: "tocomfome-754e1.firebaseapp.com",
   projectId: "tocomfome-754e1",
-  storageBucket: "tocomfome-754e1.appspot.com", // ✅ corrigido
+  storageBucket: "tocomfome-754e1.appspot.com",
   messagingSenderId: "997975886937",
   appId: "1:997975886937:web:9bf408c35f1ed8aea13548"
 };
@@ -186,7 +257,24 @@ const endereco = document.getElementById("endereco");
 const telefone = document.getElementById("telefone");
 const listaProdutos = document.getElementById("listaProdutos");
 const listaPedidos = document.getElementById("listaPedidos");
-const form = document.getElementById("formProduto");
+const listaCupons = document.getElementById("listaCupons");
+const chatMensagens = document.getElementById("chatMensagens");
+const formProduto = document.getElementById("formProduto");
+const formCupom = document.getElementById("formCupom");
+const formInfo = document.getElementById("formInfo");
+const formChat = document.getElementById("formChat");
+
+/* Funções de abas */
+window.mostrarAba = function(id){
+  document.querySelectorAll('.aba').forEach(el => el.classList.remove('ativa'));
+  document.getElementById(id).classList.add('ativa');
+}
+
+/* Toggle form produto */
+window.toggleForm = function(){
+  formProduto.style.display = formProduto.style.display === "flex" ? "none"
+      : "flex";
+}
 
 /* 🔔 REGISTRAR NOTIFICAÇÃO */
 async function registrarNotificacao(uid){
@@ -227,7 +315,6 @@ function escutarPedidos(uid){
             <div>Status: ${pedido.status}</div>
           </div>
         `;
-        // Notificação em primeiro plano
         new Notification("🍔 Novo pedido recebido!", {
           body: `${pedido.clienteNome} pediu: ${pedido.produtoNome}`,
           icon: "/icon.png"
@@ -246,6 +333,7 @@ onMessage(messaging, (payload) => {
   });
 });
 
+/* 🔑 LOGIN E CARREGAMENTO */
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
     window.location.href = "login-comercio.html";
@@ -264,13 +352,15 @@ onAuthStateChanged(auth, async (user) => {
 
   registrarNotificacao(uid);
   carregarProdutos(uid);
-  escutarPedidos(uid); // ✅ escuta pedidos em tempo real
+  escutarPedidos(uid);
+  carregarCupons(uid);
+  escutarChat(uid);
 });
 
+/* Produtos */
 async function carregarProdutos(uid){
   listaProdutos.innerHTML = "";
   const produtosSnap = await getDocs(collection(db, "comercios", uid, "produtos"));
-
   produtosSnap.forEach(docu => {
     const p = docu.data();
     listaProdutos.innerHTML += `
@@ -283,9 +373,8 @@ async function carregarProdutos(uid){
   });
 }
 
-form.addEventListener("submit", async (e) => {
+formProduto.addEventListener("submit", async (e) => {
   e.preventDefault();
-
   const user = auth.currentUser;
   if (!user) return;
 
@@ -296,14 +385,82 @@ form.addEventListener("submit", async (e) => {
     criadoEm: serverTimestamp()
   });
 
-  form.reset();
-  form.style.display = "none";
+  formProduto.reset();
+  formProduto.style.display = "none";
   carregarProdutos(user.uid);
 });
 
-window.toggleForm = function(){
-  form.style.display = form.style.display === "flex" ? "none" : "flex";
+/* Cupons */
+async function carregarCupons(uid){
+  listaCupons.innerHTML = "";
+  const cuponsSnap = await getDocs(collection(db, "comercios", uid, "cupons"));
+  cuponsSnap.forEach(docu => {
+    const c = docu.data();
+    listaCupons.innerHTML += `
+      <div class="produto">
+        <strong>Cupom: ${c.codigo}</strong>
+        <div class="preco">Desconto: ${c.desconto}%</div>
+      </div>
+    `;
+  });
 }
+
+formCupom.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const user = auth.currentUser;
+  if (!user) return;
+
+  await addDoc(collection(db, "comercios", user.uid, "cupons"), {
+    codigo: codigoCupom.value,
+    desconto: descontoCupom.value,
+    criadoEm: serverTimestamp()
+  });
+
+  formCupom.reset();
+  carregarCupons(user.uid);
+});
+
+/* Informações */
+formInfo.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const user = auth.currentUser;
+  if (!user) return;
+
+  const comercioRef = doc(db, "comercios", user.uid);
+  await setDoc(comercioRef, {
+    nome: novoNome.value || nomeComercio.textContent,
+    telefone: novoTelefone.value || telefone.textContent,
+    endereco: { rua: novoEndereco.value || endereco.textContent }
+  }, { merge:true });
+
+  alert("Informações atualizadas!");
+});
+
+/* Chat */
+function escutarChat(uid){
+  const chatRef = collection(db, "comercios", uid, "chat");
+  onSnapshot(chatRef, (snapshot) => {
+    chatMensagens.innerHTML = "";
+    snapshot.forEach(docu => {
+      const msg = docu.data();
+      chatMensagens.innerHTML += `<div><strong>${msg.de || "Cliente"}:</strong> ${msg.texto}</div>`;
+    });
+  });
+}
+
+formChat.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const user = auth.currentUser;
+  if (!user) return;
+
+  await addDoc(collection(db, "comercios", user.uid, "chat"), {
+    de: "Comércio",
+    texto: mensagemChat.value,
+    criadoEm: serverTimestamp()
+  });
+
+  formChat.reset();
+});
 </script>
 
 </body>
