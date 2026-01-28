@@ -2,16 +2,17 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Atendente • TôComFome</title>
+<title>💻 Atendente TôComFome</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 body{
-  font-family: Arial, sans-serif;
-  background:#f5f5f5;
+  font-family:'Segoe UI',Arial;
   display:flex;
   flex-direction:column;
   height:100vh;
+  margin:0;
+  background:#f5f5f5;
 }
 
 header{
@@ -70,6 +71,8 @@ footer{
 input{
   flex:1;
   padding:10px;
+  border-radius:8px;
+  border:1px solid #ddd;
 }
 
 button{
@@ -78,6 +81,7 @@ button{
   color:#fff;
   padding:10px 15px;
   cursor:pointer;
+  border-radius:8px;
 }
 </style>
 </head>
@@ -96,58 +100,76 @@ button{
   <button onclick="enviar()">Enviar</button>
 </footer>
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+  addDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-<script>
+/* FIREBASE */
 const firebaseConfig = {
-  apiKey: "SUA_API_KEY",
-  authDomain: "SEU_DOMINIO",
-  databaseURL: "SUA_DATABASE_URL",
-  projectId: "SEU_PROJECT_ID",
+  apiKey: "AIzaSyD6a29L24aFSgVjmC7NFGXpdWW4g1uQsio",
+  authDomain: "tocomfome-754e1.firebaseapp.com",
+  projectId: "tocomfome-754e1",
 };
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+const chatEl = document.getElementById("chat");
+const input = document.getElementById("msg");
 
-// 🔑 ID da conversa (pode vir por URL)
-const params = new URLSearchParams(window.location.search);
-const chatId = params.get("chat") || "chat_teste";
+// Para demo: pegar primeiro chat aberto
+let chatId = null;
 
-// Escutar mensagens
-db.ref("chats/"+chatId+"/messages").on("child_added", snap => {
-  const m = snap.val();
-  mostrarMensagem(m);
-});
-
-function mostrarMensagem(m){
-  const div = document.createElement("div");
-  div.className = "message " + (m.sender === "support" ? "support" : "user");
-
-  div.innerHTML = `
-    <strong>${m.name}</strong><br>
-    ${m.text}
-    <div class="meta">${new Date(m.timestamp).toLocaleString()}</div>
-  `;
-
-  document.getElementById("chat").appendChild(div);
-  document.getElementById("chat").scrollTop = chat.scrollHeight;
+async function init(){
+  const q = query(collection(db,"chats"));
+  onSnapshot(q,(snap)=>{
+    if(!chatId && snap.docs.length>0){
+      chatId = snap.docs[0].id; // pega o primeiro chat aberto
+      ouvirMensagens();
+    }
+  });
 }
 
-function enviar(){
-  const input = document.getElementById("msg");
-  if(!input.value.trim()) return;
+function ouvirMensagens(){
+  const q = query(collection(db,"chats",chatId,"mensagens"), orderBy("criadoEm"));
+  onSnapshot(q,(snap)=>{
+    chatEl.innerHTML = "";
+    snap.forEach(docu=>{
+      const m = docu.data();
+      const div = document.createElement("div");
+      div.className = `message ${m.autor === "cliente" ? "user" : "support"}`;
+      div.innerHTML = `
+        <strong>${m.nome}</strong><br>
+        ${m.texto}
+        <div class="meta">${m.criadoEm?.toDate().toLocaleString("pt-BR")}</div>
+      `;
+      chatEl.appendChild(div);
+    });
+    chatEl.scrollTop = chatEl.scrollHeight;
+  });
+}
 
-  db.ref("chats/"+chatId+"/messages").push({
-    sender: "support",
-    name: "Suporte TôComFome",
-    text: input.value,
-    timestamp: Date.now()
+window.enviar = async ()=>{
+  if(!input.value.trim() || !chatId) return;
+
+  await addDoc(collection(db,"chats",chatId,"mensagens"),{
+    texto: input.value,
+    autor:"suporte",
+    nome:"Suporte TôComFome",
+    criadoEm: serverTimestamp()
   });
 
   input.value = "";
 }
+
+init();
 </script>
 
 </body>
