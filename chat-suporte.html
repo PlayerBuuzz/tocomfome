@@ -2,18 +2,19 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>💬 Suporte Tôcomfome</title>
+<title>💻 Atendente TôComFome</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 :root{
   --laranja:#ff8c1a;
   --cinza:#f1f1f1;
-  --cinza-escuro:#ddd;
   --texto:#333;
   --fundo:#f5f5f5;
   --sombra:rgba(0,0,0,.1);
 }
+
+/* RESET */
 *{
   margin:0;
   padding:0;
@@ -29,34 +30,81 @@ body{
   background:var(--fundo);
 }
 
-/* HEADER */
-.header{
-  background:#fff;
-  padding:14px 16px;
+/* LOGIN MODAL */
+#loginModal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.5);
   display:flex;
-  justify-content:space-between;
+  justify-content:center;
   align-items:center;
-  box-shadow:0 2px 8px var(--sombra);
-  position:sticky;
-  top:0;
   z-index:10;
 }
-.header h3{
-  color:var(--laranja);
-  font-size:1.2em;
+#loginBox{
+  background:#fff;
+  padding:24px;
+  border-radius:12px;
+  width:90%;
+  max-width:360px;
+  box-shadow:0 4px 12px var(--sombra);
+  display:flex;
+  flex-direction:column;
+  gap:12px;
 }
-.encerrar{
-  font-size:.9em;
-  color:#c00;
+#loginBox h2{
+  color:var(--laranja);
+  text-align:center;
+  margin-bottom:12px;
+}
+#loginBox input{
+  padding:12px;
+  border-radius:8px;
+  border:1px solid #ddd;
+  width:100%;
+  font-size:1em;
+}
+#loginBox button{
+  padding:12px;
+  border:none;
+  border-radius:8px;
+  background:var(--laranja);
+  color:#fff;
+  font-weight:600;
   cursor:pointer;
   transition:.2s;
 }
-.encerrar:hover{
-  color:#ff4d4d;
+#loginBox button:hover{
+  background:#e67600;
+}
+#errorMsg{
+  color:#c00;
+  font-size:.85em;
+  text-align:center;
+  display:none;
+}
+
+/* HEADER */
+header{
+  background:#fff;
+  padding:14px 16px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  box-shadow:0 2px 8px var(--sombra);
+  position:sticky;
+  top:0;
+  z-index:5;
+}
+header span{
+  font-size:2em;
+}
+header strong{
+  color:var(--laranja);
+  font-size:1.1em;
 }
 
 /* CHAT */
-.chat{
+#chat{
   flex:1;
   padding:16px;
   display:flex;
@@ -67,9 +115,9 @@ body{
   background:linear-gradient(to bottom,#fdfdfd,#f1f1f1);
 }
 
-/* BALÕES DE MENSAGEM */
+/* BALÕES */
 .msg{
-  max-width:80%;
+  max-width:75%;
   padding:12px 16px;
   border-radius:20px;
   font-size:.95em;
@@ -77,27 +125,22 @@ body{
   box-shadow:0 2px 6px var(--sombra);
   word-wrap: break-word;
 }
-.cliente{
+.user{
   align-self:flex-end;
   background:var(--laranja);
   color:#fff;
   border-bottom-right-radius:4px;
 }
-.suporte{
+.support{
   align-self:flex-start;
   background:#fff;
-  border:1px solid var(--cinza-escuro);
+  border:1px solid #ddd;
   color:var(--texto);
   border-bottom-left-radius:4px;
 }
 
-/* NOME E DATA */
-.nome{
-  font-size:.7em;
-  font-weight:600;
-  margin-bottom:4px;
-}
-.data{
+/* META */
+.meta{
   font-size:.65em;
   opacity:.6;
   margin-top:6px;
@@ -105,7 +148,7 @@ body{
 }
 
 /* INPUT FIXO */
-.footer{
+footer{
   display:flex;
   gap:8px;
   padding:10px;
@@ -113,19 +156,16 @@ body{
   box-shadow:0 -2px 10px var(--sombra);
   position:sticky;
   bottom:0;
-  z-index:10;
+  z-index:5;
 }
-.footer input{
+footer input{
   flex:1;
   padding:12px 14px;
   border-radius:22px;
-  border:1px solid var(--cinza-escuro);
+  border:1px solid #ddd;
   outline:none;
 }
-.footer input:focus{
-  border-color:var(--laranja);
-}
-.footer button{
+footer button{
   padding:12px 20px;
   border:none;
   border-radius:22px;
@@ -135,59 +175,57 @@ body{
   cursor:pointer;
   transition:.2s;
 }
-.footer button:hover{
+footer button:hover{
   background:#e67600;
 }
 
 /* RESPONSIVO */
 @media(max-width:480px){
-  .msg{
-    max-width:90%;
-    font-size:.9em;
-  }
-  .footer input, .footer button{
-    font-size:.9em;
-    padding:10px;
-  }
-  .header h3{
-    font-size:1em;
-  }
+  .msg{max-width:90%; font-size:.9em;}
+  footer input, footer button{font-size:.9em; padding:10px;}
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">
-  <h3>💬 Suporte Tôcomfome</h3>
-  <div class="encerrar" onclick="encerrarChat()">Encerrar</div>
+<!-- LOGIN -->
+<div id="loginModal">
+  <div id="loginBox">
+    <h2>💻 Login Suporte</h2>
+    <input id="loginUser" placeholder="Usuário">
+    <input id="loginPass" type="password" placeholder="Senha">
+    <button onclick="fazerLogin()">Entrar</button>
+    <div id="errorMsg">Usuário ou senha incorretos!</div>
+  </div>
 </div>
 
-<div class="chat" id="chat"></div>
+<header>
+  <span>💻</span>
+  <strong>Suporte TôComFome</strong>
+</header>
 
-<div class="footer">
-  <input id="msg" placeholder="Digite sua mensagem...">
+<div id="chat"></div>
+
+<footer>
+  <input type="text" id="msg" placeholder="Digite a resposta...">
   <button onclick="enviar()">Enviar</button>
-</div>
+</footer>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
   getFirestore,
   collection,
-  addDoc,
-  serverTimestamp,
   query,
+  where,
   orderBy,
   onSnapshot,
-  deleteDoc,
-  getDocs,
-  doc
+  addDoc,
+  serverTimestamp,
+  doc,
+  updateDoc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import {
-  getAuth,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 /* FIREBASE */
 const firebaseConfig = {
@@ -197,52 +235,53 @@ const firebaseConfig = {
 };
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const auth = getAuth(app);
 
 const chatEl = document.getElementById("chat");
 const input = document.getElementById("msg");
+let chatId = null;
 
-let chatId = localStorage.getItem("chatSuporteId");
-let userAtual = null;
+/* LOGIN LOCAL */
+window.fazerLogin = () => {
+  const user = document.getElementById("loginUser").value.trim();
+  const pass = document.getElementById("loginPass").value.trim();
+  const errorMsg = document.getElementById("errorMsg");
 
-/* LOGIN */
-onAuthStateChanged(auth, async (user)=>{
-  if(!user){
-    location.href = "login-cliente.html";
-    return;
+  if(user === "Ruan" && pass === "Ruan2026"){
+    document.getElementById("loginModal").style.display = "none";
+    initChat();
+  } else {
+    errorMsg.style.display = "block";
   }
-  userAtual = user;
+}
 
-  if(!chatId){
-    const chatRef = await addDoc(collection(db,"chats"),{
-      clienteId:user.uid,
-      status:"aberto",
-      criadoEm:serverTimestamp()
-    });
-    chatId = chatRef.id;
-    localStorage.setItem("chatSuporteId", chatId);
-  }
-
-  ouvirMensagens();
-});
+/* INIT CHAT: pegar o chat mais recente aberto */
+function initChat(){
+  const q = query(collection(db,"chats"), where("status","==","aberto"));
+  onSnapshot(q, async (snap)=>{
+    if(snap.docs.length > 0){
+      const chat = snap.docs[snap.docs.length - 1];
+      if(!chatId || chatId !== chat.id){
+        chatId = chat.id;
+        await updateDoc(doc(db,"chats",chatId), {status:"atendimento"});
+        ouvirMensagens();
+      }
+    }
+  });
+}
 
 /* OUVIR MENSAGENS */
 function ouvirMensagens(){
-  const q = query(
-    collection(db,"chats",chatId,"mensagens"),
-    orderBy("criadoEm")
-  );
-
-  onSnapshot(q,(snap)=>{
+  const q = query(collection(db,"chats",chatId,"mensagens"), orderBy("criadoEm"));
+  onSnapshot(q, (snap)=>{
     chatEl.innerHTML = "";
     snap.forEach(docu=>{
       const m = docu.data();
       const div = document.createElement("div");
-      div.className = `msg ${m.autor}`;
+      div.className = `msg ${m.autor === "cliente" ? "user" : "support"}`;
       div.innerHTML = `
-        <div class="nome">${m.nome}</div>
+        <strong>${m.nome}</strong><br>
         ${m.texto}
-        <div class="data">${m.criadoEm?.toDate().toLocaleString("pt-BR")}</div>
+        <div class="meta">${m.criadoEm?.toDate().toLocaleString("pt-BR")}</div>
       `;
       chatEl.appendChild(div);
     });
@@ -251,33 +290,18 @@ function ouvirMensagens(){
 }
 
 /* ENVIAR MENSAGEM */
-window.enviar = async ()=>{
-  if(!input.value.trim()) return;
+window.enviar = async () => {
+  if(!input.value.trim() || !chatId) return;
 
   await addDoc(collection(db,"chats",chatId,"mensagens"),{
-    texto:input.value,
-    autor:"cliente",
-    nome:"Você",
-    criadoEm:serverTimestamp()
+    texto: input.value,
+    autor: "suporte",
+    nome: "Suporte 💻",
+    criadoEm: serverTimestamp()
   });
 
   input.value = "";
-};
-
-/* ENCERRAR CONVERSA */
-window.encerrarChat = async ()=>{
-  if(!confirm("Encerrar a conversa?")) return;
-
-  const msgs = await getDocs(collection(db,"chats",chatId,"mensagens"));
-  for(const d of msgs.docs){
-    await deleteDoc(d.ref);
-  }
-  await deleteDoc(doc(db,"chats",chatId));
-  localStorage.removeItem("chatSuporteId");
-
-  alert("Conversa encerrada.");
-  history.back();
-};
+}
 </script>
 
 </body>
