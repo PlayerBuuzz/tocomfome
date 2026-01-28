@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Atendente • TôComFome</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  font-family: Arial, sans-serif;
+  background:#f5f5f5;
+  display:flex;
+  flex-direction:column;
+  height:100vh;
+}
+
+header{
+  background:#ff8c1a;
+  color:#fff;
+  padding:12px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+header img{
+  width:40px;
+  height:40px;
+  border-radius:50%;
+}
+
+#chat{
+  flex:1;
+  overflow-y:auto;
+  padding:10px;
+}
+
+.message{
+  max-width:70%;
+  padding:10px;
+  margin:8px 0;
+  border-radius:10px;
+}
+
+.user{
+  background:#ff8c1a;
+  color:#fff;
+  margin-left:auto;
+}
+
+.support{
+  background:#e0e0e0;
+  color:#333;
+  margin-right:auto;
+}
+
+.meta{
+  font-size:11px;
+  opacity:0.6;
+  margin-top:4px;
+}
+
+footer{
+  display:flex;
+  padding:10px;
+  background:#fff;
+  gap:5px;
+}
+
+input{
+  flex:1;
+  padding:10px;
+}
+
+button{
+  background:#ff8c1a;
+  border:none;
+  color:#fff;
+  padding:10px 15px;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <img src="img/suporte.png">
+  <strong>Suporte TôComFome</strong>
+</header>
+
+<div id="chat"></div>
+
+<footer>
+  <input type="text" id="msg" placeholder="Digite a resposta...">
+  <button onclick="enviar()">Enviar</button>
+</footer>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "SUA_API_KEY",
+  authDomain: "SEU_DOMINIO",
+  databaseURL: "SUA_DATABASE_URL",
+  projectId: "SEU_PROJECT_ID",
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// 🔑 ID da conversa (pode vir por URL)
+const params = new URLSearchParams(window.location.search);
+const chatId = params.get("chat") || "chat_teste";
+
+// Escutar mensagens
+db.ref("chats/"+chatId+"/messages").on("child_added", snap => {
+  const m = snap.val();
+  mostrarMensagem(m);
+});
+
+function mostrarMensagem(m){
+  const div = document.createElement("div");
+  div.className = "message " + (m.sender === "support" ? "support" : "user");
+
+  div.innerHTML = `
+    <strong>${m.name}</strong><br>
+    ${m.text}
+    <div class="meta">${new Date(m.timestamp).toLocaleString()}</div>
+  `;
+
+  document.getElementById("chat").appendChild(div);
+  document.getElementById("chat").scrollTop = chat.scrollHeight;
+}
+
+function enviar(){
+  const input = document.getElementById("msg");
+  if(!input.value.trim()) return;
+
+  db.ref("chats/"+chatId+"/messages").push({
+    sender: "support",
+    name: "Suporte TôComFome",
+    text: input.value,
+    timestamp: Date.now()
+  });
+
+  input.value = "";
+}
+</script>
+
+</body>
+</html>
