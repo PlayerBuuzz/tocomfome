@@ -2,57 +2,26 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>💻 Suporte TôComFome</title>
+<title>💻 Atendente TôComFome</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-:root{--laranja:#ff8c1a;--cinza:#f1f1f1;--texto:#333;--fundo:#f5f5f5;--sombra:rgba(0,0,0,.1);}
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial,sans-serif;}
-body{display:flex;flex-direction:column;height:100vh;background:var(--fundo);}
-#loginModal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;justify-content:center;align-items:center;z-index:10;}
-#loginBox{background:#fff;padding:24px;border-radius:12px;width:90%;max-width:360px;box-shadow:0 4px 12px var(--sombra);display:flex;flex-direction:column;gap:12px;}
-#loginBox h2{color:var(--laranja);text-align:center;margin-bottom:12px;}
-#loginBox input{padding:12px;border-radius:8px;border:1px solid #ddd;width:100%;font-size:1em;}
-#loginBox button{padding:12px;border:none;border-radius:8px;background:var(--laranja);color:#fff;font-weight:600;cursor:pointer;transition:.2s;}
-#loginBox button:hover{background:#e67600;}
-#errorMsg{color:#c00;font-size:.85em;text-align:center;display:none;}
-header{background:#fff;padding:14px 16px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 8px var(--sombra);position:sticky;top:0;z-index:5;}
-header span{font-size:2em;}
-header strong{color:var(--laranja);font-size:1.1em;}
-#chat{flex:1;padding:16px;display:flex;flex-direction:column;gap:12px;overflow-y:auto;scroll-behavior:smooth;background:linear-gradient(to bottom,#fdfdfd,#f1f1f1);}
-.msg{max-width:75%;padding:12px 16px;border-radius:20px;font-size:.95em;line-height:1.3;box-shadow:0 2px 6px var(--sombra);word-wrap: break-word;}
-.user{align-self:flex-end;background:var(--laranja);color:#fff;border-bottom-right-radius:4px;}
-.support{align-self:flex-start;background:#fff;border:1px solid #ddd;color:var(--texto);border-bottom-left-radius:4px;}
-.meta{font-size:.65em;opacity:.6;margin-top:6px;text-align:right;}
-footer{display:flex;gap:8px;padding:10px;background:#fff;box-shadow:0 -2px 10px var(--sombra);position:sticky;bottom:0;z-index:5;}
+body{display:flex;flex-direction:column;height:100vh;margin:0;font-family:Arial,sans-serif;background:#f5f5f5;}
+header{background:#fff;padding:14px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 8px rgba(0,0,0,.1);}
+.chat{flex:1;padding:16px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;background:linear-gradient(to bottom,#fdfdfd,#f1f1f1);}
+.msg{max-width:75%;padding:12px 16px;border-radius:20px;box-shadow:0 2px 6px rgba(0,0,0,.1);word-wrap:break-word;}
+.user{align-self:flex-end;background:#ff8c1a;color:#fff;border-bottom-right-radius:4px;}
+.support{align-self:flex-start;background:#fff;border:1px solid #ddd;color:#333;border-bottom-left-radius:4px;}
+.nome{font-size:.7em;font-weight:600;margin-bottom:4px;}
+.data{font-size:.65em;opacity:.6;margin-top:6px;text-align:right;}
+footer{display:flex;gap:8px;padding:10px;background:#fff;box-shadow:0 -2px 10px rgba(0,0,0,.1);}
 footer input{flex:1;padding:12px 14px;border-radius:22px;border:1px solid #ddd;outline:none;}
-footer button{padding:12px 20px;border:none;border-radius:22px;background:var(--laranja);color:#fff;font-weight:600;cursor:pointer;transition:.2s;}
-footer button:hover{background:#e67600;}
-#listaChats{background:#fff;border:1px solid #ddd;padding:10px;max-height:200px;overflow-y:auto;}
-#listaChats button{display:block;width:100%;margin-bottom:6px;padding:8px;border:none;background:var(--laranja);color:#fff;border-radius:6px;cursor:pointer;text-align:left;}
-#listaChats button:hover{background:#e67600;}
-@media(max-width:480px){.msg{max-width:90%;font-size:.9em;}footer input, footer button{font-size:.9em;padding:10px;}}
+footer button{padding:12px 20px;border:none;border-radius:22px;background:#ff8c1a;color:#fff;font-weight:600;cursor:pointer;}
 </style>
 </head>
 <body>
 
-<!-- LOGIN -->
-<div id="loginModal">
-  <div id="loginBox">
-    <h2>💻 Login Suporte</h2>
-    <input id="loginUser" placeholder="Usuário">
-    <input id="loginPass" type="password" placeholder="Senha">
-    <button onclick="fazerLogin()">Entrar</button>
-    <div id="errorMsg">Usuário ou senha incorretos!</div>
-  </div>
-</div>
-
-<header><span>💻</span><strong>Suporte TôComFome</strong></header>
-
-<!-- Lista de chats ativos -->
-<div id="listaChats"></div>
-
-<div id="chat"></div>
-
+<header><strong>💻 Suporte TôComFome</strong></header>
+<div class="chat" id="chat"></div>
 <footer>
   <input type="text" id="msg" placeholder="Digite a resposta...">
   <button onclick="enviar()">Enviar</button>
@@ -60,7 +29,7 @@ footer button:hover{background:#e67600;}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, query, where, orderBy, onSnapshot, addDoc, serverTimestamp, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, serverTimestamp, onSnapshot, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 /* FIREBASE */
 const firebaseConfig = {
@@ -73,61 +42,31 @@ const db = getFirestore(app);
 
 const chatEl = document.getElementById("chat");
 const input = document.getElementById("msg");
-const listaChatsEl = document.getElementById("listaChats");
 let chatId = null;
-let unsubscribeMensagens = null;
 
-/* LOGIN LOCAL */
-window.fazerLogin = () => {
-  const user = document.getElementById("loginUser").value.trim();
-  const pass = document.getElementById("loginPass").value.trim();
-  const errorMsg = document.getElementById("errorMsg");
-
-  if(user === "Ruan" && pass === "Ruan2026"){
-    document.getElementById("loginModal").style.display = "none";
-    carregarChatsAtivos();
+/* PEGAR ÚLTIMO CHAT */
+async function initChat(){
+  const chatsSnap = await getDocs(collection(db,"chats"));
+  if(!chatsSnap.empty){
+    chatId = chatsSnap.docs[chatsSnap.docs.length-1].id; // último chat
+    ouvirMensagens();
   } else {
-    errorMsg.style.display = "block";
+    alert("Nenhum chat disponível ainda!");
   }
 }
 
-/* CARREGAR CHATS ATIVOS */
-function carregarChatsAtivos(){
-  const q = query(collection(db,"chats"), where("status","!=","encerrado"), orderBy("criadoEm"));
-  onSnapshot(q, snap=>{
-    listaChatsEl.innerHTML = "";
-    snap.forEach(docu=>{
-      const chatData = docu.data();
-      const btn = document.createElement("button");
-      btn.textContent = `Cliente: ${chatData.clienteId} | Status: ${chatData.status}`;
-      btn.onclick = () => selecionarChat(docu.id);
-      listaChatsEl.appendChild(btn);
-    });
-  });
-}
+initChat();
 
-/* SELECIONAR CHAT */
-async function selecionarChat(id){
-  chatId = id;
-  // marcar como atendimento se ainda estiver aberto
-  const chatRef = doc(db,"chats",chatId);
-  const chatSnap = await chatRef.get();
-  if(chatSnap.exists && chatSnap.data().status === "aberto"){
-    await updateDoc(chatRef,{status:"atendimento"});
-  }
-
-  // cancelar listener antigo
-  if(unsubscribeMensagens) unsubscribeMensagens();
-
-  // ouvir mensagens deste chat
+/* OUVIR MENSAGENS */
+function ouvirMensagens(){
   const q = query(collection(db,"chats",chatId,"mensagens"), orderBy("criadoEm"));
-  unsubscribeMensagens = onSnapshot(q, snap=>{
+  onSnapshot(q, snap=>{
     chatEl.innerHTML = "";
     snap.forEach(docu=>{
       const m = docu.data();
       const div = document.createElement("div");
       div.className = `msg ${m.autor === "cliente" ? "user" : "support"}`;
-      div.innerHTML = `<strong>${m.nome}</strong><br>${m.texto}<div class="meta">${m.criadoEm?.toDate().toLocaleString("pt-BR")}</div>`;
+      div.innerHTML = `<div class="nome">${m.nome}</div>${m.texto}<div class="data">${m.criadoEm?.toDate().toLocaleString()}</div>`;
       chatEl.appendChild(div);
     });
     chatEl.scrollTop = chatEl.scrollHeight;
@@ -135,7 +74,7 @@ async function selecionarChat(id){
 }
 
 /* ENVIAR MENSAGEM */
-window.enviar = async () => {
+window.enviar = async ()=>{
   if(!input.value.trim() || !chatId) return;
   await addDoc(collection(db,"chats",chatId,"mensagens"),{
     texto: input.value,
