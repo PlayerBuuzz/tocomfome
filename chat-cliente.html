@@ -153,7 +153,7 @@ body{display:flex;flex-direction:column;height:100vh;background:var(--cinza);col
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, deleteDoc, getDocs, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 /* FIREBASE */
 const firebaseConfig = {
@@ -169,56 +169,58 @@ const chatEl = document.getElementById("chat");
 const input = document.getElementById("msg");
 
 let chatId = localStorage.getItem("chatSuporteId");
-/* Inicializa chat com fila e verificação de UID */
-async function initChat() {
-  const user = auth.currentUser;
-  if(!user){
-    alert("Você precisa estar logado para iniciar o atendimento.");
-    return;
-  }
 
-  const chatsSnap = await getDocs(collection(db,"chats"));
-  
-  // Verifica se já existe chat do usuário
-  const existente = chatsSnap.docs.find(d => d.data().uid === user.uid);
-  if(existente){
-    chatId = existente.id;
-    if(existente.data().status === "ativo"){
-      ouvirMensagens();
-    } else {
+/* Inicializa chat com fila e verificação de UID */
+function initChat() {
+  onAuthStateChanged(auth, async (user) => {
+    if(!user){
+      alert("Você precisa estar logado para iniciar o atendimento.");
+      return;
+    }
+
+    const chatsSnap = await getDocs(collection(db,"chats"));
+    
+    // Verifica se já existe chat do usuário
+    const existente = chatsSnap.docs.find(d => d.data().uid === user.uid);
+    if(existente){
+      chatId = existente.id;
+      if(existente.data().status === "ativo"){
+        ouvirMensagens();
+      } else {
+        chatEl.innerHTML = `<div class="msg suporte"><div class="nome">Sistema</div>
+          Você já está na fila. Sua posição é ${existente.data().posicao}.
+          <div class="data">${new Date().toLocaleString()}</div></div>`;
+      }
+      localStorage.setItem("chatSuporteId", chatId);
+      return;
+    }
+
+    // Se não existe, cria novo
+    const ativo = chatsSnap.docs.find(d => d.data().status === "ativo");
+    
+    if (ativo) {
+      const filaCount = chatsSnap.docs.filter(d => d.data().status === "fila").length;
+      const chatRef = await addDoc(collection(db,"chats"), { 
+        uid: user.uid,
+        criadoEm: serverTimestamp(),
+        status: "fila",
+        posicao: filaCount + 1
+      });
+      chatId = chatRef.id;
       chatEl.innerHTML = `<div class="msg suporte"><div class="nome">Sistema</div>
-        Você já está na fila. Sua posição é ${existente.data().posicao}.
+        Você está na fila de atendimento. Sua posição é ${filaCount + 1}.
         <div class="data">${new Date().toLocaleString()}</div></div>`;
+    } else {
+      const chatRef = await addDoc(collection(db,"chats"), { 
+        uid: user.uid,
+        criadoEm: serverTimestamp(),
+        status: "ativo"
+      });
+      chatId = chatRef.id;
+      ouvirMensagens();
     }
     localStorage.setItem("chatSuporteId", chatId);
-    return;
-  }
-
-  // Se não existe, cria novo
-  const ativo = chatsSnap.docs.find(d => d.data().status === "ativo");
-  
-  if (ativo) {
-    const filaCount = chatsSnap.docs.filter(d => d.data().status === "fila").length;
-    const chatRef = await addDoc(collection(db,"chats"), { 
-      uid: user.uid,
-      criadoEm: serverTimestamp(),
-      status: "fila",
-      posicao: filaCount + 1
-    });
-    chatId = chatRef.id;
-    chatEl.innerHTML = `<div class="msg suporte"><div class="nome">Sistema</div>
-      Você está na fila de atendimento. Sua posição é ${filaCount + 1}.
-      <div class="data">${new Date().toLocaleString()}</div></div>`;
-  } else {
-    const chatRef = await addDoc(collection(db,"chats"), { 
-      uid: user.uid,
-      criadoEm: serverTimestamp(),
-      status: "ativo"
-    });
-    chatId = chatRef.id;
-    ouvirMensagens();
-  }
-  localStorage.setItem("chatSuporteId", chatId);
+  });
 }
 
 /* Ouve mensagens em tempo real */
@@ -281,6 +283,7 @@ window.encerrarChat = async ()=>{
     alert("Conversa encerrada!");
   }
 };
+
 initChat();
 </script>
 
