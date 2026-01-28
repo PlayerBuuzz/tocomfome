@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>💻 Atendente TôComFome</title>
+<title>Atendimento | TôComFome</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 :root{
@@ -13,7 +13,7 @@
   --sombra:rgba(0,0,0,.1);
 }
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial,sans-serif;}
-body{display:flex;flex-direction:column;height:100vh;background:var(--cinza);}
+body{display:flex;flex-direction:column;height:100vh;background:var(--cinza);color:var(--texto);}
 
 /* LOGIN MODAL */
 #loginModal{
@@ -28,20 +28,43 @@ body{display:flex;flex-direction:column;height:100vh;background:var(--cinza);}
 #loginBox button:hover{background:#e67600;}
 #errorMsg{color:#c00; font-size:.85em; text-align:center; display:none;}
 
-/* HEADER */
+/* HEADER REFINADO */
 header{
   background:#fff;
-  padding:14px;
+  padding:12px 20px;
   display:flex;
   justify-content:space-between;
   align-items:center;
-  box-shadow:0 2px 8px var(--sombra);
+  box-shadow:0 2px 6px var(--sombra);
   position:sticky;
   top:0;
   z-index:5;
+  border-bottom:2px solid var(--laranja);
 }
-header h3{color:var(--laranja);}
+header .logo-area{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+header .logo-icon{
+  width:28px;
+  height:28px;
+  background:var(--laranja);
+  border-radius:6px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#fff;
+  font-weight:bold;
+  font-size:1em;
+}
+header h3{
+  font-size:1.15em;
+  font-weight:600;
+  color:var(--texto);
+}
 header button{
+  font-size:.85em;
   padding:6px 12px;
   background:#c00;
   color:#fff;
@@ -77,7 +100,7 @@ header button:hover{background:#ff4d4d;}
 
 /* FOOTER */
 footer{
-  display:flex; gap:8px; padding:10px; background:#fff; box-shadow:0 -2px 10px var(--sombra);
+  display:flex; gap:8px; padding:12px; background:#fff; box-shadow:0 -2px 6px var(--sombra);
 }
 footer input{
   flex:1; padding:12px 14px; border-radius:22px; border:1px solid var(--cinza-escuro); outline:none;
@@ -104,7 +127,10 @@ footer button:hover{background:#e67600;}
 </div>
 
 <header>
-  <h3>💻 Suporte TôComFome</h3>
+  <div class="logo-area">
+    <div class="logo-icon">💻</div>
+    <h3>Atendimento</h3>
+  </div>
   <button onclick="encerrarChat()">Encerrar Chat</button>
 </header>
 
