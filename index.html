@@ -243,7 +243,23 @@ body{
   <div onclick="irPedidos()">📦<br>Pedidos</div>
   <div onclick="irPerfil()">👤<br>Perfil</div>
 </div>
-
+  <!-- BALÃO DE CHAT -->
+<div id="chat-balao" style="
+  position:fixed;
+  bottom:80px;
+  right:20px;
+  background:#ff8c1a;
+  color:#fff;
+  padding:12px 16px;
+  border-radius:50px;
+  font-weight:600;
+  cursor:pointer;
+  box-shadow:0 4px 12px rgba(0,0,0,0.2);
+  z-index:1000;
+">
+  💬 Suporte
+</div>
+  
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -360,6 +376,24 @@ window.abrirComercio = (comercioId)=>{
 }
 
 carregarProdutos();
+  
+    }
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    
+    const auth = getAuth();
+    const chatBalao = document.getElementById("chat-balao");
+    
+    chatBalao.addEventListener("click", ()=>{
+      onAuthStateChanged(auth, (user)=>{
+        if(user){
+          // Usuário logado → vai para chat
+          window.location.href = "chat-suporte.html";
+        }else{
+          // Não logado → vai para login
+          window.location.href = "login-cliente.html";
+        }
+      });
+    });
 </script>
 </body>
 </html>
