@@ -20,7 +20,6 @@
 }
 body{
   background:var(--cinza);
-  padding-bottom:20px;
 }
 
 /* HEADER */
@@ -54,22 +53,21 @@ body{
   gap:12px;
 }
 
-.card img{
-  width:90px;
-  height:90px;
-  border-radius:14px;
-  object-fit:cover;
-}
-
 .card h4{
-  margin-bottom:4px;
   font-size:1em;
+  margin-bottom:4px;
 }
 
 .preco{
   color:var(--laranja);
   font-weight:700;
-  margin-bottom:2px;
+  margin-bottom:4px;
+}
+
+/* LOCAL */
+.local{
+  font-size:.8em;
+  color:#666;
 }
 
 /* TIMELINE */
@@ -157,7 +155,7 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-/* 🔥 FIREBASE */
+/* FIREBASE */
 const firebaseConfig = {
   apiKey: "AIzaSyD6a29L24aFSgVjmC7NFGXpdWW4g1uQsio",
   authDomain: "tocomfome-754e1.firebaseapp.com",
@@ -170,14 +168,14 @@ const auth = getAuth(app);
 
 const lista = document.getElementById("listaPedidos");
 
-/* STATUS */
-function statusClass(status){
-  return status || "aguardando";
-}
-
 /* TIMELINE */
 function ativo(status, etapa){
   return status === etapa ? "ativo" : "";
+}
+
+/* STATUS */
+function statusClass(status){
+  return status || "aguardando";
 }
 
 /* CARREGAR PEDIDOS */
@@ -207,20 +205,19 @@ async function carregarPedidos(uid){
       <div class="card">
 
         <div class="card-top">
-          <img src="${p.produto?.img || 'https://images.unsplash.com/photo-1550547660-d9450f859349'}">
           <div>
-            <h4>${p.produto?.nome || 'Produto'}</h4>
+            <h4>${p.produtoNome}</h4>
             <div class="preco">
-              ${Number(p.produto?.valor || 0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}
+              ${Number(p.valor).toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}
             </div>
-            <div style="font-size:.8em;color:#666">
-              ${p.comercio?.nome || ''}
+            <div class="local">
+              📍 Pedido em <strong>${p.comercioNome}</strong>
             </div>
           </div>
         </div>
 
         <div class="timeline">
-          <span class="${ativo(p.status,'aguardando')}">🕒</span>
+          <span class="${ativo(p.status,'novo')}">🕒</span>
           <span class="${ativo(p.status,'preparando')}">👨‍🍳</span>
           <span class="${ativo(p.status,'saiu')}">🛵</span>
           <span class="${ativo(p.status,'entregue')}">✅</span>
