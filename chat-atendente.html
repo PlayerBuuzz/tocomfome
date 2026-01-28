@@ -95,10 +95,8 @@ header{
   top:0;
   z-index:5;
 }
-header img{
-  width:40px;
-  height:40px;
-  border-radius:50%;
+header span{
+  font-size:2em;
 }
 header strong{
   color:var(--laranja);
@@ -194,7 +192,7 @@ footer button:hover{
 <!-- LOGIN -->
 <div id="loginModal">
   <div id="loginBox">
-    <h2>Login Suporte</h2>
+    <h2>💻 Login Suporte</h2>
     <input id="loginUser" placeholder="Usuário">
     <input id="loginPass" type="password" placeholder="Senha">
     <button onclick="fazerLogin()">Entrar</button>
@@ -203,7 +201,7 @@ footer button:hover{
 </div>
 
 <header>
-  <img src="img/suporte.png">
+  <span>💻</span>
   <strong>Suporte TôComFome</strong>
 </header>
 
@@ -239,13 +237,13 @@ const chatEl = document.getElementById("chat");
 const input = document.getElementById("msg");
 let chatId = null;
 
-/* LOGIN DEMO */
+/* LOGIN LOCAL */
 window.fazerLogin = ()=>{
   const user = document.getElementById("loginUser").value.trim();
   const pass = document.getElementById("loginPass").value.trim();
   const errorMsg = document.getElementById("errorMsg");
 
-  if((user==="Ruan" && pass==="Ruan2026") || (user==="Ruan2026" && pass==="Ruan2026")){
+  if(user==="Ruan" && pass==="Ruan2026"){
     document.getElementById("loginModal").style.display="none";
     initChat();
   }else{
@@ -255,7 +253,6 @@ window.fazerLogin = ()=>{
 
 /* INIT CHAT */
 async function initChat(){
-  // pega primeiro chat aberto
   const q = query(collection(db,"chats"));
   onSnapshot(q,(snap)=>{
     if(!chatId && snap.docs.length>0){
@@ -265,6 +262,7 @@ async function initChat(){
   });
 }
 
+/* OUVIR MENSAGENS */
 function ouvirMensagens(){
   const q = query(collection(db,"chats",chatId,"mensagens"), orderBy("criadoEm"));
   onSnapshot(q,(snap)=>{
@@ -284,13 +282,14 @@ function ouvirMensagens(){
   });
 }
 
+/* ENVIAR MENSAGEM */
 window.enviar = async ()=>{
   if(!input.value.trim() || !chatId) return;
 
   await addDoc(collection(db,"chats",chatId,"mensagens"),{
     texto: input.value,
     autor:"suporte",
-    nome:"Suporte TôComFome",
+    nome:"Suporte 💻",
     criadoEm: serverTimestamp()
   });
 
