@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>💻 Atendente TôComFome</title>
+<title>💻 Suporte TôComFome</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 :root{--laranja:#ff8c1a;--cinza:#f1f1f1;--texto:#333;--fundo:#f5f5f5;--sombra:rgba(0,0,0,.1);}
@@ -27,6 +27,9 @@ footer{display:flex;gap:8px;padding:10px;background:#fff;box-shadow:0 -2px 10px 
 footer input{flex:1;padding:12px 14px;border-radius:22px;border:1px solid #ddd;outline:none;}
 footer button{padding:12px 20px;border:none;border-radius:22px;background:var(--laranja);color:#fff;font-weight:600;cursor:pointer;transition:.2s;}
 footer button:hover{background:#e67600;}
+#listaChats{background:#fff;border:1px solid #ddd;padding:10px;max-height:200px;overflow-y:auto;}
+#listaChats button{display:block;width:100%;margin-bottom:6px;padding:8px;border:none;background:var(--laranja);color:#fff;border-radius:6px;cursor:pointer;text-align:left;}
+#listaChats button:hover{background:#e67600;}
 @media(max-width:480px){.msg{max-width:90%;font-size:.9em;}footer input, footer button{font-size:.9em;padding:10px;}}
 </style>
 </head>
@@ -44,6 +47,9 @@ footer button:hover{background:#e67600;}
 </div>
 
 <header><span>💻</span><strong>Suporte TôComFome</strong></header>
+
+<!-- Lista de chats ativos -->
+<div id="listaChats"></div>
 
 <div id="chat"></div>
 
@@ -67,7 +73,9 @@ const db = getFirestore(app);
 
 const chatEl = document.getElementById("chat");
 const input = document.getElementById("msg");
+const listaChatsEl = document.getElementById("listaChats");
 let chatId = null;
+let unsubscribeMensagens = null;
 
 /* LOGIN LOCAL */
 window.fazerLogin = () => {
@@ -77,32 +85,43 @@ window.fazerLogin = () => {
 
   if(user === "Ruan" && pass === "Ruan2026"){
     document.getElementById("loginModal").style.display = "none";
-    initChat();
+    carregarChatsAtivos();
   } else {
     errorMsg.style.display = "block";
   }
 }
 
-/* INIT CHAT: pegar qualquer chat aberto ou em atendimento */
-function initChat(){
-  const q = query(collection(db,"chats"), where("status","in",["aberto","atendimento"]));
-  onSnapshot(q, async (snap)=>{
-    if(snap.docs.length > 0){
-      const chat = snap.docs[0]; // pega o primeiro chat disponível
-      chatId = chat.id;
-      if(chat.data().status === "aberto"){
-        await updateDoc(doc(db,"chats",chatId), {status:"atendimento"});
-      }
-      ouvirMensagens();
-    }
+/* CARREGAR CHATS ATIVOS */
+function carregarChatsAtivos(){
+  const q = query(collection(db,"chats"), where("status","!=","encerrado"), orderBy("criadoEm"));
+  onSnapshot(q, snap=>{
+    listaChatsEl.innerHTML = "";
+    snap.forEach(docu=>{
+      const chatData = docu.data();
+      const btn = document.createElement("button");
+      btn.textContent = `Cliente: ${chatData.clienteId} | Status: ${chatData.status}`;
+      btn.onclick = () => selecionarChat(docu.id);
+      listaChatsEl.appendChild(btn);
+    });
   });
 }
 
-/* OUVIR MENSAGENS */
-function ouvirMensagens(){
-  if(!chatId) return;
+/* SELECIONAR CHAT */
+async function selecionarChat(id){
+  chatId = id;
+  // marcar como atendimento se ainda estiver aberto
+  const chatRef = doc(db,"chats",chatId);
+  const chatSnap = await chatRef.get();
+  if(chatSnap.exists && chatSnap.data().status === "aberto"){
+    await updateDoc(chatRef,{status:"atendimento"});
+  }
+
+  // cancelar listener antigo
+  if(unsubscribeMensagens) unsubscribeMensagens();
+
+  // ouvir mensagens deste chat
   const q = query(collection(db,"chats",chatId,"mensagens"), orderBy("criadoEm"));
-  onSnapshot(q, snap=>{
+  unsubscribeMensagens = onSnapshot(q, snap=>{
     chatEl.innerHTML = "";
     snap.forEach(docu=>{
       const m = docu.data();
