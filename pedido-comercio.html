@@ -81,10 +81,89 @@ body{background:var(--cinza);}
     <p class="status" id="status">Status: ...</p>
 
     <div class="botoes">
-      <button onclick="atualizarStatus('novo')">🕒 Novo</button>
-      <button onclick="atualizarStatus('preparando')">👨‍🍳 Preparando</button>
-      <button onclick="atualizarStatus('saiu')">🛵 Saiu</button>
-      <button onclick="atualizarStatus('entregue')">✅ Entregue</button>
+      <button id="btnNovo" onclick="atualizarStatus('novo')">🕒 Novo</button>
+      <button id="btnPreparando" onclick="atualizarStatus('preparando')">👨‍🍳 Preparando</button>
+      <button id="btnSaiu" onclick="atualizarStatus('saiu')">🛵 Saiu</button>
+      <button id="btnEntregue" onclick="atualizarStatus('entregue')">✅ Entregue</button>
     </div>
   </div>
 </div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, doc, getDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+/* Config Firebase */
+const firebaseConfig = {
+  apiKey: "AIzaSyD6a29L24aFSgVjmC7NFGXpdWW4g1uQsio",
+  authDomain: "tocomfome-754e1.firebaseapp.com",
+  projectId: "tocomfome-754e1",
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+/* Elementos */
+const produtoNome = document.getElementById("produtoNome");
+const clienteNome = document.getElementById("clienteNome");
+const valor = document.getElementById("valor");
+const statusEl = document.getElementById("status");
+
+/* Botões */
+const btns = {
+  novo: document.getElementById("btnNovo"),
+  preparando: document.getElementById("btnPreparando"),
+  saiu: document.getElementById("btnSaiu"),
+  entregue: document.getElementById("btnEntregue")
+};
+
+/* Recuperar pedido selecionado */
+const pedidoId = localStorage.getItem("pedidoSelecionado");
+
+/* Carregar pedido em tempo real */
+function carregarPedido(){
+  if(!pedidoId){
+    statusEl.textContent = "Pedido não encontrado";
+    return;
+  }
+  const pedidoRef = doc(db,"pedidos",pedidoId);
+
+  // Escuta em tempo real
+  onSnapshot(pedidoRef,(snap)=>{
+    if(snap.exists()){
+      const p = snap.data();
+      produtoNome.textContent = p.produtoNome;
+      clienteNome.textContent = "Cliente: " + p.clienteNome;
+      valor.textContent = "Valor: R$ " + p.valor;
+      statusEl.textContent = "Status: " + (p.status || "novo");
+
+      // Atualiza destaque do botão ativo
+      Object.keys(btns).forEach(k=>btns[k].classList.remove("ativo"));
+      if(p.status && btns[p.status]){
+        btns[p.status].classList.add("ativo");
+      }
+    }else{
+      statusEl.textContent = "Pedido não encontrado";
+    }
+  });
+}
+
+/* Atualizar status */
+window.atualizarStatus = async (novoStatus)=>{
+  if(!pedidoId) return;
+  const pedidoRef = doc(db,"pedidos",pedidoId);
+  await updateDoc(pedidoRef,{ status: novoStatus });
+}
+
+/* Autenticação */
+onAuthStateChanged(auth,(user)=>{
+  if(!user){
+    window.location.href = "login-comercio.html";
+    return;
+  }
+  carregarPedido();
+});
+</script>
+</body>
+</html>
