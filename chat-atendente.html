@@ -118,7 +118,7 @@ footer button:hover{background:#e67600;}
 <!-- LOGIN MODAL -->
 <div id="loginModal">
   <div id="loginBox">
-    <h2>💻 Login Atendente</h2>
+    <h2>👨‍💼 Login Atendente</h2>
     <input id="loginUser" placeholder="Usuário">
     <input id="loginPass" type="password" placeholder="Senha">
     <button onclick="fazerLogin()">Entrar</button>
@@ -204,7 +204,7 @@ window.enviar = async ()=>{
   await addDoc(collection(db,"chats",chatId,"mensagens"),{
     texto: input.value,
     autor: "support",
-    nome: "Suporte 💻",
+    nome: "Suporte 👨‍💼",
     criadoEm: serverTimestamp()
   });
   input.value = "";
