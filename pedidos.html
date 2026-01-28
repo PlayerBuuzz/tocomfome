@@ -148,7 +148,7 @@ import {
   collection,
   query,
   where,
-  getDocs
+  onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import {
   getAuth,
@@ -187,7 +187,7 @@ function carregarPedidos(uid){
     where("clienteId","==",uid)
   );
 
-  onSnapshot(q, (snap)=>{
+  onSnapshot(q,(snap)=>{
     lista.innerHTML = "";
 
     if(snap.empty){
@@ -240,57 +240,6 @@ function carregarPedidos(uid){
   });
 }
 
-  const snap = await getDocs(q);
-
-  if(snap.empty){
-    lista.innerHTML = `
-      <div class="vazio">
-        😕 Você ainda não fez nenhum pedido
-      </div>
-    `;
-    return;
-  }
-
-  snap.forEach(doc=>{
-    const p = doc.data();
-
-    lista.innerHTML += `
-      <div class="card">
-
-        <div class="card-top">
-          <div>
-            <h4>${p.produtoNome}</h4>
-            <div class="preco">
-              ${Number(p.valor).toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}
-            </div>
-            <div class="local">
-              📍 Pedido em <strong>${p.comercioNome}</strong>
-            </div>
-          </div>
-        </div>
-
-        <div class="timeline">
-          <span class="${ativo(p.status,'novo')}">🕒</span>
-          <span class="${ativo(p.status,'preparando')}">👨‍🍳</span>
-          <span class="${ativo(p.status,'saiu')}">🛵</span>
-          <span class="${ativo(p.status,'entregue')}">✅</span>
-        </div>
-
-        <div class="card-footer">
-          <div class="status ${statusClass(p.status)}">
-            ${p.status || "aguardando"}
-          </div>
-
-          <button class="btn-sec" onclick="repetirPedido('${doc.id}')">
-            🔁 Pedir novamente
-          </button>
-        </div>
-
-      </div>
-    `;
-  });
-}
-
 /* REPETIR PEDIDO */
 window.repetirPedido = (id)=>{
   alert("🔁 Pedido reenviado (simulação)");
@@ -305,6 +254,7 @@ onAuthStateChanged(auth,(user)=>{
   carregarPedidos(user.uid);
 });
 </script>
+
 
 </body>
 </html>
