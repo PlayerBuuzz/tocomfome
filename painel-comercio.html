@@ -33,7 +33,7 @@ body{
   width:100%;
   max-width:420px;
   border-radius:20px 20px 0 0;
-  padding:20px 18px 80px; /* espaço para menu inferior */
+  padding:20px 18px 80px;
   box-shadow:0 -2px 12px rgba(0,0,0,0.15);
   overflow-y:auto;
   max-height:90vh;
@@ -137,7 +137,7 @@ textarea{
   display:block;
 }
 
-/* Menu inferior estilo app */
+/* Menu inferior */
 .menu-inferior{
   position:fixed;
   bottom:0;
@@ -214,25 +214,6 @@ textarea{
     <div id="listaCupons"></div>
   </div>
 
-  <div id="abaInfo" class="aba">
-    <div class="area">Alterar Informações</div>
-    <form id="formInfo" style="display:flex;flex-direction:column;gap:10px;">
-      <input id="novoNome" type="text" placeholder="Nome do comércio">
-      <input id="novoTelefone" type="text" placeholder="Telefone">
-      <textarea id="novoEndereco" placeholder="Endereço"></textarea>
-      <button type="submit">Salvar alterações</button>
-    </form>
-  </div>
-
-  <div id="abaChat" class="aba">
-    <div class="area">Chat com Cliente</div>
-    <div id="chatMensagens"></div>
-    <form id="formChat" style="display:flex;gap:10px;margin-top:10px;">
-      <input id="mensagemChat" type="text" placeholder="Digite sua mensagem">
-      <button type="submit">Enviar</button>
-    </form>
-  </div>
-
 </div>
 
 <!-- Menu inferior -->
@@ -240,8 +221,6 @@ textarea{
   <button onclick="mostrarAba('abaProdutos')" id="btnProdutos"><i>🍔</i>Produtos</button>
   <button onclick="mostrarAba('abaPedidos')" id="btnPedidos"><i>📦</i>Pedidos</button>
   <button onclick="mostrarAba('abaCupons')" id="btnCupons"><i>🎟️</i>Cupons</button>
-  <button onclick="mostrarAba('abaInfo')" id="btnInfo"><i>⚙️</i>Info</button>
-  <button onclick="mostrarAba('abaChat')" id="btnChat"><i>💬</i>Chat</button>
 </div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -272,29 +251,25 @@ const telefone = document.getElementById("telefone");
 const listaProdutos = document.getElementById("listaProdutos");
 const listaPedidos = document.getElementById("listaPedidos");
 const listaCupons = document.getElementById("listaCupons");
-const chatMensagens = document.getElementById("chatMensagens");
 const formProduto = document.getElementById("formProduto");
 const formCupom = document.getElementById("formCupom");
-const formInfo = document.getElementById("formInfo");
-const formChat = document.getElementById("formChat");
 
-/* Funções de abas */
+/* Alternar abas */
 window.mostrarAba = function(id){
   document.querySelectorAll('.aba').forEach(el => el.classList.remove('ativa'));
   document.getElementById(id).classList.add('ativa');
 
-  // Atualiza destaque no menu inferior
   document.querySelectorAll('.menu-inferior button').forEach(btn => btn.classList.remove('active'));
-  const btnId = "btn" + id.replace("aba",""); 
+  const btnId = "btn" + id.replace("aba","");
   document.getElementById(btnId).classList.add('active');
 }
 
-/* Toggle form produto */
+/* Alternar formulário de produto */
 window.toggleForm = function(){
   formProduto.style.display = formProduto.style.display === "flex" ? "none" : "flex";
 }
 
-/* 🔔 REGISTRAR NOTIFICAÇÃO */
+/* Registrar token de notificação */
 async function registrarNotificacao(uid){
   if (!("serviceWorker" in navigator)) return;
 
@@ -316,7 +291,7 @@ async function registrarNotificacao(uid){
   }
 }
 
-/* 📦 ESCUTAR PEDIDOS EM TEMPO REAL */
+/* Escutar pedidos em tempo real */
 function escutarPedidos(uid){
   const pedidosRef = collection(db, "pedidos");
   const q = query(pedidosRef, where("comercioId", "==", uid));
@@ -337,7 +312,7 @@ function escutarPedidos(uid){
   });
 }
 
-/* 🔔 RECEBER NOTIFICAÇÕES EM PRIMEIRO PLANO */
+/* Notificações em primeiro plano */
 onMessage(messaging, (payload) => {
   new Notification(payload.notification.title, {
     body: payload.notification.body,
@@ -345,7 +320,7 @@ onMessage(messaging, (payload) => {
   });
 });
 
-/* 🔑 LOGIN E CARREGAMENTO */
+/* Autenticação e carregamento inicial */
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
     window.location.href = "login-comercio.html";
@@ -366,7 +341,6 @@ onAuthStateChanged(auth, async (user) => {
   carregarProdutos(uid);
   escutarPedidos(uid);
   carregarCupons(uid);
-  escutarChat(uid);
 });
 
 /* Produtos */
@@ -431,49 +405,6 @@ formCupom.addEventListener("submit", async (e) => {
   formCupom.reset();
   carregarCupons(user.uid);
 });
-
-/* Informações */
-formInfo.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const user = auth.currentUser;
-  if (!user) return;
-
-  const comercioRef = doc(db, "comercios", user.uid);
-  await setDoc(comercioRef, {
-    nome: novoNome.value || nomeComercio.textContent,
-    telefone: novoTelefone.value || telefone.textContent,
-    endereco: { rua: novoEndereco.value || endereco.textContent }
-  }, { merge:true });
-
-  alert("Informações atualizadas!");
-});
-
-/* Chat */
-function escutarChat(uid){
-  const chatRef = collection(db, "comercios", uid, "chat");
-  onSnapshot(chatRef, (snapshot) => {
-    chatMensagens.innerHTML = "";
-    snapshot.forEach(docu => {
-      const msg = docu.data();
-      chatMensagens.innerHTML += `<div><strong>${msg.de || "Cliente"}:</strong> ${msg.texto}</div>`;
-    });
-  });
-}
-
-formChat.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const user = auth.currentUser;
-  if (!user) return;
-
-  await addDoc(collection(db, "comercios", user.uid, "chat"), {
-    de: "Comércio",
-    texto: mensagemChat.value,
-    criadoEm: serverTimestamp()
-  });
-
-  formChat.reset();
-});
 </script>
-
 </body>
 </html>
