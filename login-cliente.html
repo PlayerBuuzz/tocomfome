@@ -1,15 +1,16 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Tôcomfome 🍔 | Login Cliente</title>
+<title>Tôcomfome | Login Cliente</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 :root{
   --laranja:#ff8c1a;
-  --branco:#fff;
-  --cinza:#f4f4f4;
+  --laranja-escuro:#e67300;
+  --branco:#ffffff;
+  --cinza:#f9f9f9;
   --texto:#333;
 }
 
@@ -31,27 +32,37 @@ body{
 .container{
   background:var(--branco);
   width:100%;
-  max-width:420px;
-  border-radius:20px 20px 0 0;
-  padding:22px;
+  max-width:440px;
+  border-radius:24px 24px 0 0;
+  padding:32px 26px 36px;
+  box-shadow:0 -6px 18px rgba(0,0,0,0.12);
+  animation:slideUp 0.6s ease;
+}
+
+@keyframes slideUp{
+  from{transform:translateY(50px);opacity:0;}
+  to{transform:translateY(0);opacity:1;}
 }
 
 .logo{
   text-align:center;
-  font-size:1.9em;
-  font-weight:700;
-  color:var(--laranja);
+  margin-bottom:10px;
+}
+
+.logo img{
+  width:120px;
+  height:auto;
 }
 
 .sub{
   text-align:center;
-  font-size:0.9em;
-  color:#666;
-  margin-top:6px;
+  font-size:1.1em;
+  color:#555;
+  margin-bottom:22px;
+  font-weight:500;
 }
 
 form{
-  margin-top:22px;
   display:flex;
   flex-direction:column;
   gap:14px;
@@ -60,23 +71,25 @@ form{
 input{
   width:100%;
   padding:14px;
-  border-radius:12px;
-  border:1px solid #ddd;
+  border-radius:14px;
+  border:1.5px solid #ddd;
   font-size:0.95em;
+  transition:border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 input:focus{
   outline:none;
   border-color:var(--laranja);
+  box-shadow:0 0 6px rgba(255,140,26,0.4);
 }
 
-/* 👁️ OLHO DA SENHA */
+/* OLHO DA SENHA COM IMAGEM */
 .senha-box{
   position:relative;
 }
 
 .senha-box input{
-  padding-right:44px;
+  padding-right:46px;
 }
 
 .olho{
@@ -84,22 +97,38 @@ input:focus{
   right:14px;
   top:50%;
   transform:translateY(-50%);
-  font-size:1.2em;
   cursor:pointer;
-  color:#999;
   user-select:none;
+}
+
+.olho img{
+  width:22px;
+  height:auto;
+  opacity:0.7;
+  transition:opacity 0.2s ease;
+}
+
+.olho img:hover{
+  opacity:1;
 }
 
 button{
   width:100%;
-  padding:14px;
+  padding:15px;
   background:var(--laranja);
   border:none;
   border-radius:14px;
   color:#fff;
-  font-size:1em;
+  font-size:1.05em;
   font-weight:600;
   cursor:pointer;
+  transition:all 0.3s ease;
+  box-shadow:0 3px 8px rgba(0,0,0,0.12);
+}
+
+button:hover{
+  background:var(--laranja-escuro);
+  box-shadow:0 4px 12px rgba(0,0,0,0.18);
 }
 
 button:active{
@@ -107,7 +136,7 @@ button:active{
 }
 
 .link{
-  margin-top:14px;
+  margin-top:16px;
   text-align:center;
   font-size:0.85em;
 }
@@ -123,7 +152,9 @@ button:active{
 <body>
 
 <div class="container">
-  <div class="logo">🍔 Tôcomfome</div>
+  <div class="logo">
+    <img src="img/logo.png" alt="Logo Tôcomfome">
+  </div>
   <div class="sub">Login do Cliente</div>
 
   <form id="loginCliente">
@@ -131,7 +162,9 @@ button:active{
 
     <div class="senha-box">
       <input type="password" id="senha" placeholder="Senha" required>
-      <span class="olho" onclick="toggleSenha()">👁️</span>
+      <span class="olho" onclick="toggleSenha()">
+        <img id="iconeSenha" src="img/eye.png" alt="Mostrar senha">
+      </span>
     </div>
 
     <button type="submit">Entrar</button>
@@ -161,17 +194,19 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-/* 👁️ MOSTRAR / OCULTAR SENHA */
+/* MOSTRAR / OCULTAR SENHA COM IMAGEM */
 window.toggleSenha = ()=>{
   const senhaInput = document.getElementById("senha");
-  const olho = document.querySelector(".olho");
+  const icone = document.getElementById("iconeSenha");
 
   if(senhaInput.type === "password"){
     senhaInput.type = "text";
-    olho.textContent = "🙈";
+    icone.src = "img/olho.png"; // imagem de olho fechado
+    icone.alt = "Ocultar senha";
   }else{
     senhaInput.type = "password";
-    olho.textContent = "👁️";
+    icone.src = "img/olho.png"; // imagem de olho aberto
+    icone.alt = "Mostrar senha";
   }
 };
 
