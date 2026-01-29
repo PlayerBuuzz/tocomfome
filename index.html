@@ -22,21 +22,6 @@ body{
   background:var(--cinza);
   padding-bottom:70px;
 }
-.menu-inferior .icon {
-  width: 24px;   /* largura do ícone */
-  height: 24px;  /* altura do ícone */
-  display: block;
-  margin: 0 auto 4px; /* centraliza e dá espaço abaixo */
-}
-.menu-inferior div {
-  text-align: center;
-  font-size: .8em;
-  color: #333;
-  cursor: pointer;
-}
-.menu-inferior div:hover {
-  color: var(--laranja);
-}
 
 /* HEADER */
 .header{
@@ -119,7 +104,7 @@ body{
   pointer-events:auto;
 }
 
-/* LISTA */
+/* LISTA DE PRODUTOS */
 .lista{
   padding:15px;
 }
@@ -159,7 +144,7 @@ body{
   font-weight:600;
 }
 
-/* 🔥 COMÉRCIO SELECIONÁVEL (BALÃO CINZA) */
+/* COMÉRCIO SELECIONÁVEL */
 .comercio-link{
   display:inline-block;
   padding:4px 10px;
@@ -172,9 +157,7 @@ body{
   font-weight:600;
   cursor:pointer;
 }
-.comercio-link:hover{
-  background:#f2f2f2;
-}
+.comercio-link:hover{background:#f2f2f2}
 
 /* SKELETON */
 .skeleton{
@@ -217,7 +200,35 @@ body{
 .menu-inferior div{
   flex:1;
   text-align:center;
+  font-size:.8em;
+  color:#333;
+  cursor:pointer;
 }
+.menu-inferior div:hover{color:var(--laranja)}
+.menu-inferior .icon{
+  width:24px;
+  height:24px;
+  display:block;
+  margin:0 auto 4px;
+}
+  .endereco, .buscando {
+  background:#fff;
+  padding:12px 16px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:.9em;
+  box-shadow:0 2px 4px var(--sombra);
+  color:#777;
+  margin-bottom:6px; /* separação entre os blocos */
+}
+  
+.icon {
+  width:20px;   /* tamanho do ícone */
+  height:20px;
+  display:block;
+}
+
 </style>
 </head>
 
@@ -244,9 +255,14 @@ body{
   <div class="usuario" id="usuario">...</div>
 </div>
 
-<div class="endereco">Carregando endereço...</div>
-<div style="padding:10px 16px;font-size:.85em;color:#777">
-  🔎 Buscando opções perto de você...
+<div class="endereco">
+  <img src="img/endereco.png" alt="Endereço" class="icon"> 
+  <span>Carregando endereço...</span>
+</div>
+
+<div class="buscando">
+  <img src="img/Buscar.png" alt="Buscar" class="icon"> 
+  <span>Buscando opções perto de você...</span>
 </div>
 
 <div class="lista" id="listaProdutos"></div>
