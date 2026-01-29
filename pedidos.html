@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Tô com fome 🍔 | Meus Pedidos</title>
+<title>Tô com fome | Meus Pedidos</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -16,24 +16,55 @@
 body{background:var(--cinza);}
 
 /* HEADER */
-.header{background:var(--laranja);color:#fff;padding:16px;text-align:center;font-size:1.1em;font-weight:600;box-shadow:0 2px 8px var(--sombra);}
+.header{
+  background:var(--laranja);
+  color:#fff;
+  padding:16px;
+  text-align:center;
+  font-size:1.1em;
+  font-weight:600;
+  box-shadow:0 2px 8px var(--sombra);
+}
+.header img{
+  width:22px;
+  vertical-align:middle;
+  margin-right:6px;
+}
+
 .lista{padding:16px;}
 .card{background:#fff;border-radius:18px;padding:14px;margin-bottom:16px;box-shadow:0 4px 12px var(--sombra);}
 .card-top{display:flex;gap:12px;}
 .card h4{font-size:1em;margin-bottom:4px;}
 .preco{color:var(--laranja);font-weight:700;margin-bottom:4px;}
 .local{font-size:.8em;color:#666;}
+.local img{width:14px;vertical-align:middle;margin-right:4px;}
+
 .timeline{display:flex;gap:6px;margin:12px 0;font-size:.75em;}
 .timeline span{flex:1;padding:6px 0;text-align:center;border-radius:20px;background:#eee;color:#777;}
 .timeline .ativo{background:var(--laranja);color:#fff;}
+.timeline img{width:18px;vertical-align:middle;}
+
 .card-footer{display:flex;justify-content:space-between;align-items:center;gap:10px;}
 .status{padding:6px 14px;border-radius:20px;font-size:.75em;font-weight:600;}
 .status.aguardando{background:#fff3cd;color:#856404}
 .status.preparando{background:#d1ecf1;color:#0c5460}
 .status.saiu{background:#cce5ff;color:#004085}
 .status.entregue{background:#d4edda;color:#155724}
-.btn-sec{padding:8px 14px;border-radius:12px;border:1px solid var(--laranja);background:#fff;color:var(--laranja);font-size:.75em;font-weight:600;cursor:pointer;}
+
+.btn-sec{
+  padding:8px 14px;
+  border-radius:12px;
+  border:1px solid var(--laranja);
+  background:#fff;
+  color:var(--laranja);
+  font-size:.75em;
+  font-weight:600;
+  cursor:pointer;
+}
+.btn-sec img{width:14px;vertical-align:middle;margin-right:4px;}
+
 .vazio{text-align:center;color:#666;margin-top:40px;font-size:.9em;}
+.vazio img{width:22px;vertical-align:middle;margin-right:6px;}
 
 /* Avaliação */
 .avaliacao{margin-top:14px;padding:14px;border-top:1px solid #eee;background:#fafafa;border-radius:12px;}
@@ -43,22 +74,27 @@ body{background:var(--cinza);}
 .avaliacao button{width:100%;padding:12px;border:none;border-radius:12px;background:var(--laranja);color:#fff;font-weight:600;cursor:pointer;transition:.2s;}
 .avaliacao button:hover{background:#e67e00;}
 .avaliacao button:active{transform:scale(.97);}
+.avaliacao button img{width:16px;vertical-align:middle;margin-right:6px;}
+
 .avaliacao-resumo{margin-top:14px;padding:14px;border-top:1px solid #eee;background:#f9f9f9;border-radius:12px;font-size:.85em;color:#444;line-height:1.4em;}
+.avaliacao-resumo img{width:16px;vertical-align:middle;margin-right:4px;}
 </style>
 </head>
 <body>
 
-<div class="header">📦 Meus Pedidos</div>
+<div class="header">
+  <img src="img/pedidos.png" alt="Pedidos"> Meus Pedidos
+</div>
 <div class="lista" id="listaPedidos"></div>
 
 <script type="module">
+/* 🔒 Script Firebase permanece inalterado */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { 
   getFirestore, collection, query, where, onSnapshot, doc, updateDoc, getDoc 
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-/* FIREBASE */
 const firebaseConfig = {
   apiKey: "AIzaSyD6a29L24aFSgVjmC7NFGXpdWW4g1uQsio",
   authDomain: "tocomfome-754e1.firebaseapp.com",
@@ -70,11 +106,9 @@ const auth = getAuth(app);
 
 const lista = document.getElementById("listaPedidos");
 
-/* TIMELINE */
 function ativo(status, etapa){ return status === etapa ? "ativo" : ""; }
 function statusClass(status){ return status || "aguardando"; }
 
-/* Salvar avaliação */
 window.salvarAvaliacao = async (pedidoId)=>{
   const pedidoRef = doc(db,"pedidos",pedidoId);
   const pedidoCard = document.getElementById(`pedido-${pedidoId}`);
@@ -90,23 +124,21 @@ window.salvarAvaliacao = async (pedidoId)=>{
       criadoEm: new Date()
     }
   });
-  alert("✅ Avaliação enviada com sucesso!");
+  alert("Avaliação enviada com sucesso!");
 }
 
-/* CARREGAR PEDIDOS EM TEMPO REAL */
 function carregarPedidos(uid){
   const q = query(collection(db,"pedidos"), where("clienteId","==",uid));
   onSnapshot(q, async (snap)=>{
     lista.innerHTML = "";
     if(snap.empty){
-      lista.innerHTML = `<div class="vazio">😕 Você ainda não fez nenhum pedido</div>`;
+      lista.innerHTML = `<div class="vazio"><img src="img/vazio.png" alt="Vazio"> Você ainda não fez nenhum pedido</div>`;
       return;
     }
     for(const docSnap of snap.docs){
       const p = docSnap.data();
       const id = docSnap.id;
 
-      // 🔑 Buscar nome do comércio pelo comercioId
       let comercioNome = p.comercioNome || "";
       if(!comercioNome && p.comercioId){
         const comercioSnap = await getDoc(doc(db,"comercios",p.comercioId));
@@ -121,45 +153,47 @@ function carregarPedidos(uid){
             <div>
               <h4>${p.produtoNome}</h4>
               <div class="preco">${Number(p.valor).toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}</div>
-              <div class="local">📍 Pedido em <strong>${comercioNome}</strong></div>
+              <div class="local"><img src="img/local.png" alt="Local"> Pedido em <strong>${comercioNome}</strong></div>
             </div>
           </div>
           <div class="timeline">
-            <span class="${ativo(p.status,'novo')}">🕒</span>
-            <span class="${ativo(p.status,'preparando')}">👨‍🍳</span>
-            <span class="${ativo(p.status,'saiu')}">🛵</span>
-            <span class="${ativo(p.status,'entregue')}">✅</span>
+            <span class="${ativo(p.status,'novo')}"><img src="img/preparando.png" alt="Novo"></span>
+            <span class="${ativo(p.status,'preparando')}"><img src="img/cozinhando.png" alt="Preparando"></span>
+            <span class="${ativo(p.status,'saiu')}"><img src="img/entrega.png" alt="Saiu"></span>
+            <span class="${ativo(p.status,'entregue')}"><img src="img/concluido.png" alt="Entregue"></span>
           </div>
           <div class="card-footer">
             <div class="status ${statusClass(p.status)}">${p.status || "aguardando"}</div>
-            <button class="btn-sec" onclick="repetirPedido('${id}')">🔁 Pedir novamente</button>
+            <button class="btn-sec" onclick="repetirPedido('${id}')"><img src="img/repetir.png" alt="Repetir"> Pedir novamente</button>
           </div>
           ${p.status === "entregue" && !p.avaliacao ? `
             <div class="avaliacao">
-              <label>⭐ Avaliação do pedido:</label>
+              <label>Avaliação do pedido:</label>
               <input type="number" min="1" max="5" class="notaPedido" placeholder="1-5">
-              <label>🛵 Avaliação do motoboy:</label>
+              <label>Avaliação do motoboy:</label>
               <input type="number" min="1" max="5" class="notaMotoboy" placeholder="1-5">
-              <label>⏱ Tempo de entrega (min):</label>
-              <input type="number" class="tempoEntrega" placeholder="Ex: 30">
-              <button onclick="salvarAvaliacao('${id}')">Enviar avaliação</button>
-            </div>
-          ` : p.avaliacao ? `
-            <div class="avaliacao-resumo">
-              ✅ Avaliação enviada<br>
-              Pedido: ${p.avaliacao.pedido} ⭐<br>
-              Motoboy: ${p.avaliacao.motoboy} ⭐<br>
-              Tempo: ${p.avaliacao.tempo} min
-            </div>
-          ` : ""}
-        </div>`;
+          <label>Tempo de entrega (min):</label>
+          <input type="number" class="tempoEntrega" placeholder="Ex: 30">
+          <button onclick="salvarAvaliacao('${id}')">
+            <img src="img/salvar.png" alt="Salvar"> Enviar avaliação
+          </button>
+        </div>
+      ` : p.avaliacao ? `
+        <div class="avaliacao-resumo">
+          <img src="img/check.png" alt="Check"> Avaliação enviada<br>
+          Pedido: ${p.avaliacao.pedido} <img src="img/star.png" alt="Estrela"><br>
+          Motoboy: ${p.avaliacao.motoboy} <img src="img/star.png" alt="Estrela"><br>
+          Tempo: ${p.avaliacao.tempo} min
+        </div>
+      ` : ""}
+    </div>`;
     }
   });
 }
 
 /* REPETIR PEDIDO */
 window.repetirPedido = (id)=>{
-  alert("🔁 Pedido reenviado (simulação)");
+  alert("Pedido reenviado (simulação)");
 };
 
 /* AUTH */
