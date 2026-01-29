@@ -23,10 +23,10 @@ body{
   padding-bottom:70px;
 }
 .menu-inferior .icon {
-  width: 24px;   /* largura do ícone */
-  height: 24px;  /* altura do ícone */
+  width: 24px;
+  height: 24px;
   display: block;
-  margin: 0 auto 4px; /* centraliza e dá espaço abaixo */
+  margin: 0 auto 4px;
 }
 .menu-inferior div {
   text-align: center;
@@ -47,10 +47,10 @@ body{
   gap:10px;
   box-shadow:0 2px 6px var(--sombra);
 }
-.menu-btn{
-  font-size:1.6em;
+.menu-btn img{
+  width:24px;
+  height:24px;
   cursor:pointer;
-  color:var(--laranja);
 }
 .header input{
   flex:1;
@@ -65,17 +65,20 @@ body{
 }
 
 /* ENDEREÇO */
-.endereco{
+.endereco, .buscando{
   background:#fff;
   padding:12px 16px;
   display:flex;
   align-items:center;
-  gap:6px;
+  gap:8px;
   font-size:.9em;
   box-shadow:0 2px 4px var(--sombra);
+  color:#777;
+  margin-bottom:6px;
 }
-.endereco::before{
-  content:"📍";
+.endereco .icon, .buscando .icon{
+  width:20px;
+  height:20px;
 }
 
 /* SIDEBAR */
@@ -95,6 +98,13 @@ body{
 .sidebar h3{
   color:var(--laranja);
   margin-bottom:12px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.sidebar h3 img{
+  width:20px;
+  height:20px;
 }
 .sidebar a{
   display:block;
@@ -159,7 +169,7 @@ body{
   font-weight:600;
 }
 
-/* 🔥 COMÉRCIO SELECIONÁVEL (BALÃO CINZA) */
+/* COMÉRCIO SELECIONÁVEL */
 .comercio-link{
   display:inline-block;
   padding:4px 10px;
@@ -172,9 +182,7 @@ body{
   font-weight:600;
   cursor:pointer;
 }
-.comercio-link:hover{
-  background:#f2f2f2;
-}
+.comercio-link:hover{background:#f2f2f2}
 
 /* SKELETON */
 .skeleton{
@@ -225,7 +233,7 @@ body{
 
 <!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
-  <h3>🍔 Menu</h3>
+  <h3><img src="img/menu.png" alt="Menu"> Menu</h3>
   <a href="#" onclick="filtrarCategoria('Hambúrguer');fecharMenu()">Hambúrguer</a>
   <a href="#" onclick="filtrarCategoria('Pizza');fecharMenu()">Pizza</a>
   <a href="#" onclick="filtrarCategoria('Pastel');fecharMenu()">Pastel</a>
@@ -239,14 +247,20 @@ body{
 
 <!-- HEADER -->
 <div class="header">
-  <div class="menu-btn" onclick="toggleMenu()">☰</div>
+  <div class="menu-btn" onclick="toggleMenu()">
+    <img src="img/menu.png" alt="Menu">
+  </div>
   <input id="buscaInput" placeholder="Buscar comida..." oninput="filtrarBusca()">
   <div class="usuario" id="usuario">...</div>
 </div>
 
-<div class="endereco">Carregando endereço...</div>
-<div style="padding:10px 16px;font-size:.85em;color:#777">
-  🔎 Buscando opções perto de você...
+<div class="endereco">
+  <img src="img/pin.png" alt="Endereço" class="icon">
+  <span>Carregando endereço...</span>
+</div>
+<div class="buscando">
+  <img src="img/search.png" alt="Buscar" class="icon">
+  <span>Buscando opções perto de você...</span>
 </div>
 
 <div class="lista" id="listaProdutos"></div>
@@ -257,13 +271,13 @@ body{
     <img src="img/home.png" alt="Início" class="icon"><br>Início
   </div>
   <div onclick="irBusca()">
-    <img src="img/Buscar.png" alt="Buscar" class="icon"><br>Buscar
+    <img src="img/buscar.png" alt="Buscar" class="icon"><br>Buscar
   </div>
   <div onclick="irPedidos()">
-    <img src="img/Pedidos.png" alt="Pedidos" class="icon"><br>Pedidos
+    <img src="img/pedidos.png" alt="Pedidos" class="icon"><br>Pedidos
   </div>
   <div onclick="irPerfil()">
-    <img src="img/Perfil.png" alt="Perfil" class="icon"><br>Perfil
+    <img src="img/perfil.png" alt="Perfil" class="icon"><br>Perfil
   </div>
 </div>
 
@@ -280,8 +294,12 @@ body{
   cursor:pointer;
   box-shadow:0 4px 12px rgba(0,0,0,0.2);
   z-index:1000;
+  display:flex;
+  align-items:center;
+  gap:8px;
 ">
-  💬 Suporte
+  <img src="img/chat.png" alt="Suporte" style="width:20px;height:20px;">
+  <span>Suporte</span>
 </div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -302,7 +320,7 @@ const auth = getAuth(app);
 /* 🔧 Elementos do DOM */
 const lista = document.getElementById("listaProdutos");
 const usuarioEl = document.getElementById("usuario");
-const enderecoEl = document.querySelector(".endereco");
+const enderecoEl = document.querySelector(".endereco span");
 const sidebar = document.getElementById("sidebar");
 const overlay = document.getElementById("overlay");
 const buscaInput = document.getElementById("buscaInput");
@@ -323,19 +341,19 @@ onAuthStateChanged(auth, async (user)=>{
       usuarioEl.innerText = dados.nome.split(" ")[0];
       // Atualiza endereço do cliente logado
       if(dados.rua && dados.numero && dados.bairro && dados.cidade){
-        enderecoEl.textContent = `${dados.rua}, ${dados.numero} - ${dados.bairro}, ${dados.cidade}`;
+        enderecoEl.innerText = `${dados.rua}, ${dados.numero} - ${dados.bairro}, ${dados.cidade}`;
       }else if(dados.bairro && dados.cidade){
-        enderecoEl.textContent = `${dados.bairro}, ${dados.cidade}`;
+        enderecoEl.innerText = `${dados.bairro}, ${dados.cidade}`;
       }else{
-        enderecoEl.textContent = "Endereço não cadastrado";
+        enderecoEl.innerText = "Endereço não cadastrado";
       }
     }else{
       usuarioEl.innerText = "Usuário";
-      enderecoEl.textContent = "Endereço não encontrado";
+      enderecoEl.innerText = "Endereço não encontrado";
     }
   }else{
     usuarioEl.innerText = "Visitante";
-    enderecoEl.textContent = "Endereço não disponível";
+    enderecoEl.innerText = "Endereço não disponível";
   }
 });
 
