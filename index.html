@@ -245,6 +245,42 @@ body.dark-theme{
   background:var(--cinza);
   color:var(--texto);
 }
+/* 🌙 Tema escuro */
+body.dark-theme{
+  --cinza:#1e1e1e;
+  --texto:#f5f5f5;
+  background:var(--cinza);
+  color:var(--texto);
+}
+
+/* Ajustes de componentes no tema escuro */
+body.dark-theme .header,
+body.dark-theme .endereco,
+body.dark-theme .card,
+body.dark-theme .sidebar,
+body.dark-theme .menu-inferior,
+body.dark-theme .skeleton{
+  background:#2a2a2a;
+  color:var(--texto);
+}
+
+body.dark-theme .header input{
+  background:#333;
+  border:1px solid #555;
+  color:#fff;
+}
+
+body.dark-theme .comercio-link{
+  background:#333;
+  border:1px solid #555;
+  color:#ddd;
+}
+body.dark-theme .comercio-link:hover{background:#444;}
+
+body.dark-theme .skeleton-img,
+body.dark-theme .skeleton-line{
+  background:#444;
+}
 </style>
 </head>
 
