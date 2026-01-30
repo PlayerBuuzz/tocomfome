@@ -394,6 +394,14 @@ onAuthStateChanged(auth, async (user)=>{
     if(snap.exists()){
       const dados = snap.data();
       usuarioEl.innerText = dados.nome.split(" ")[0];
+
+      // 🌙 aplicar tema salvo
+      if(dados.tema === "dark"){
+        document.body.classList.add("dark-theme");
+      }else{
+        document.body.classList.remove("dark-theme");
+      }
+
       // Atualiza endereço do cliente logado
       if(dados.rua && dados.numero && dados.bairro && dados.cidade){
         enderecoEl.innerText = `${dados.rua}, ${dados.numero} - ${dados.bairro}, ${dados.cidade}`;
@@ -410,17 +418,6 @@ onAuthStateChanged(auth, async (user)=>{
     usuarioEl.innerText = "Visitante";
     enderecoEl.innerText = "Endereço não disponível";
   }
-  /* 🌙 Alternar Tema */
-window.toggleTema = async ()=>{
-  const isDark = document.body.classList.toggle("dark-theme");
-  try{
-    await updateDoc(doc(db,"clientes",auth.currentUser.uid),{
-      tema: isDark ? "dark" : "light"
-    });
-  }catch(e){
-    console.error("Erro ao salvar tema:", e);
-  }
-}
 });
 
 /* LOGOFF */
