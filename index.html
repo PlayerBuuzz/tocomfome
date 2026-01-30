@@ -453,18 +453,6 @@ window.abrirComercio = (comercioId)=>{
   localStorage.setItem("comercioSelecionado", JSON.stringify({ comercioId }));
   window.location.href = "perfil-comercio.html";
 }
-  onAuthStateChanged(auth, async (user)=>{
-  if(!user){
-    location.href = "login-cliente.html";
-    return;
-  }
-
-  const ref = doc(db,"clientes",user.uid);
-  const snap = await getDoc(ref);
-
-  if(snap.exists()){
-    const d = snap.data();
-
     // aplica tema salvo
     if(d.tema === "dark"){
       document.body.classList.add("dark-theme");
