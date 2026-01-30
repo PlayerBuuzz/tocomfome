@@ -351,12 +351,20 @@ let produtos = [];
 window.toggleMenu = ()=>{ sidebar.classList.toggle("active"); overlay.classList.toggle("active"); }
 window.fecharMenu = ()=>{ sidebar.classList.remove("active"); overlay.classList.remove("active"); }
 
-/* USUÁRIO + ENDEREÇO */
+/* USUÁRIO + ENDEREÇO + TEMA */
 onAuthStateChanged(auth, async (user)=>{
   if(user){
     const snap = await getDoc(doc(db,"clientes",user.uid));
     if(snap.exists()){
       const dados = snap.data();
+
+      // aplica tema salvo
+      if(dados.tema === "dark"){
+        document.body.classList.add("dark-theme");
+      } else {
+        document.body.classList.remove("dark-theme");
+      }
+
       usuarioEl.innerText = dados.nome.split(" ")[0];
       // Atualiza endereço do cliente logado
       if(dados.rua && dados.numero && dados.bairro && dados.cidade){
@@ -453,19 +461,19 @@ window.abrirComercio = (comercioId)=>{
   localStorage.setItem("comercioSelecionado", JSON.stringify({ comercioId }));
   window.location.href = "perfil-comercio.html";
 }
+
 /* BALÃO DE CHAT */
 chatBalao.addEventListener("click", ()=>{
-  onAuthStateChanged(auth, (user)=>{
-    if(user){
-      window.location.href = "chat-cliente.html";
-    }else{
-      window.location.href = "login-cliente.html";
-    }
-  });
+  if(auth.currentUser){
+    window.location.href = "chat-cliente.html";
+  }else{
+    window.location.href = "login-cliente.html";
+  }
 });
 
 /* INIT */
 carregarProdutos();
 </script>
+
 </body>
 </html>
