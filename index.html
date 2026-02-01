@@ -282,15 +282,6 @@ body.dark-theme{
   <span>Buscando opções perto de você...</span>
 </div>
 
-<div style="padding:15px">
-  <h3 style="margin-bottom:10px">🔥 Mais pedidos</h3>
-  <div id="carrosselProdutos" style="
-    display:flex;
-    gap:12px;
-    overflow-x:auto;
-    padding-bottom:10px;
-  "></div>
-</div>
 <div class="lista" id="listaProdutos"></div>
 
 <!-- MENU INFERIOR -->
@@ -334,7 +325,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-/* FIREBASE */
+/* 🔧 Firebase */
 const firebaseConfig = {
   apiKey: "AIzaSyD6a29L24aFSgVjmC7NFGXpdWW4g1uQsio",
   authDomain: "tocomfome-754e1.firebaseapp.com",
@@ -345,148 +336,149 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-/* ELEMENTOS */
+/* 🔧 Elementos do DOM */
 const lista = document.getElementById("listaProdutos");
-const carrossel = document.getElementById("carrosselProdutos");
-const buscaInput = document.getElementById("buscaInput");
 const usuarioEl = document.getElementById("usuario");
 const enderecoEl = document.querySelector(".endereco span");
+const sidebar = document.getElementById("sidebar");
+const overlay = document.getElementById("overlay");
+const buscaInput = document.getElementById("buscaInput");
+const chatBalao = document.getElementById("chat-balao");
 
-let comercios = [];
+let produtos = [];
 
-/* USUÁRIO */
+/* MENU */
+window.toggleMenu = ()=>{ sidebar.classList.toggle("active"); overlay.classList.toggle("active"); }
+window.fecharMenu = ()=>{ sidebar.classList.remove("active"); overlay.classList.remove("active"); }
+
+/* USUÁRIO + ENDEREÇO */
 onAuthStateChanged(auth, async (user)=>{
   if(user){
     const snap = await getDoc(doc(db,"clientes",user.uid));
     if(snap.exists()){
-      const d = snap.data();
-      usuarioEl.innerText = d.nome.split(" ")[0];
-      enderecoEl.innerText = d.bairro && d.cidade
-        ? `${d.bairro}, ${d.cidade}`
-        : "Endereço não cadastrado";
+      const dados = snap.data();
+      usuarioEl.innerText = dados.nome.split(" ")[0];
+      if(dados.rua && dados.numero && dados.bairro && dados.cidade){
+        enderecoEl.innerText = `${dados.rua}, ${dados.numero} - ${dados.bairro}, ${dados.cidade}`;
+      }else if(dados.bairro && dados.cidade){
+        enderecoEl.innerText = `${dados.bairro}, ${dados.cidade}`;
+      }else{
+        enderecoEl.innerText = "Endereço não cadastrado";
+      }
+    }else{
+      usuarioEl.innerText = "Usuário";
+      enderecoEl.innerText = "Endereço não encontrado";
     }
+  }else{
+    usuarioEl.innerText = "Visitante";
+    enderecoEl.innerText = "Endereço não disponível";
   }
 });
 
 /* LOGOFF */
-window.logoff = async ()=>{
-  await signOut(auth);
-  location.href = "index.html";
-}
+window.logoff = async ()=>{ await signOut(auth); window.location.href = "index.html"; }
 
-/* 🔥 CARREGAR LOJAS */
-async function carregarComercios(){
+/* NAVEGAÇÃO */
+window.irPerfil = ()=>{ window.location.href = auth.currentUser ? "perfil.html" : "login-cliente.html"; }
+window.irInicio = ()=> location.href = "index.html";
+window.irBusca = ()=> buscaInput.focus();
+window.irPedidos = ()=> location.href = "pedidos.html";
+
+/* PRODUTOS */
+async function carregarProdutos(){
+  produtos = [];
   lista.innerHTML = "";
-  carrossel.innerHTML = "";
-  comercios = [];
 
-  const snap = await getDocs(collection(db,"comercios"));
+  const comerciosSnap = await getDocs(collection(db,"comercios"));
 
-  for(const docSnap of snap.docs){
-    const c = docSnap.data();
-    if(!c.ativo) continue;
+  for(const comercioDoc of comerciosSnap.docs){
+    const comercio = comercioDoc.data();
 
-    const comercio = {
-      id: docSnap.id,
-      nome: c.nome,
-      avaliacao: c.avaliacaoMedia || 0,
-      bairro: c.endereco?.bairro || "",
-      cidade: c.endereco?.cidade || "",
-      img: c.img || "https://images.unsplash.com/photo-1528605248644-14dd04022da1"
-    };
+    if (!comercio.ativo) continue;
 
-    comercios.push(comercio);
-    renderComercio(comercio);
-
-    /* 🔥 PRODUTOS EM DESTAQUE (CARROSSEL) */
-    const prodSnap = await getDocs(
-      collection(db,"comercios",docSnap.id,"produtos")
+    const produtosSnap = await getDocs(
+      collection(db,"comercios",comercioDoc.id,"produtos")
     );
 
-    prodSnap.forEach(pDoc=>{
-      const p = pDoc.data();
-      if(p.destaque){
-        renderProdutoDestaque({
-          ...p,
-          comercioId: docSnap.id,
-          comercioNome: c.nome
-        });
-      }
+    produtosSnap.forEach(prodDoc=>{
+      const p = prodDoc.data();
+
+      const produto = {
+        id: prodDoc.id,
+        comercioId: comercioDoc.id,
+        nome: p.nome,
+        valor: p.valor,
+        descricao: p.descricao || "",
+        categoria: p.categoria || "",
+        img: p.img || "https://images.unsplash.com/photo-1550547660-d9450f859349",
+        comercio: comercio.nome,
+        bairro: comercio.endereco?.bairro || "",
+        cidade: comercio.endereco?.cidade || ""
+      };
+
+      produtos.push(produto);
+      render(produto);
     });
   }
-
-  // Ordena lojas por nota
-  comercios.sort((a,b)=>b.avaliacao - a.avaliacao);
 }
 
-/* 🏪 RENDER LOJA */
-function renderComercio(c){
+/* RENDER */
+function render(p){
   lista.innerHTML += `
-    <div class="card" onclick="abrirComercio('${c.id}')">
-      <img src="${c.img}">
+    <div class="card">
+      <img src="${p.img}">
       <div class="card-info">
-        <h4>${c.nome}</h4>
-        <div style="color:#ff8c1a;font-weight:600">
-          ⭐ ${c.avaliacao.toFixed(1)}
-        </div>
-        <div style="font-size:.85em;color:#666">
-          ${c.bairro} • ${c.cidade}
-        </div>
+        <h4>${p.nome}</h4>
+        <div class="preco">${Number(p.valor).toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}</div>
+        <div class="comercio-link" onclick="abrirComercio('${p.comercioId}')">${p.comercio}</div>
+        <div style="font-size:.8em;color:#666">${p.bairro} • ${p.cidade}</div>
+        <button class="btn" onclick="pedir('${p.id}')">Pedir</button>
       </div>
     </div>
   `;
 }
 
-/* 🍔 RENDER PRODUTO DESTAQUE */
-function renderProdutoDestaque(p){
-  carrossel.innerHTML += `
-    <div style="
-      min-width:140px;
-      background:#fff;
-      border-radius:16px;
-      box-shadow:0 4px 10px rgba(0,0,0,.1);
-      padding:10px;
-      cursor:pointer
-    " onclick="abrirComercio('${p.comercioId}')">
-      <img src="${p.img}" style="
-        width:100%;
-        height:90px;
-        object-fit:cover;
-        border-radius:12px
-      ">
-      <div style="font-size:.85em;font-weight:600;margin-top:6px">
-        ${p.nome}
-      </div>
-      <div style="font-size:.75em;color:#666">
-        ${p.comercioNome}
-      </div>
-    </div>
-  `;
-}
-
-/* 🔎 BUSCA (FILTRA LOJAS) */
+/* BUSCA */
 buscaInput.addEventListener("input", ()=>{
   const termo = buscaInput.value.toLowerCase();
   lista.innerHTML = "";
 
-  comercios
-    .filter(c =>
-      c.nome.toLowerCase().includes(termo) ||
-      c.bairro.toLowerCase().includes(termo) ||
-      c.cidade.toLowerCase().includes(termo)
-    )
-    .forEach(renderComercio);
+  const filtrados = produtos.filter(p=>
+    p.nome.toLowerCase().includes(termo) ||
+    p.descricao.toLowerCase().includes(termo) ||
+    p.categoria.toLowerCase().includes(termo) ||
+    p.comercio.toLowerCase().includes(termo)
+  );
+
+  filtrados.forEach(render);
 });
 
+/* PEDIR */
+window.pedir = (id)=>{
+  const prod = produtos.find(p=>p.id===id);
+  localStorage.setItem("produtoSelecionado", JSON.stringify(prod));
+  window.location.href = "produto.html";
+}
+
 /* PERFIL COMÉRCIO */
-window.abrirComercio = (id)=>{
-  localStorage.setItem("comercioSelecionado", JSON.stringify({ comercioId:id }));
-  location.href = "perfil-comercio.html";
-};
+window.abrirComercio = (comercioId)=>{
+  localStorage.setItem("comercioSelecionado", JSON.stringify({ comercioId }));
+  window.location.href = "perfil-comercio.html";
+}
+
+/* BALÃO DE CHAT */
+chatBalao.addEventListener("click", ()=>{
+  onAuthStateChanged(auth, (user)=>{
+    if(user){
+      window.location.href = "chat-cliente.html";
+    }else{
+      window.location.href = "login-cliente.html";
+    }
+  });
+});
 
 /* INIT */
-carregarComercios();
+carregarProdutos();
 </script>
-
 </body>
 </html>
