@@ -358,16 +358,12 @@ onAuthStateChanged(auth, async (user)=>{
     if(snap.exists()){
       const dados = snap.data();
       usuarioEl.innerText = dados.nome.split(" ")[0];
-      if(dados.rua && dados.numero && dados.bairro && dados.cidade){
-        enderecoEl.innerText = `${dados.rua}, ${dados.numero} - ${dados.bairro}, ${dados.cidade}`;
-      }else if(dados.bairro && dados.cidade){
-        enderecoEl.innerText = `${dados.bairro}, ${dados.cidade}`;
-      }else{
-        enderecoEl.innerText = "Endereço não cadastrado";
-      }
-    }else{
-      usuarioEl.innerText = "Usuário";
-      enderecoEl.innerText = "Endereço não encontrado";
+      enderecoEl.innerText =
+        dados.rua && dados.numero && dados.bairro && dados.cidade
+          ? `${dados.rua}, ${dados.numero} - ${dados.bairro}, ${dados.cidade}`
+          : dados.bairro && dados.cidade
+          ? `${dados.bairro}, ${dados.cidade}`
+          : "Endereço não cadastrado";
     }
   }else{
     usuarioEl.innerText = "Visitante";
@@ -382,7 +378,7 @@ window.logoff = async ()=>{
 }
 
 /* NAVEGAÇÃO */
-window.irPerfil = ()=>{ window.location.href = auth.currentUser ? "perfil.html" : "login-cliente.html"; }
+window.irPerfil = ()=> location.href = auth.currentUser ? "perfil.html" : "login-cliente.html";
 window.irInicio = ()=> location.href = "index.html";
 window.irBusca = ()=> buscaInput.focus();
 window.irPedidos = ()=> location.href = "pedidos.html";
@@ -444,34 +440,33 @@ function render(p){
 buscaInput.addEventListener("input", ()=>{
   const termo = buscaInput.value.toLowerCase();
   lista.innerHTML = "";
-  produtos
-    .filter(p =>
-      p.nome.toLowerCase().includes(termo) ||
-      p.descricao.toLowerCase().includes(termo) ||
-      p.categoria.toLowerCase().includes(termo) ||
-      p.comercio.toLowerCase().includes(termo)
-    )
-    .forEach(render);
+  produtos.filter(p =>
+    p.nome.toLowerCase().includes(termo) ||
+    p.descricao.toLowerCase().includes(termo) ||
+    p.categoria.toLowerCase().includes(termo) ||
+    p.comercio.toLowerCase().includes(termo)
+  ).forEach(render);
 });
 
 /* PEDIR */
 window.pedir = (id)=>{
-  const prod = produtos.find(p=>p.id===id);
-  localStorage.setItem("produtoSelecionado", JSON.stringify(prod));
-  window.location.href = "produto.html";
+  localStorage.setItem(
+    "produtoSelecionado",
+    JSON.stringify(produtos.find(p=>p.id===id))
+  );
+  location.href = "produto.html";
 }
 
 /* PERFIL COMÉRCIO */
 window.abrirComercio = (comercioId)=>{
   localStorage.setItem("comercioSelecionado", JSON.stringify({ comercioId }));
-  window.location.href = "perfil-comercio.html";
+  location.href = "perfil-comercio.html";
 }
 
 /* BALÃO DE CHAT */
-<script type="module">
 chatBalao.addEventListener("click", ()=>{
-  onAuthStateChanged(auth, (user)=>{
-    window.location.href = user ? "chat-cliente.html" : "login-cliente.html";
+  onAuthStateChanged(auth, user=>{
+    location.href = user ? "chat-cliente.html" : "login-cliente.html";
   });
 });
 
