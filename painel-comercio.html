@@ -227,10 +227,8 @@ textarea{
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { 
-  getFirestore, doc, getDoc, collection, addDoc, getDocs, setDoc, serverTimestamp,
-  onSnapshot, query, where
+  getFirestore, doc, getDoc, collection, addDoc, getDocs, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js";
 
 // 🔑 Configuração Firebase
 const firebaseConfig = {
@@ -245,128 +243,62 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-const messaging = getMessaging(app);
 
-// 🔑 Client ID do Imgur
-const IMGUR_CLIENT_ID = "PMAK-697f8e943ea21300013a2b16-a8c8bde8eb85e96b14263a3740ddb180d9";
+// ⚠️ Token do GitHub (não usar em produção direto no frontend)
+const GITHUB_TOKEN = "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";
+const REPO = "PlayerBuuzz/tocomfome";
+const BRANCH = "main";
 
-// Elementos DOM
-const nomeComercio = document.getElementById("nomeComercio");
-const endereco = document.getElementById("endereco");
-const telefone = document.getElementById("telefone");
-const listaProdutos = document.getElementById("listaProdutos");
-const listaPedidos = document.getElementById("listaPedidos");
-const listaCupons = document.getElementById("listaCupons");
-const formProduto = document.getElementById("formProduto");
-const formCupom = document.getElementById("formCupom");
+// Funções auxiliares
+function toggleForm(){
+  const form = document.getElementById("formProduto");
+  form.style.display = form.style.display === "flex" ? "none" : "flex";
+}
 
-/* Alternar abas */
-window.mostrarAba = function(id){
+function mostrarAba(id){
   document.querySelectorAll('.aba').forEach(el => el.classList.remove('ativa'));
   document.getElementById(id).classList.add('ativa');
-
   document.querySelectorAll('.menu-inferior button').forEach(btn => btn.classList.remove('active'));
   const btnId = "btn" + id.replace("aba","");
   document.getElementById(btnId).classList.add('active');
 }
 
-/* Alternar formulário de produto */
-window.toggleForm = function(){
-  formProduto.style.display = formProduto.style.display === "flex" ? "none" : "flex";
+async function toBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(",")[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 }
 
-/* Upload para Imgur */
-async function uploadParaImgur(file){
-  const formData = new FormData();
-  formData.append("image", file);
+async function enviarImagemParaGitHub(file, nomeArquivo) {
+  const base64 = await toBase64(file);
 
-  const res = await fetch("https://api.imgur.com/3/image", {
-    method: "POST",
+  const res = await fetch(`https://api.github.com/repos/${REPO}/contents/Produtos/${nomeArquivo}`, {
+    method: "PUT",
     headers: {
-      Authorization: `Client-ID ${IMGUR_CLIENT_ID}`
+      "Authorization": `Bearer ${GITHUB_TOKEN}`,
+      "Content-Type": "application/json"
     },
-    body: formData
+    body: JSON.stringify({
+      message: "Adicionando imagem de produto",
+      content: base64,
+      branch: BRANCH
+    })
   });
 
   const data = await res.json();
-  if (data.success){
-    return data.data.link;
+  if (data.content && data.content.download_url) {
+    return data.content.download_url;
   } else {
-    throw new Error("Erro ao enviar imagem para Imgur");
+    throw new Error("Erro ao salvar imagem no GitHub");
   }
 }
 
-/* Escutar pedidos em tempo real */
-function escutarPedidos(uid){
-  const pedidosRef = collection(db, "pedidos");
-  const q = query(pedidosRef, where("comercioId", "==", uid));
-
-  onSnapshot(q, (snapshot) => {
-    listaPedidos.innerHTML = "";
-    snapshot.forEach(docu => {
-      const pedido = docu.data();
-      const pedidoId = docu.id;
-
-      if (pedido.status === "entregue") return;
-
-      listaPedidos.innerHTML += `
-        <div class="produto" style="border:2px solid var(--laranja);cursor:pointer"
-             onclick="abrirPedido('${pedidoId}')">
-          <strong>Pedido: ${pedido.produtoNome}</strong>
-          <div>Cliente: ${pedido.clienteNome}</div>
-          <div class="preco">R$ ${pedido.valor}</div>
-          <div>Status: ${pedido.status}</div>
-        </div>
-      `;
-    });
-
-    if (listaPedidos.innerHTML === "") {
-      listaPedidos.innerHTML = `
-        <div style="text-align:center;color:#666;margin-top:20px">
-          ✅ Nenhum pedido pendente
-        </div>
-      `;
-    }
-  });
-}
-
-/* Função para abrir pedido */
-window.abrirPedido = (id)=>{
-  localStorage.setItem("pedidoSelecionado", id);
-  window.location.href = "pedido-comercio.html";
-}
-
-/* Notificações em primeiro plano */
-onMessage(messaging, (payload) => {
-  new Notification(payload.notification.title, {
-    body: payload.notification.body,
-    icon: "/icon.png"
-  });
-});
-
-/* Autenticação e carregamento inicial */
-onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    window.location.href = "login-comercio.html";
-    return;
-  }
-
-  const uid = user.uid;
-  const comercioSnap = await getDoc(doc(db, "comercios", uid));
-  if (!comercioSnap.exists()) return;
-
-  const c = comercioSnap.data();
-  nomeComercio.textContent = c.nome;
-  endereco.textContent = `${c.endereco.rua}, ${c.endereco.numero} - ${c.endereco.bairro}`;
-  telefone.textContent = `📞 ${c.telefone}`;
-
-  carregarProdutos(uid);
-  escutarPedidos(uid);
-  carregarCupons(uid);
-});
-
-/* Produtos */
+// Carregar produtos
 async function carregarProdutos(uid){
+  const listaProdutos = document.getElementById("listaProdutos");
   listaProdutos.innerHTML = "";
   const produtosSnap = await getDocs(collection(db, "comercios", uid, "produtos"));
   produtosSnap.forEach(docu => {
@@ -382,6 +314,8 @@ async function carregarProdutos(uid){
   });
 }
 
+// Formulário de produto
+const formProduto = document.getElementById("formProduto");
 formProduto.addEventListener("submit", async (e) => {
   e.preventDefault();
   const user = auth.currentUser;
@@ -392,7 +326,8 @@ formProduto.addEventListener("submit", async (e) => {
 
   if (file){
     try {
-      url = await uploadParaImgur(file);
+      const nomeArquivo = `${Date.now()}-${file.name}`;
+      url = await enviarImagemParaGitHub(file, nomeArquivo);
     } catch (err){
       alert("Falha ao enviar imagem: " + err.message);
       return;
@@ -412,8 +347,10 @@ formProduto.addEventListener("submit", async (e) => {
   carregarProdutos(user.uid);
 });
 
-/* Cupons */
+// Cupons
+const formCupom = document.getElementById("formCupom");
 async function carregarCupons(uid){
+  const listaCupons = document.getElementById("listaCupons");
   listaCupons.innerHTML = "";
   const cuponsSnap = await getDocs(collection(db, "comercios", uid, "cupons"));
   cuponsSnap.forEach(docu => {
@@ -441,6 +378,27 @@ formCupom.addEventListener("submit", async (e) => {
   formCupom.reset();
   carregarCupons(user.uid);
 });
+
+// Autenticação
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.href = "login-comercio.html";
+    return;
+  }
+
+  const uid = user.uid;
+  const comercioSnap = await getDoc(doc(db, "comercios", uid));
+  if (!comercioSnap.exists()) return;
+
+  const c = comercioSnap.data();
+  document.getElementById("nomeComercio").textContent = c.nome;
+  document.getElementById("endereco").textContent = `${c.endereco.rua}, ${c.endereco.numero} - ${c.endereco.bairro}`;
+  document.getElementById("telefone").textContent = `📞 ${c.telefone}`;
+
+  carregarProdutos(uid);
+  carregarCupons(uid);
+});
 </script>
 </body>
 </html>
+
