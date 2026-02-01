@@ -358,7 +358,6 @@ onAuthStateChanged(auth, async (user)=>{
     if(snap.exists()){
       const dados = snap.data();
       usuarioEl.innerText = dados.nome.split(" ")[0];
-      // Atualiza endereço do cliente logado
       if(dados.rua && dados.numero && dados.bairro && dados.cidade){
         enderecoEl.innerText = `${dados.rua}, ${dados.numero} - ${dados.bairro}, ${dados.cidade}`;
       }else if(dados.bairro && dados.cidade){
@@ -395,6 +394,8 @@ async function carregarProdutos(){
   for(const comercioDoc of comerciosSnap.docs){
     const comercio = comercioDoc.data();
 
+    if (!comercio.ativo) continue;
+
     const produtosSnap = await getDocs(
       collection(db,"comercios",comercioDoc.id,"produtos")
     );
@@ -429,17 +430,28 @@ function render(p){
       <div class="card-info">
         <h4>${p.nome}</h4>
         <div class="preco">${Number(p.valor).toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}</div>
-
-        <div class="comercio-link" onclick="abrirComercio('${p.comercioId}')">
-          ${p.comercio}
-        </div>
-
+        <div class="comercio-link" onclick="abrirComercio('${p.comercioId}')">${p.comercio}</div>
         <div style="font-size:.8em;color:#666">${p.bairro} • ${p.cidade}</div>
         <button class="btn" onclick="pedir('${p.id}')">Pedir</button>
       </div>
     </div>
   `;
 }
+
+/* BUSCA */
+buscaInput.addEventListener("input", ()=>{
+  const termo = buscaInput.value.toLowerCase();
+  lista.innerHTML = "";
+
+  const filtrados = produtos.filter(p=>
+    p.nome.toLowerCase().includes(termo) ||
+    p.descricao.toLowerCase().includes(termo) ||
+    p.categoria.toLowerCase().includes(termo) ||
+    p.comercio.toLowerCase().includes(termo)
+  );
+
+  filtrados.forEach(render);
+});
 
 /* PEDIR */
 window.pedir = (id)=>{
@@ -453,6 +465,7 @@ window.abrirComercio = (comercioId)=>{
   localStorage.setItem("comercioSelecionado", JSON.stringify({ comercioId }));
   window.location.href = "perfil-comercio.html";
 }
+
 /* BALÃO DE CHAT */
 chatBalao.addEventListener("click", ()=>{
   onAuthStateChanged(auth, (user)=>{
