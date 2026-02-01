@@ -14,13 +14,6 @@
   --texto:#333;
 }
 
-/* 🌙 Tema escuro GLOBAL */
-html.dark-theme{
-  --cinza:#1e1e1e;
-  --cinza-claro:#2a2a2a;
-  --texto:#f5f5f5;
-}
-
 *{box-sizing:border-box}
 
 body{
@@ -36,15 +29,14 @@ body{
   color:#fff;
   padding:14px;
   text-align:center;
+  font-size:1.1em;
   font-weight:600;
+  box-shadow:0 2px 6px rgba(0,0,0,0.15);
 }
+.header img{width:22px;vertical-align:middle;margin-right:6px}
 
 /* CONTAINER */
-.wrapper{
-  max-width:440px;
-  margin:auto;
-  padding:18px;
-}
+.wrapper{max-width:440px;margin:0 auto;padding:18px}
 
 /* CARD */
 .card{
@@ -53,24 +45,29 @@ body{
   padding:22px;
   box-shadow:0 6px 18px rgba(0,0,0,.1);
 }
-html.dark-theme .card{
-  background:#2a2a2a;
-}
+html.dark-theme .card{background:#2a2a2a}
 
-/* PERFIL */
+/* PERFIL TOPO */
 .perfil-topo{text-align:center;margin-bottom:20px}
 .avatar{
   width:80px;height:80px;border-radius:50%;
   background:var(--laranja);
   display:flex;align-items:center;justify-content:center;
-  margin:auto auto 10px;
+  margin:0 auto 10px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.15);
 }
-.avatar img{width:60px;border-radius:50%}
+.avatar img{width:60px;height:60px;border-radius:50%}
 .perfil-topo span{font-size:.9em;color:#777}
 html.dark-theme .perfil-topo span{color:#ccc}
 
 /* FORM */
-label{font-size:.8em;color:#666}
+label{
+  display:block;
+  font-size:.8em;
+  color:#666;
+  margin-bottom:5px;
+  font-weight:500;
+}
 html.dark-theme label{color:#ddd}
 
 input{
@@ -79,11 +76,18 @@ input{
   border-radius:14px;
   border:1.5px solid #ddd;
   background:var(--cinza-claro);
+  font-size:.95em;
   margin-bottom:16px;
+  transition:border-color 0.25s ease, box-shadow 0.25s ease;
 }
-html.dark-theme input{
-  background:#333;border-color:#555;color:#fff;
+input:focus{
+  outline:none;
+  border-color:var(--laranja);
+  background:#fff;
+  box-shadow:0 0 6px rgba(255,140,26,0.4);
 }
+input[disabled]{opacity:.7}
+html.dark-theme input{background:#333;border-color:#555;color:#fff}
 
 /* BOTÕES */
 button{
@@ -91,33 +95,70 @@ button{
   padding:15px;
   border:none;
   border-radius:14px;
+  font-size:1em;
   font-weight:600;
   cursor:pointer;
+  transition:all 0.3s ease;
 }
-.btn-salvar{background:var(--laranja);color:#fff}
-.btn-sair{background:#444;color:#fff;margin-top:12px}
+button img{width:18px;vertical-align:middle;margin-right:6px}
+
+.btn-salvar{
+  background:var(--laranja);
+  color:#fff;
+  box-shadow:0 3px 8px rgba(0,0,0,0.12);
+}
+.btn-salvar:hover{
+  background:var(--laranja-escuro);
+  box-shadow:0 4px 12px rgba(0,0,0,0.18);
+}
+
+.btn-sair{
+  background:#444;
+  color:#fff;
+  margin-top:12px;
+  box-shadow:0 3px 8px rgba(0,0,0,0.12);
+}
+.btn-sair:hover{
+  background:#222;
+  box-shadow:0 4px 12px rgba(0,0,0,0.18);
+}
+
 .btn-tema{
   background:#fff;
   color:var(--laranja);
   border:1.5px solid var(--laranja);
   margin-top:12px;
+  box-shadow:0 3px 8px rgba(0,0,0,0.12);
+}
+.btn-tema:hover{
+  background:#f0f0f0;
+  box-shadow:0 4px 12px rgba(0,0,0,0.18);
 }
 html.dark-theme .btn-tema{
   background:#333;color:#fff;border-color:#fff;
+}
+
+/* Tema escuro global */
+html.dark-theme{
+  --cinza:#1e1e1e;
+  --cinza-claro:#2a2a2a;
+  --texto:#f5f5f5;
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">Meu Perfil</div>
+<div class="header">
+  <img src="img/perfil1.png" alt="Perfil"> Meu Perfil
+</div>
 
 <div class="wrapper">
   <div class="card" id="conteudo" style="display:none">
 
     <div class="perfil-topo">
       <div class="avatar">
-        <img src="img/logo.png">
+        <img src="img/logo.png" alt="Logo Tôcomfome">
       </div>
       <strong id="nomeTopo"></strong><br>
       <span>Cliente Tôcomfome</span>
@@ -141,9 +182,15 @@ html.dark-theme .btn-tema{
     <label>Cidade</label>
     <input id="cidade">
 
-    <button class="btn-salvar" onclick="salvar()">Salvar alterações</button>
-    <button class="btn-sair" onclick="sair()">Sair da conta</button>
-    <button class="btn-tema" onclick="toggleTema()">🌙 Alternar Tema</button>
+    <button class="btn-salvar" onclick="salvar()">
+      <img src="img/salvar.png" alt="Salvar"> Salvar alterações
+    </button>
+    <button class="btn-sair" onclick="sair()">
+      <img src="img/sair.png" alt="Sair"> Sair da conta
+    </button>
+    <button class="btn-tema" onclick="toggleTema()">
+      🌙 Alternar Tema
+    </button>
 
   </div>
 </div>
@@ -155,26 +202,37 @@ from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, doc, getDoc, updateDoc } 
 from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-const app = initializeApp({
+const firebaseConfig = {
   apiKey: "AIzaSyD6a29L24aFSgVjmC7NFGXpdWW4g1uQsio",
   authDomain: "tocomfome-754e1.firebaseapp.com",
   projectId: "tocomfome-754e1",
-});
+};
 
+const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+
 let usuarioAtual;
 
-/* LOGIN + TEMA */
-onAuthStateChanged(auth, async(user)=>{
-  if(!user){ location.href="login-cliente.html"; return; }
+/* LOGIN */
+onAuthStateChanged(auth, async (user)=>{
+  if(!user){
+    location.href = "login-cliente.html";
+    return;
+  }
+
   usuarioAtual = user;
 
   const ref = doc(db,"clientes",user.uid);
   const snap = await getDoc(ref);
-  if(!snap.exists()) return;
+
+  if(!snap.exists()){
+    location.href = "index.html";
+    return;
+  }
 
   const d = snap.data();
+
   nome.value = d.nome;
   nomeTopo.innerText = d.nome.split(" ")[0];
   cpf.value = d.cpf;
@@ -187,31 +245,37 @@ onAuthStateChanged(auth, async(user)=>{
     document.documentElement.classList.add("dark-theme");
   }
 
-  conteudo.style.display="block";
+  conteudo.style.display = "block";
 });
 
 /* SALVAR */
-window.salvar = async()=>{
-  if(email.value !== usuarioAtual.email){
-    await updateEmail(usuarioAtual,email.value);
+window.salvar = async ()=>{
+  try{
+    if(email.value !== usuarioAtual.email){
+      await updateEmail(usuarioAtual, email.value);
+    }
+
+    await updateDoc(doc(db,"clientes",usuarioAtual.uid),{
+      email: email.value,
+      celular: celular.value,
+      bairro: bairro.value,
+      cidade: cidade.value
+    });
+
+    alert("Dados atualizados com sucesso");
+  }catch(e){
+    alert(e.message);
   }
-  await updateDoc(doc(db,"clientes",usuarioAtual.uid),{
-    email:email.value,
-    celular:celular.value,
-    bairro:bairro.value,
-    cidade:cidade.value
-  });
-  alert("Dados atualizados");
 }
 
 /* SAIR */
-window.sair = async()=>{
+window.sair = async ()=>{
   await signOut(auth);
-  location.href="login-cliente.html";
+  location.href = "login-cliente.html";
 }
 
-/* 🌙 TEMA */
-window.toggleTema = async()=>{
+/* 🌙 Alternar Tema */
+window.toggleTema = async ()=>{
   const dark = document.documentElement.classList.toggle("dark-theme");
   await updateDoc(doc(db,"clientes",usuarioAtual.uid),{
     tema: dark ? "dark" : "light"
