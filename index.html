@@ -403,18 +403,18 @@ async function carregarProdutos(){
     produtosSnap.forEach(prodDoc=>{
       const p = prodDoc.data();
 
-      const produto = {
-        id: prodDoc.id,
-        comercioId: comercioDoc.id,
-        nome: p.nome,
-        valor: p.valor,
-        descricao: p.descricao || "",
-        categoria: p.categoria || "",
-        img: p.img || "https://images.unsplash.com/photo-1550547660-d9450f859349",
-        comercio: comercio.nome,
-        bairro: comercio.endereco?.bairro || "",
-        cidade: comercio.endereco?.cidade || ""
-      };
+    const produto = {
+      id: prodDoc.id,
+      comercioId: comercioDoc.id,
+      nome: p.nome,
+      valor: p.valor,
+      descricao: p.descricao || "",
+      categoria: p.categoria || "",
+      img: p.imagemUrl || "https://images.unsplash.com/photo-1550547660-d9450f859349",
+      comercio: comercio.nome,
+      bairro: comercio.endereco?.bairro || "",
+      cidade: comercio.endereco?.cidade || ""
+    };
 
       produtos.push(produto);
       render(produto);
