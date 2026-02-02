@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Tô com fome 🍔</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Segoe UI', Arial, sans-serif;
+}
+
+body{
+  width:100vw;
+  height:100vh;
+  background:linear-gradient(135deg, #ff8c1a, #ffb347);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+
+.vinheta{
+  text-align:center;
+  animation: fadeIn 1s ease forwards;
+}
+
+.vinheta img{
+  width:180px;
+  max-width:70%;
+  animation: zoom 1.5s ease forwards;
+}
+
+.vinheta p{
+  margin-top:15px;
+  color:#fff;
+  font-size:1.1em;
+  font-weight:600;
+  opacity:0;
+  animation: fadeText 1s ease forwards;
+  animation-delay:1s;
+}
+
+@keyframes zoom{
+  from{transform:scale(0.6);opacity:0}
+  to{transform:scale(1);opacity:1}
+}
+
+@keyframes fadeIn{
+  from{opacity:0}
+  to{opacity:1}
+}
+
+@keyframes fadeText{
+  from{opacity:0}
+  to{opacity:1}
+}
+</style>
+</head>
+
+<body>
+
+<div class="vinheta">
+  <img src="img/logo.png" alt="Tô com fome">
+  <p>Encontre seu lanche favorito 🍔</p>
+</div>
+
+<script>
+  setTimeout(()=>{
+    window.location.href = "home.html";
+  }, 3000); // 3 segundos
+</script>
+
+</body>
+</html>
