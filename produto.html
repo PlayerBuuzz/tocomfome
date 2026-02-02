@@ -184,7 +184,7 @@ function carregarProduto(){
   document.getElementById("nome").innerText = produto.nome;
   document.getElementById("preco").innerText = "R$ " + Number(produto.valor).toFixed(2);
   document.getElementById("descricao").innerText = produto.descricao || "Produto delicioso preparado com carinho 😋";
-  document.getElementById("fotoProduto").src = produto.foto || "img/produto.png";
+  document.getElementById("fotoProduto").src = produto.img || produto.imagemUrl || "img/produto.png";
 }
 
 /* ✅ FINALIZAR */
