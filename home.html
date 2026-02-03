@@ -234,11 +234,11 @@ body.dark-theme .sidebar a{
 <div class="sidebar" id="sidebar">
   <h3><img src="img/menu.png"> Menu</h3>
 
-  <a href="#" onclick="fecharMenu()">Hamburgueria</a>
-  <a href="#" onclick="fecharMenu()">Pizzaria</a>
-  <a href="#" onclick="fecharMenu()">Pastelaria</a>
-  <a href="#" onclick="fecharMenu()">Açai / Sorveteria</a>
-  <a href="#" onclick="fecharMenu()">Lanchonete</a>
+  <a href="#" onclick="filtrarTipoComercio('Hamburgueria')">Hamburgueria</a>
+  <a href="#" onclick="filtrarTipoComercio('Pizzaria')">Pizzaria</a>
+  <a href="#" onclick="filtrarTipoComercio('Pastelaria')">Pastelaria</a>
+  <a href="#" onclick="filtrarTipoComercio('Açai / Sorveteria')">Açai / Sorveteria</a>
+  <a href="#" onclick="filtrarTipoComercio('Lanchonete')">Lanchonete</a>
 
   <a href="#" onclick="irPerfil();fecharMenu()">Meu Perfil</a>
   <a href="#" onclick="logoff()">Sair</a>
@@ -331,6 +331,7 @@ const enderecoEl = document.querySelector(".endereco span");
 const sidebar = document.getElementById("sidebar");
 const overlay = document.getElementById("overlay");
 const buscaInput = document.getElementById("buscaInput");
+const tipoSelect = document.getElementById("tipoSelect");
 
 /* 🔧 ESTADO */
 let comercios = [];
@@ -454,41 +455,52 @@ function renderComercio(c) {
 }
 
 /* =========================
-   BUSCA POR COMÉRCIOS
+   BUSCA POR TEXTO
 ========================= */
 if (buscaInput) {
   buscaInput.addEventListener("input", () => {
-    const termo = normalizar(buscaInput.value);
-    lista.innerHTML = "";
-
-    const filtrados = comercios.filter(c =>
-      normalizar(c.nome).includes(termo) ||
-      normalizar(c.tipo).includes(termo) ||
-      normalizar(c.bairro).includes(termo) ||
-      normalizar(c.cidade).includes(termo)
-    );
-
-    if (!filtrados.length) {
-      lista.innerHTML =
-        "<p style='padding:20px;color:#777'>Nenhum comércio encontrado.</p>";
-      return;
-    }
-
-    filtrados.forEach(renderComercio);
+    aplicarFiltros();
   });
 }
 
 /* =========================
-   FILTRO MENU LATERAL (CORRIGIDO)
+   SELECT TIPO DE COMÉRCIO (AGORA FUNCIONA)
+========================= */
+if (tipoSelect) {
+  tipoSelect.addEventListener("change", () => {
+    aplicarFiltros();
+  });
+}
+
+/* =========================
+   FILTRO MENU LATERAL
 ========================= */
 window.filtrarTipoComercio = (tipoMenu) => {
+  if (tipoSelect) tipoSelect.value = tipoMenu;
+  aplicarFiltros();
+  fecharMenu();
+};
+
+/* =========================
+   FUNÇÃO CENTRAL DE FILTRO
+========================= */
+function aplicarFiltros() {
+  const termo = normalizar(buscaInput?.value || "");
+  const tipoSelecionado = normalizar(tipoSelect?.value || "");
+
   lista.innerHTML = "";
 
-  const tipoNormalizado = normalizar(tipoMenu);
+  const filtrados = comercios.filter(c => {
+    const matchTexto =
+      normalizar(c.nome).includes(termo) ||
+      normalizar(c.bairro).includes(termo) ||
+      normalizar(c.cidade).includes(termo);
 
-  const filtrados = comercios.filter(c =>
-    normalizar(c.tipo) === tipoNormalizado
-  );
+    const matchTipo =
+      !tipoSelecionado || normalizar(c.tipo) === tipoSelecionado;
+
+    return matchTexto && matchTipo;
+  });
 
   if (!filtrados.length) {
     lista.innerHTML =
@@ -497,8 +509,7 @@ window.filtrarTipoComercio = (tipoMenu) => {
   }
 
   filtrados.forEach(renderComercio);
-  fecharMenu();
-};
+}
 
 /* =========================
    ABRIR COMÉRCIO
