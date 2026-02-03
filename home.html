@@ -2,244 +2,480 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
+<title>Tôcomfome 🍔 | Buscar</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>To Com Fome 🍔</title>
 
 <style>
 :root{
-  --cor-primaria:#ff3d00;
-  --fundo:#0f0f0f;
-  --card:#1c1c1c;
+  --laranja:#ff8c1a;
+  --cinza:#f9f9f9;
+  --texto:#333;
+  --sombra:rgba(0,0,0,.08);
 }
-
 *{
-  box-sizing:border-box;
-}
-
-body{
   margin:0;
-  font-family:Arial, Helvetica, sans-serif;
-  background:var(--fundo);
-  color:#fff;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Segoe UI',Arial;
+}
+body{
+  background:var(--cinza);
+  padding-bottom:70px;
 }
 
-/* ===== BANNER / CARROSSEL ===== */
-.banner-carousel{
+/* HEADER */
+.header{
+  background:#fff;
+  padding:14px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  box-shadow:0 2px 6px var(--sombra);
+}
+.menu-btn img{
+  width:24px;
+  height:24px;
+  cursor:pointer;
+}
+.header input{
+  flex:1;
+  padding:10px;
+  border-radius:12px;
+  border:1px solid #ddd;
+}
+.usuario{
+  font-size:.85em;
+  font-weight:600;
+  color:var(--laranja);
+}
+
+/* ENDEREÇO */
+.endereco{
+  background:#fff;
+  padding:12px 16px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:.9em;
+  box-shadow:0 2px 4px var(--sombra);
+  color:#777;
+  margin-bottom:6px;
+}
+.endereco .icon{
+  width:20px;
+}
+
+/* SIDEBAR */
+.sidebar{
+  position:fixed;
+  top:0;
+  left:-260px;
+  width:260px;
+  height:100%;
+  background:#fff;
+  box-shadow:2px 0 10px rgba(0,0,0,.2);
+  padding:20px;
+  transition:.3s;
+  z-index:10;
+}
+.sidebar.active{ left:0; }
+.sidebar h3{
+  color:var(--laranja);
+  margin-bottom:12px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.sidebar h3 img{
+  width:20px;
+}
+.sidebar a{
+  display:block;
+  padding:10px 0;
+  color:var(--texto);
+  text-decoration:none;
+  border-bottom:1px solid #eee;
+}
+
+/* OVERLAY */
+.overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.45);
+  opacity:0;
+  pointer-events:none;
+  transition:.3s;
+  z-index:9;
+}
+.overlay.active{
+  opacity:1;
+  pointer-events:auto;
+}
+
+/* CARROSSEL */
+.carrossel{
+  width:100%;
+  overflow:hidden;
+  padding:10px 0;
+}
+.carrossel-track{
   display:flex;
   gap:12px;
   overflow-x:auto;
-  padding:12px;
+  scroll-snap-type:x mandatory;
+  padding:0 15px;
 }
-
-.banner-carousel::-webkit-scrollbar{
-  display:none;
-}
-
-.banner-carousel img{
+.carrossel-track img{
   width:200px;
   height:100px;
   object-fit:cover;
-  border-radius:14px;
-  flex-shrink:0;
-}
-
-/* ===== BUSCA ===== */
-.search-box{
-  padding:12px;
-}
-
-.search-box input{
-  width:100%;
-  padding:12px 14px;
-  border-radius:12px;
-  border:none;
-  outline:none;
-  font-size:14px;
-}
-
-/* ===== LISTA DE COMÉRCIOS ===== */
-.comercios{
-  padding:12px;
-  display:grid;
-  grid-template-columns:repeat(auto-fill, minmax(160px, 1fr));
-  gap:14px;
-}
-
-.comercio-card{
-  background:var(--card);
   border-radius:16px;
-  padding:10px;
+  flex-shrink:0;
+  scroll-snap-align:start;
+  box-shadow:0 4px 10px var(--sombra);
+}
+
+/* LISTA */
+.lista{
+  padding:15px;
+}
+
+/* CARD COMÉRCIO */
+.card-comercio{
+  background:#fff;
+  border-radius:18px;
+  padding:14px;
+  margin-bottom:16px;
   display:flex;
-  flex-direction:column;
+  gap:14px;
+  box-shadow:0 4px 12px var(--sombra);
 }
-
-.comercio-card img{
-  width:100%;
-  height:110px;
+.card-comercio img{
+  width:90px;
+  height:90px;
+  border-radius:14px;
   object-fit:cover;
-  border-radius:12px;
 }
-
-.comercio-card h3{
-  font-size:15px;
-  margin:8px 0 6px;
+.card-comercio h4{
+  font-size:1.05em;
+  margin-bottom:4px;
 }
-
-.comercio-card button{
-  margin-top:auto;
+.card-comercio .tipo{
+  font-size:.8em;
+  color:#777;
+  margin-bottom:6px;
+}
+.card-comercio .local{
+  font-size:.8em;
+  color:#999;
+  margin-bottom:10px;
+}
+.btn{
+  width:100%;
   padding:10px;
   border:none;
-  border-radius:10px;
-  background:var(--cor-primaria);
+  border-radius:12px;
+  background:var(--laranja);
   color:#fff;
-  font-size:14px;
+  font-weight:600;
   cursor:pointer;
 }
 
-/* ===== ESPAÇO PARA BARRA INFERIOR ===== */
-.espaco-bottom{
-  height:80px;
+/* MENU INFERIOR */
+.menu-inferior{
+  position:fixed;
+  bottom:0;
+  left:0;
+  width:100%;
+  background:#fff;
+  display:flex;
+  justify-content:space-around;
+  padding:10px 0;
+  box-shadow:0 -2px 8px var(--sombra);
+}
+.menu-inferior .icon{
+  width:24px;
+  height:24px;
+  display:block;
+  margin:0 auto 4px;
+}
+.menu-inferior div{
+  flex:1;
+  text-align:center;
+  font-size:.8em;
+  color:#333;
+  cursor:pointer;
+}
+
+/* TEMA ESCURO */
+body.dark-theme{
+  --cinza:#1e1e1e;
+  --texto:#f5f5f5;
+  --sombra:rgba(0,0,0,.4);
+  background:var(--cinza);
+}
+body.dark-theme .header,
+body.dark-theme .sidebar,
+body.dark-theme .endereco,
+body.dark-theme .card-comercio,
+body.dark-theme .menu-inferior{
+  background:#2a2a2a;
+}
+body.dark-theme .sidebar a{
+  color:#ddd;
+  border-color:#444;
 }
 </style>
 </head>
 
 <body>
 
-<!-- ===== BANNER / CARROSSEL ===== -->
-<div class="banner-carousel">
-  <img src="img/banner1.jpg" alt="Promoção">
-  <img src="img/banner2.jpg" alt="Destaque">
-  <img src="img/banner3.jpg" alt="Ofertas">
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <h3><img src="img/menu.png"> Menu</h3>
+
+  <a href="#" onclick="fecharMenu()">Hamburgueria</a>
+  <a href="#" onclick="fecharMenu()">Pizzaria</a>
+  <a href="#" onclick="fecharMenu()">Pastelaria</a>
+  <a href="#" onclick="fecharMenu()">Açai / Sorveteria</a>
+  <a href="#" onclick="fecharMenu()">Lanchonete</a>
+
+  <a href="#" onclick="irPerfil();fecharMenu()">Meu Perfil</a>
+  <a href="#" onclick="logoff()">Sair</a>
 </div>
 
-<!-- ===== BUSCA ===== -->
-<div class="search-box">
-  <input 
-    type="text" 
-    id="searchInput" 
-    placeholder="Buscar comércio..."
-  >
+<div class="overlay" id="overlay" onclick="fecharMenu()"></div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="menu-btn" onclick="toggleMenu()">
+    <img src="img/menu.png">
+  </div>
+  <input placeholder="Buscar restaurantes...">
+  <div class="usuario">...</div>
 </div>
 
-<!-- ===== LISTA DE COMÉRCIOS ===== -->
-<div class="comercios" id="comerciosContainer">
-  <!-- Os comércios serão inseridos via JS -->
+<!-- ENDEREÇO -->
+<div class="endereco">
+  <img src="img/endereco.png" class="icon">
+  <span>Carregando endereço...</span>
 </div>
 
-<div class="espaco-bottom"></div>
-<script>
-/* ======================================================
-   DADOS DE COMÉRCIOS
-   (Depois você pode trocar por Firebase sem mudar lógica)
-====================================================== */
-const comercios = [
-  {
-    id: 1,
-    nome: "Burger do Zé",
-    categoria: "hamburgueria",
-    banner: "img/burger.jpg"
-  },
-  {
-    id: 2,
-    nome: "Pizza da Praça",
-    categoria: "pizzaria",
-    banner: "img/pizza.jpg"
-  },
-  {
-    id: 3,
-    nome: "Sorvetes Gelado",
-    categoria: "sorveteria",
-    banner: "img/sorvete.jpg"
-  },
-  {
-    id: 4,
-    nome: "Lanchonete Central",
-    categoria: "lanchonete",
-    banner: "img/lanchonete.jpg"
+<!-- CARROSSEL -->
+<div class="carrossel">
+  <div class="carrossel-track">
+    <img src="img/banner1.jpg">
+    <img src="img/banner2.jpg">
+    <img src="img/banner3.jpg">
+  </div>
+</div>
+
+<!-- LISTA -->
+<div class="lista" id="listaProdutos"></div>
+
+<!-- MENU INFERIOR -->
+<div class="menu-inferior">
+  <div onclick="irInicio()">
+    <img src="img/home.png" class="icon">Início
+  </div>
+  <div onclick="irBusca()">
+    <img src="img/buscar.png" class="icon">Buscar
+  </div>
+  <div onclick="irPedidos()">
+    <img src="img/pedidos.png" class="icon">Pedidos
+  </div>
+  <div onclick="irPerfil()">
+    <img src="img/perfil.png" class="icon">Perfil
+  </div>
+</div>
+
+<!-- BALÃO DE CHAT -->
+<div id="chat-balao" style="
+  position:fixed;
+  bottom:80px;
+  right:20px;
+  background:#ff8c1a;
+  color:#fff;
+  padding:12px 16px;
+  border-radius:50px;
+  font-weight:600;
+  cursor:pointer;
+  box-shadow:0 4px 12px rgba(0,0,0,.2);
+  display:flex;
+  align-items:center;
+  gap:8px;
+">
+  <img src="img/suporte.png" style="width:20px">
+  Suporte
+</div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+/* 🔧 FIREBASE */
+const firebaseConfig = {
+  apiKey: "AIzaSyD6a29L24aFSgVjmC7NFGXpdWW4g1uQsio",
+  authDomain: "tocomfome-754e1.firebaseapp.com",
+  projectId: "tocomfome-754e1"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+/* 🔧 ELEMENTOS */
+const lista = document.getElementById("listaProdutos");
+const usuarioEl = document.querySelector(".usuario");
+const enderecoEl = document.querySelector(".endereco span");
+const sidebar = document.getElementById("sidebar");
+const overlay = document.getElementById("overlay");
+
+/* =========================
+   MENU LATERAL
+========================= */
+window.toggleMenu = () => {
+  sidebar.classList.toggle("active");
+  overlay.classList.toggle("active");
+};
+
+window.fecharMenu = () => {
+  sidebar.classList.remove("active");
+  overlay.classList.remove("active");
+};
+
+/* =========================
+   USUÁRIO / ENDEREÇO / TEMA
+========================= */
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    const snap = await getDoc(doc(db, "clientes", user.uid));
+    if (snap.exists()) {
+      const dados = snap.data();
+
+      usuarioEl.innerText = dados.nome
+        ? dados.nome.split(" ")[0]
+        : "Usuário";
+
+      enderecoEl.innerText = dados.endereco
+        ? `${dados.endereco.bairro}, ${dados.endereco.cidade}`
+        : "Endereço não cadastrado";
+
+      if (dados.tema === "dark") {
+        document.body.classList.add("dark-theme");
+      }
+    }
+  } else {
+    usuarioEl.innerText = "Visitante";
+    enderecoEl.innerText = "Endereço não disponível";
   }
-];
+});
 
-/* ===== ELEMENTOS ===== */
-const container = document.getElementById("comerciosContainer");
-const searchInput = document.getElementById("searchInput");
+/* =========================
+   LOGOFF
+========================= */
+window.logoff = async () => {
+  await signOut(auth);
+  window.location.href = "index.html";
+};
 
-/* ===== CONTROLE DE FILTRO ===== */
-let categoriaAtiva = "todos";
+/* =========================
+   NAVEGAÇÃO (barra inferior)
+========================= */
+window.irInicio = () => {
+  window.location.href = "home.html";
+};
 
-/* ======================================================
-   RENDERIZAÇÃO PRINCIPAL
-====================================================== */
-function renderComercios() {
-  container.innerHTML = "";
+window.irPedidos = () => {
+  window.location.href = "pedidos.html";
+};
 
-  const termoBusca = searchInput.value.toLowerCase();
+window.irPerfil = () => {
+  window.location.href = auth.currentUser
+    ? "perfil.html"
+    : "login-cliente.html";
+};
 
-  const filtrados = comercios.filter(comercio => {
-    const matchCategoria =
-      categoriaAtiva === "todos" ||
-      comercio.categoria === categoriaAtiva;
+window.irBusca = () => {
+  const input = document.querySelector(".header input");
+  if (input) input.focus();
+};
 
-    const matchBusca =
-      comercio.nome.toLowerCase().includes(termoBusca);
+/* =========================
+   CARREGAR COMÉRCIOS
+========================= */
+async function carregarComercios() {
+  lista.innerHTML = "";
 
-    return matchCategoria && matchBusca;
-  });
+  const snap = await getDocs(collection(db, "comercios"));
 
-  if (filtrados.length === 0) {
-    container.innerHTML = `
-      <p style="grid-column:1/-1;text-align:center;opacity:.6">
-        Nenhum comércio encontrado
-      </p>
-    `;
+  if (snap.empty) {
+    lista.innerHTML =
+      "<p style='padding:20px;color:#777'>Nenhum comércio encontrado.</p>";
     return;
   }
 
-  filtrados.forEach(comercio => {
-    const card = document.createElement("div");
-    card.className = "comercio-card";
+  snap.forEach(docSnap => {
+    const c = docSnap.data();
+    if (!c.ativo) return;
 
-    card.innerHTML = `
-      <img src="${comercio.banner}">
-      <h3>${comercio.nome}</h3>
-      <button onclick="abrirCardapio(${comercio.id})">
-        Ver cardápio
-      </button>
-    `;
-
-    container.appendChild(card);
+    renderComercio({
+      id: docSnap.id,
+      nome: c.nome,
+      tipo: c.tipoComercio || "",
+      bairro: c.endereco?.bairro || "",
+      cidade: c.endereco?.cidade || "",
+      img: c.logoUrl || "https://images.unsplash.com/photo-1552566626-52f8b828add9"
+    });
   });
 }
 
-/* ======================================================
-   BUSCA
-====================================================== */
-searchInput.addEventListener("input", () => {
-  renderComercios();
-});
-
-/* ======================================================
-   FILTRO DO MENU LATERAL
-   👉 basta chamar filtrarCategoria('pizzaria') etc
-====================================================== */
-function filtrarCategoria(categoria) {
-  categoriaAtiva = categoria;
-  renderComercios();
+/* =========================
+   RENDER COMÉRCIO
+========================= */
+function renderComercio(c) {
+  lista.innerHTML += `
+    <div class="card-comercio">
+      <img src="${c.img}">
+      <div style="flex:1">
+        <h4>${c.nome}</h4>
+        <div class="tipo">${c.tipo}</div>
+        <div class="local">${c.bairro} • ${c.cidade}</div>
+        <button class="btn" onclick="abrirComercio('${c.id}')">
+          Ver cardápio
+        </button>
+      </div>
+    </div>
+  `;
 }
 
-/* ======================================================
-   ABRIR CARDÁPIO
-====================================================== */
-function abrirCardapio(idComercio) {
-  localStorage.setItem("comercioSelecionado", idComercio);
-  window.location.href = "cardapio.html";
+/* =========================
+   ABRIR PERFIL DO COMÉRCIO
+========================= */
+window.abrirComercio = (comercioId) => {
+  localStorage.setItem(
+    "comercioSelecionado",
+    JSON.stringify({ comercioId })
+  );
+  window.location.href = "perfil-comercio.html";
+};
+
+/* =========================
+   CHAT
+========================= */
+const chatBalao = document.getElementById("chat-balao");
+if (chatBalao) {
+  chatBalao.addEventListener("click", () => {
+    window.location.href = auth.currentUser
+      ? "chat-cliente.html"
+      : "login-cliente.html";
+  });
 }
 
-/* ======================================================
-   INICIALIZAÇÃO
-====================================================== */
-document.addEventListener("DOMContentLoaded", () => {
-  renderComercios();
-});
+/* =========================
+   INIT
+========================= */
+carregarComercios();
 </script>
 </body>
 </html>
