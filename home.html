@@ -480,19 +480,15 @@ if (buscaInput) {
 
 /* =========================
    FILTRO MENU LATERAL (CORRIGIDO)
-   👉 agora filtra por ID ex: "hamburgueria"
 ========================= */
-window.filtrarTipoComercio = (tipoId) => {
+window.filtrarTipoComercio = (tipoMenu) => {
   lista.innerHTML = "";
 
-  const tipoNormalizado = normalizar(tipoId);
+  const tipoNormalizado = normalizar(tipoMenu);
 
-  const filtrados = comercios.filter(c => {
-    if (Array.isArray(c.tipo)) {
-      return c.tipo.map(normalizar).includes(tipoNormalizado);
-    }
-    return normalizar(c.tipo).includes(tipoNormalizado);
-  });
+  const filtrados = comercios.filter(c =>
+    normalizar(c.tipo) === tipoNormalizado
+  );
 
   if (!filtrados.length) {
     lista.innerHTML =
