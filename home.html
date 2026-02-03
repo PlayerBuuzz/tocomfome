@@ -331,9 +331,16 @@ const enderecoEl = document.querySelector(".endereco span");
 const sidebar = document.getElementById("sidebar");
 const overlay = document.getElementById("overlay");
 const buscaInput = document.getElementById("buscaInput");
+const chatBalao = document.getElementById("chat-balao");
 
 /* 🔧 ESTADO */
 let comercios = [];
+
+/* =========================
+   UTIL
+========================= */
+const normalizar = (txt = "") =>
+  txt.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
 /* =========================
    MENU LATERAL
@@ -349,24 +356,31 @@ window.fecharMenu = () => {
 };
 
 /* =========================
-   NORMALIZAR TEXTO
-========================= */
-const normalizar = (txt = "") =>
-  txt.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-
-/* =========================
-   USUÁRIO / ENDEREÇO
+   USUÁRIO / ENDEREÇO / TEMA
 ========================= */
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     const snap = await getDoc(doc(db, "clientes", user.uid));
     if (snap.exists()) {
       const dados = snap.data();
-      usuarioEl.innerText = dados.nome?.split(" ")[0] || "Usuário";
+
+      usuarioEl.innerText = dados.nome
+        ? dados.nome.split(" ")[0]
+        : "Usuário";
+
       enderecoEl.innerText = dados.endereco
         ? `${dados.endereco.bairro}, ${dados.endereco.cidade}`
         : "Endereço não cadastrado";
+
+      if (dados.tema === "dark") {
+        document.body.classList.add("dark-theme");
+      } else {
+        document.body.classList.remove("dark-theme");
+      }
     }
+  } else {
+    usuarioEl.innerText = "Visitante";
+    enderecoEl.innerText = "Endereço não disponível";
   }
 });
 
@@ -379,6 +393,27 @@ window.logoff = async () => {
 };
 
 /* =========================
+   BARRA INFERIOR (CORRIGIDA)
+========================= */
+window.irInicio = () => {
+  window.location.href = "home.html";
+};
+
+window.irBusca = () => {
+  buscaInput?.focus();
+};
+
+window.irPedidos = () => {
+  window.location.href = "pedidos.html";
+};
+
+window.irPerfil = () => {
+  window.location.href = auth.currentUser
+    ? "perfil.html"
+    : "login-cliente.html";
+};
+
+/* =========================
    CARREGAR COMÉRCIOS
 ========================= */
 async function carregarComercios() {
@@ -387,18 +422,26 @@ async function carregarComercios() {
 
   const snap = await getDocs(collection(db, "comercios"));
 
+  if (snap.empty) {
+    lista.innerHTML =
+      "<p style='padding:20px;color:#777'>Nenhum comércio encontrado.</p>";
+    return;
+  }
+
   snap.forEach(docSnap => {
     const c = docSnap.data();
     if (!c.ativo) return;
 
-    comercios.push({
+    const comercio = {
       id: docSnap.id,
       nome: c.nome || "",
       tipo: c.tipoComercio || "",
       bairro: c.endereco?.bairro || "",
       cidade: c.endereco?.cidade || "",
       img: c.logoUrl || "https://images.unsplash.com/photo-1552566626-52f8b828add9"
-    });
+    };
+
+    comercios.push(comercio);
   });
 
   renderLista(comercios);
@@ -434,6 +477,20 @@ function renderLista(listaComercios) {
 }
 
 /* =========================
+   FILTRO MENU LATERAL ✅
+========================= */
+window.filtrarTipoComercio = (tipoMenu) => {
+  const tipo = normalizar(tipoMenu);
+
+  const filtrados = comercios.filter(c =>
+    normalizar(c.tipo) === tipo
+  );
+
+  renderLista(filtrados);
+  fecharMenu();
+};
+
+/* =========================
    BUSCA
 ========================= */
 buscaInput?.addEventListener("input", () => {
@@ -450,26 +507,24 @@ buscaInput?.addEventListener("input", () => {
 });
 
 /* =========================
-   FILTRO MENU LATERAL ✅ CORRIGIDO
-========================= */
-window.filtrarTipoComercio = (tipoMenu) => {
-  const tipo = normalizar(tipoMenu);
-
-  const filtrados = comercios.filter(c =>
-    normalizar(c.tipo).includes(tipo)
-  );
-
-  renderLista(filtrados);
-  fecharMenu();
-};
-
-/* =========================
    ABRIR COMÉRCIO
 ========================= */
 window.abrirComercio = (comercioId) => {
-  localStorage.setItem("comercioSelecionado", comercioId);
+  localStorage.setItem(
+    "comercioSelecionado",
+    JSON.stringify({ comercioId })
+  );
   window.location.href = "perfil-comercio.html";
 };
+
+/* =========================
+   CHAT
+========================= */
+chatBalao?.addEventListener("click", () => {
+  window.location.href = auth.currentUser
+    ? "chat-cliente.html"
+    : "login-cliente.html";
+});
 
 /* =========================
    INIT
