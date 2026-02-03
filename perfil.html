@@ -167,14 +167,17 @@ html.dark-theme{
     <label>Nome</label>
     <input id="nome" disabled>
 
-    <label>CPF</label>
-    <input id="cpf" disabled>
-
     <label>Email</label>
     <input id="email">
 
     <label>Celular</label>
     <input id="celular">
+
+    <label>Rua</label>
+    <input id="rua">
+
+    <label>Número</label>
+    <input id="numero">
 
     <label>Bairro</label>
     <input id="bairro">
@@ -194,7 +197,6 @@ html.dark-theme{
 
   </div>
 </div>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut, updateEmail } 
@@ -235,11 +237,12 @@ onAuthStateChanged(auth, async (user)=>{
 
   nome.value = d.nome;
   nomeTopo.innerText = d.nome.split(" ")[0];
-  cpf.value = d.cpf;
   email.value = d.email;
   celular.value = d.celular;
-  bairro.value = d.bairro;
-  cidade.value = d.cidade;
+  rua.value = d.endereco?.rua || "";
+  numero.value = d.endereco?.numero || "";
+  bairro.value = d.endereco?.bairro || "";
+  cidade.value = d.endereco?.cidade || "";
 
   if(d.tema === "dark"){
     document.documentElement.classList.add("dark-theme");
@@ -258,8 +261,12 @@ window.salvar = async ()=>{
     await updateDoc(doc(db,"clientes",usuarioAtual.uid),{
       email: email.value,
       celular: celular.value,
-      bairro: bairro.value,
-      cidade: cidade.value
+      endereco: {
+        rua: rua.value,
+        numero: numero.value,
+        bairro: bairro.value,
+        cidade: cidade.value
+      }
     });
 
     alert("Dados atualizados com sucesso");
