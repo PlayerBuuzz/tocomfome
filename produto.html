@@ -172,7 +172,7 @@ import {
   collection, 
   serverTimestamp 
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { getMessaging, getToken } 
+import { getMessaging, getToken, onMessage } 
 from "https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js";
 
 /* 🔥 FIREBASE */
@@ -196,8 +196,8 @@ let clienteNome = "";
 /* Registrar Service Worker */
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("/firebase-messaging-sw.js")
-    .then(reg => console.log("Service Worker registrado"))
-    .catch(err => console.error("Erro ao registrar SW:", err));
+    .then(reg => console.log("✅ Service Worker registrado"))
+    .catch(err => console.error("❌ Erro ao registrar SW:", err));
 }
 
 async function ativarNotificacoes() {
@@ -208,18 +208,25 @@ async function ativarNotificacoes() {
       return;
     }
 
-    // Espera o Service Worker estar pronto
     const registration = await navigator.serviceWorker.ready;
 
     const token = await getToken(messaging, {
-      vapidKey: "BB3N1EQpjWRYNQGpB_Dwo1ICsCMI03xYIqLWrJo_nxs5HcKbRrUze3ATLlIW9BoX3Trm6Fm_NwAMvQeLcJBTgU",
+      vapidKey: "BB3N1EQpjWYRNYQQpB_Dwo1ICsCMl03xYIq_WrJo_nxs5HCkKbRrUze3ATLLIW9B0xV3Trm6Fm_NwAMvQeLcJBTgU", // ✅ corrigida
       serviceWorkerRegistration: registration
     });
 
     if (token) {
       console.log("🔔 Token de notificação:", token);
       alert("Notificações ativadas com sucesso!");
-      // Opcional: enviar token para Firestore ou seu backend
+      // ✅ Salvar token no Firestore para uso futuro
+      const user = auth.currentUser;
+      if (user) {
+        await addDoc(collection(db, "tokens"), {
+          uid: user.uid,
+          token: token,
+          criadoEm: serverTimestamp()
+        });
+      }
     }
   } catch (err) {
     console.error("Erro ao ativar notificações:", err);
@@ -227,9 +234,7 @@ async function ativarNotificacoes() {
   }
 }
 
-// Torna a função acessível ao botão
 window.ativarNotificacoes = ativarNotificacoes;
-
 
 /* 🔐 LOGIN */
 onAuthStateChanged(auth, async (user)=>{
@@ -294,12 +299,20 @@ window.finalizarPedido = async ()=>{
 
   localStorage.removeItem("produtoSelecionado");
 
-  // Ativa notificações após pedido
   await ativarNotificacoes();
 
   alert("✅ Pedido enviado com sucesso!");
   window.location.href = "index.html";
 };
+
+/* 🔔 Foreground notifications */
+onMessage(messaging, (payload) => {
+  console.log("📩 Mensagem recebida em foreground:", payload);
+  new Notification(payload.notification.title, {
+    body: payload.notification.body,
+    icon: "/img/logo.png"
+  });
+});
 </script>
 
 </body>
