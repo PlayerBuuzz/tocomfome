@@ -22,21 +22,6 @@ body{
   background:var(--cinza);
   padding-bottom:70px;
 }
-.menu-inferior .icon {
-  width: 24px;
-  height: 24px;
-  display: block;
-  margin: 0 auto 4px;
-}
-.menu-inferior div {
-  text-align: center;
-  font-size: .8em;
-  color: #333;
-  cursor: pointer;
-}
-.menu-inferior div:hover {
-  color: var(--laranja);
-}
 
 /* HEADER */
 .header{
@@ -76,18 +61,7 @@ body{
   color:#777;
   margin-bottom:6px;
 }
-
-.buscando {
-  padding:10px 16px;
-  display:flex;
-  align-items:center;
-  gap:8px;
-  font-size:.85em;
-  color:#777;
-  background:transparent; /* 🔑 sem fundo */
-  box-shadow:none;        /* 🔑 sem sombra */
-}
-.endereco .icon, .buscando .icon{
+.endereco .icon{
   width:20px;
   height:20px;
 }
@@ -115,7 +89,6 @@ body{
 }
 .sidebar h3 img{
   width:20px;
-  height:20px;
 }
 .sidebar a{
   display:block;
@@ -140,11 +113,36 @@ body{
   pointer-events:auto;
 }
 
+/* CARROSSEL */
+.carrossel{
+  width:100%;
+  overflow:hidden;
+  padding:10px 0;
+}
+.carrossel-track{
+  display:flex;
+  gap:12px;
+  overflow-x:auto;
+  scroll-snap-type:x mandatory;
+  padding:0 15px;
+}
+.carrossel-track img{
+  width:200px;
+  height:100px;
+  object-fit:cover;
+  border-radius:16px;
+  flex-shrink:0;
+  scroll-snap-align:start;
+  box-shadow:0 4px 10px var(--sombra);
+}
+
 /* LISTA */
 .lista{
   padding:15px;
 }
-.card{
+
+/* CARD COMÉRCIO */
+.card-comercio{
   background:#fff;
   border-radius:18px;
   padding:14px;
@@ -153,24 +151,27 @@ body{
   gap:14px;
   box-shadow:0 4px 12px var(--sombra);
 }
-.card img{
-  width:100px;
-  height:100px;
+.card-comercio img{
+  width:90px;
+  height:90px;
   border-radius:14px;
   object-fit:cover;
 }
-.card-info{flex:1}
-.card-info h4{
+.card-comercio h4{
   font-size:1.05em;
   margin-bottom:4px;
 }
-.preco{
-  color:var(--laranja);
-  font-weight:700;
+.card-comercio .tipo{
+  font-size:.8em;
+  color:#777;
   margin-bottom:6px;
 }
+.card-comercio .local{
+  font-size:.8em;
+  color:#999;
+  margin-bottom:10px;
+}
 .btn{
-  margin-top:8px;
   width:100%;
   padding:10px;
   border:none;
@@ -178,47 +179,8 @@ body{
   background:var(--laranja);
   color:#fff;
   font-weight:600;
-}
-
-/* COMÉRCIO SELECIONÁVEL */
-.comercio-link{
-  display:inline-block;
-  padding:4px 10px;
-  margin-bottom:4px;
-  border-radius:20px;
-  border:1px solid #ccc;
-  background:#fff;
-  color:#555;
-  font-size:.8em;
-  font-weight:600;
   cursor:pointer;
 }
-.comercio-link:hover{background:#f2f2f2}
-
-/* SKELETON */
-.skeleton{
-  background:#fff;
-  border-radius:18px;
-  padding:14px;
-  margin-bottom:16px;
-  display:flex;
-  gap:14px;
-}
-.skeleton-img{
-  width:100px;
-  height:100px;
-  border-radius:14px;
-  background:#eee;
-}
-.skeleton-line{
-  height:14px;
-  background:#eee;
-  border-radius:8px;
-  margin-bottom:10px;
-}
-.large{width:80%}
-.medium{width:60%}
-.small{width:40%}
 
 /* MENU INFERIOR */
 .menu-inferior{
@@ -231,93 +193,37 @@ body{
   justify-content:space-around;
   padding:10px 0;
   box-shadow:0 -2px 8px var(--sombra);
-  font-size:.85em;
+}
+.menu-inferior .icon{
+  width:24px;
+  height:24px;
+  display:block;
+  margin:0 auto 4px;
 }
 .menu-inferior div{
   flex:1;
   text-align:center;
+  font-size:.8em;
+  color:#333;
 }
-/* 🌙 Tema escuro */
-body.dark-theme {
+
+/* TEMA ESCURO */
+body.dark-theme{
   --cinza:#1e1e1e;
-  --cinza-claro:#2a2a2a;
   --texto:#f5f5f5;
   --sombra:rgba(0,0,0,.4);
   background:var(--cinza);
-  color:var(--texto);
 }
-
-/* Header */
-body.dark-theme .header {
+body.dark-theme .header,
+body.dark-theme .sidebar,
+body.dark-theme .endereco,
+body.dark-theme .card-comercio,
+body.dark-theme .menu-inferior{
   background:#2a2a2a;
-  box-shadow:0 2px 6px var(--sombra);
 }
-body.dark-theme .header input {
-  background:#333;
-  border-color:#555;
-  color:#fff;
-}
-
-/* Sidebar */
-body.dark-theme .sidebar {
-  background:#2a2a2a;
-  box-shadow:2px 0 10px rgba(0,0,0,.5);
-}
-body.dark-theme .sidebar a {
+body.dark-theme .sidebar a{
   color:#ddd;
-  border-bottom:1px solid #444;
-}
-
-/* Endereço e buscando */
-body.dark-theme .endereco {
-  background:#2a2a2a;
-  color:#ccc;
-  box-shadow:0 2px 4px var(--sombra);
-}
-body.dark-theme .buscando {
-  color:#aaa;
-}
-/* Cards */
-body.dark-theme .card {
-  background:#2a2a2a;
-  box-shadow:0 4px 12px var(--sombra);
-}
-body.dark-theme .card-info h4 {
-  color:#fff;
-}
-body.dark-theme .preco {
-  color:var(--laranja);
-}
-
-/* Comércio link */
-body.dark-theme .comercio-link {
-  background:#2a2a2a;
-  border-color:#555;
-  color:#ddd;
-}
-body.dark-theme .comercio-link:hover {
-  background:#333;
-}
-
-/* Skeleton */
-body.dark-theme .skeleton {
-  background:#2a2a2a;
-}
-body.dark-theme .skeleton-img,
-body.dark-theme .skeleton-line {
-  background:#444;
-}
-
-/* Menu inferior */
-body.dark-theme .menu-inferior {
-  background:#2a2a2a;
-  box-shadow:0 -2px 8px var(--sombra);
-}
-body.dark-theme .menu-inferior div {
-  color:#ddd;
-}
-body.dark-theme .menu-inferior div:hover {
-  color:var(--laranja);
+  border-color:#444;
 }
 </style>
 </head>
@@ -326,47 +232,58 @@ body.dark-theme .menu-inferior div:hover {
 
 <!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
-  <h3><img src="img/menu.png" alt="Menu"> Menu</h3>
-  <a href="#" onclick="filtrarTipoComercio('Hamburgueria');fecharMenu()">Hamburgueria</a>
-  <a href="#" onclick="filtrarTipoComercio('Pizzaria');fecharMenu()">Pizzaria</a>
-  <a href="#" onclick="filtrarTipoComercio('Pastelaria');fecharMenu()">Pastelaria</a>
-  <a href="#" onclick="filtrarTipoComercio('Açai/Sorveteria');fecharMenu()">Açai / Sorveteria</a>
-  <a href="#" onclick="filtrarTipoComercio('Lanchonete');fecharMenu()">Lanchonete</a>
-  <a href="#" onclick="irPerfil();fecharMenu()">Meu Perfil</a>
-  <a href="#" onclick="logoff()">Sair</a>
+  <h3><img src="img/menu.png"> Menu</h3>
+  <a href="#">Hamburgueria</a>
+  <a href="#">Pizzaria</a>
+  <a href="#">Pastelaria</a>
+  <a href="#">Açai / Sorveteria</a>
+  <a href="#">Lanchonete</a>
+  <a href="#">Meu Perfil</a>
+  <a href="#">Sair</a>
 </div>
 
-<div class="overlay" id="overlay" onclick="fecharMenu()"></div>
+<div class="overlay" id="overlay"></div>
 
 <!-- HEADER -->
 <div class="header">
-  <div class="menu-btn" onclick="toggleMenu()">
-    <img src="img/Menu.png" alt="Menu">
+  <div class="menu-btn">
+    <img src="img/menu.png">
   </div>
-  <input id="buscaInput" placeholder="Buscar comida..." oninput="filtrarBusca()">
-  <div class="usuario" id="usuario">...</div>
+  <input placeholder="Buscar restaurantes...">
+  <div class="usuario">...</div>
 </div>
 
+<!-- ENDEREÇO -->
 <div class="endereco">
-  <img src="img/endereco.png" alt="Endereço" class="icon">
+  <img src="img/endereco.png" class="icon">
   <span>Carregando endereço...</span>
 </div>
 
+<!-- CARROSSEL -->
+<div class="carrossel">
+  <div class="carrossel-track">
+    <img src="img/banner1.jpg">
+    <img src="img/banner2.jpg">
+    <img src="img/banner3.jpg">
+  </div>
+</div>
+
+<!-- LISTA DE COMÉRCIOS -->
 <div class="lista" id="listaProdutos"></div>
 
 <!-- MENU INFERIOR -->
 <div class="menu-inferior">
-  <div onclick="irInicio()">
-    <img src="img/home.png" alt="Início" class="icon"><br>Início
+  <div>
+    <img src="img/home.png" class="icon">Início
   </div>
-  <div onclick="irBusca()">
-    <img src="img/buscar.png" alt="Buscar" class="icon"><br>Buscar
+  <div>
+    <img src="img/buscar.png" class="icon">Buscar
   </div>
-  <div onclick="irPedidos()">
-    <img src="img/pedidos.png" alt="Pedidos" class="icon"><br>Pedidos
+  <div>
+    <img src="img/pedidos.png" class="icon">Pedidos
   </div>
-  <div onclick="irPerfil()">
-    <img src="img/perfil.png" alt="Perfil" class="icon"><br>Perfil
+  <div>
+    <img src="img/perfil.png" class="icon">Perfil
   </div>
 </div>
 
@@ -381,190 +298,145 @@ body.dark-theme .menu-inferior div:hover {
   border-radius:50px;
   font-weight:600;
   cursor:pointer;
-  box-shadow:0 4px 12px rgba(0,0,0,0.2);
-  z-index:1000;
+  box-shadow:0 4px 12px rgba(0,0,0,.2);
   display:flex;
   align-items:center;
   gap:8px;
 ">
-  <img src="img/Suporte.png" alt="Suporte" style="width:20px;height:20px;">
-  <span>Suporte</span>
+  <img src="img/suporte.png" style="width:20px">
+  Suporte
 </div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-/* 🔧 Firebase */
+/* 🔧 FIREBASE */
 const firebaseConfig = {
   apiKey: "AIzaSyD6a29L24aFSgVjmC7NFGXpdWW4g1uQsio",
   authDomain: "tocomfome-754e1.firebaseapp.com",
-  projectId: "tocomfome-754e1",
+  projectId: "tocomfome-754e1"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-/* 🔧 Elementos do DOM */
+/* 🔧 ELEMENTOS */
 const lista = document.getElementById("listaProdutos");
-const usuarioEl = document.getElementById("usuario");
+const usuarioEl = document.querySelector(".usuario");
 const enderecoEl = document.querySelector(".endereco span");
 const sidebar = document.getElementById("sidebar");
 const overlay = document.getElementById("overlay");
-const buscaInput = document.getElementById("buscaInput");
-const chatBalao = document.getElementById("chat-balao");
 
-let produtos = [];
+/* 🔹 MENU */
+window.toggleMenu = () => {
+  sidebar.classList.toggle("active");
+  overlay.classList.toggle("active");
+};
 
-/* MENU */
-window.toggleMenu = ()=>{ sidebar.classList.toggle("active"); overlay.classList.toggle("active"); }
-window.fecharMenu = ()=>{ sidebar.classList.remove("active"); overlay.classList.remove("active"); }
+window.fecharMenu = () => {
+  sidebar.classList.remove("active");
+  overlay.classList.remove("active");
+};
 
-/* USUÁRIO + ENDEREÇO + TEMA */
-onAuthStateChanged(auth, async (user)=>{
-  if(user){
-    const snap = await getDoc(doc(db,"clientes",user.uid));
-    if(snap.exists()){
+/* 🔹 USUÁRIO / ENDEREÇO / TEMA */
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    const snap = await getDoc(doc(db, "clientes", user.uid));
+    if (snap.exists()) {
       const dados = snap.data();
       usuarioEl.innerText = dados.nome.split(" ")[0];
+
       enderecoEl.innerText = dados.endereco
         ? `${dados.endereco.bairro}, ${dados.endereco.cidade}`
         : "Endereço não cadastrado";
 
-      // 🔑 aplica tema salvo no perfil
-      if(dados.tema === "dark"){
+      if (dados.tema === "dark") {
         document.body.classList.add("dark-theme");
-      }else{
-        document.body.classList.remove("dark-theme");
       }
     }
-  }else{
+  } else {
     usuarioEl.innerText = "Visitante";
     enderecoEl.innerText = "Endereço não disponível";
   }
 });
 
-/* LOGOFF */
-window.logoff = async ()=>{
+/* 🔹 LOGOFF */
+window.logoff = async () => {
   await signOut(auth);
   window.location.href = "index.html";
-}
+};
 
-/* NAVEGAÇÃO */
-window.irPerfil = ()=> window.location.href = auth.currentUser ? "perfil.html" : "login-cliente.html";
-window.irInicio = ()=> location.href = "home.html";
-window.irBusca = ()=> buscaInput.focus();
-window.irPedidos = ()=> location.href = "pedidos.html";
+/* 🔹 NAVEGAÇÃO */
+window.irPerfil = () =>
+  window.location.href = auth.currentUser ? "perfil.html" : "login-cliente.html";
 
-/* PRODUTOS */
-async function carregarProdutos(){
-  produtos = [];
+window.irInicio = () => location.href = "home.html";
+window.irPedidos = () => location.href = "pedidos.html";
+
+/* 🔹 CARREGAR COMÉRCIOS */
+async function carregarComercios() {
   lista.innerHTML = "";
 
-  const comerciosSnap = await getDocs(collection(db,"comercios"));
+  const snap = await getDocs(collection(db, "comercios"));
 
-  for(const comercioDoc of comerciosSnap.docs){
-    const comercio = comercioDoc.data();
-    if (!comercio.ativo) continue;
-
-    const produtosSnap = await getDocs(
-      collection(db,"comercios",comercioDoc.id,"produtos")
-    );
-
-    produtosSnap.forEach(prodDoc=>{
-      const p = prodDoc.data();
-
-      const produto = {
-        id: prodDoc.id,
-        comercioId: comercioDoc.id,
-        nome: p.nome,
-        valor: p.valor,
-        descricao: p.descricao || "",
-        categoria: p.categoria || "",
-        img: p.imagemUrl || "https://images.unsplash.com/photo-1550547660-d9450f859349",
-        comercio: comercio.nome,
-        tipoComercio: comercio.tipoComercio || "",
-        bairro: comercio.endereco?.bairro || "",
-        cidade: comercio.endereco?.cidade || ""
-      };
-
-      produtos.push(produto);
-      render(produto);
-    });
+  if (snap.empty) {
+    lista.innerHTML = "<p style='padding:20px;color:#777'>Nenhum comércio encontrado.</p>";
+    return;
   }
+
+  snap.forEach(docSnap => {
+    const c = docSnap.data();
+    if (!c.ativo) return;
+
+    renderComercio({
+      id: docSnap.id,
+      nome: c.nome,
+      tipo: c.tipoComercio || "",
+      bairro: c.endereco?.bairro || "",
+      cidade: c.endereco?.cidade || "",
+      img: c.logoUrl || "https://images.unsplash.com/photo-1552566626-52f8b828add9"
+    });
+  });
 }
 
-/* RENDER */
-function render(p){
+/* 🔹 RENDER CARD COMÉRCIO */
+function renderComercio(c) {
   lista.innerHTML += `
-    <div class="card">
-      <img src="${p.img}">
-      <div class="card-info">
-        <h4>${p.nome}</h4>
-        <div class="preco">${Number(p.valor).toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}</div>
-        <div class="comercio-link" onclick="abrirComercio('${p.comercioId}')">${p.comercio}</div>
-        <div style="font-size:.8em;color:#666">${p.bairro} • ${p.cidade}</div>
-        <button class="btn" onclick="pedir('${p.id}')">Pedir</button>
+    <div class="card-comercio">
+      <img src="${c.img}">
+      <div style="flex:1">
+        <h4>${c.nome}</h4>
+        <div class="tipo">${c.tipo}</div>
+        <div class="local">${c.bairro} • ${c.cidade}</div>
+        <button class="btn" onclick="abrirComercio('${c.id}')">
+          Ver cardápio
+        </button>
       </div>
     </div>
   `;
 }
 
-/* NORMALIZA TEXTO */
-const normalizar = txt =>
-  txt.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-
-/* FILTRO POR TIPO DE COMÉRCIO */
-window.filtrarTipoComercio = (tipo)=>{
-  lista.innerHTML = "";
-
-  const filtrados = produtos.filter(p =>
-    normalizar(p.tipoComercio) === normalizar(tipo)
+/* 🔹 ABRIR PERFIL DO COMÉRCIO */
+window.abrirComercio = (comercioId) => {
+  localStorage.setItem(
+    "comercioSelecionado",
+    JSON.stringify({ comercioId })
   );
-
-  if(!filtrados.length){
-    lista.innerHTML = "<p style='padding:20px;color:#777'>Nenhum comércio encontrado.</p>";
-    return;
-  }
-
-  filtrados.forEach(render);
-}
-
-/* BUSCA */
-buscaInput.addEventListener("input", ()=>{
-  const termo = buscaInput.value.toLowerCase();
-  lista.innerHTML = "";
-
-  produtos
-    .filter(p =>
-      p.nome.toLowerCase().includes(termo) ||
-      p.descricao.toLowerCase().includes(termo) ||
-      p.comercio.toLowerCase().includes(termo)
-    )
-    .forEach(render);
-});
-
-/* PEDIR */
-window.pedir = (id)=>{
-  const prod = produtos.find(p=>p.id===id);
-  localStorage.setItem("produtoSelecionado", JSON.stringify(prod));
-  window.location.href = "produto.html";
-}
-
-/* PERFIL COMÉRCIO */
-window.abrirComercio = (comercioId)=>{
-  localStorage.setItem("comercioSelecionado", JSON.stringify({ comercioId }));
   window.location.href = "perfil-comercio.html";
-}
+};
 
-/* CHAT */
-chatBalao.addEventListener("click", ()=>{
-  window.location.href = auth.currentUser ? "chat-cliente.html" : "login-cliente.html";
+/* 🔹 CHAT */
+const chatBalao = document.getElementById("chat-balao");
+chatBalao.addEventListener("click", () => {
+  window.location.href = auth.currentUser
+    ? "chat-cliente.html"
+    : "login-cliente.html";
 });
 
-/* INIT */
-carregarProdutos();
+/* 🔹 INIT */
+carregarComercios();
 </script>
 </body>
 </html>
