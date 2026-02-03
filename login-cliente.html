@@ -141,10 +141,13 @@ button:active{
   font-size:0.85em;
 }
 
-.link a{
+.link a, .link button{
   color:var(--laranja);
   text-decoration:none;
   font-weight:600;
+  background:none;
+  border:none;
+  cursor:pointer;
 }
 </style>
 </head>
@@ -170,16 +173,14 @@ button:active{
     <button type="submit">Entrar</button>
   </form>
 
-<div class="link">
-  Não tem conta? <a href="cadastro-cliente.html">Criar agora</a>
-</div>
+  <div class="link">
+    Não tem conta? <a href="cadastro-cliente.html">Criar agora</a>
+  </div>
 
-<div class="link">
-  <button type="button" id="resetSenhaBtn" style="background:none;border:none;color:var(--laranja);font-weight:600;cursor:pointer;">
-    Esqueci minha senha
-  </button>
+  <div class="link">
+    <button type="button" id="resetSenhaBtn">Esqueci minha senha</button>
+  </div>
 </div>
-
 <!-- FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
