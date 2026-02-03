@@ -160,6 +160,7 @@ h2{margin:0 0 10px;color:var(--texto)}
   </div>
 
 </div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -202,6 +203,12 @@ if ("serviceWorker" in navigator) {
 /* Ativar Notificações */
 async function ativarNotificacoes(){
   try{
+    const permission = await Notification.requestPermission();
+    if(permission !== "granted"){
+      alert("Você precisa permitir notificações para continuar.");
+      return;
+    }
+
     const token = await getToken(messaging, {
       vapidKey: "BB3N1EQpjWRYNQGpB_Dwo1ICsCMI03xYIqLWrJo_nxs5HcKbRrUze3ATLlIW9BoX3Trm6Fm_NwAMvQeLcJBTgU"
     });
@@ -209,8 +216,6 @@ async function ativarNotificacoes(){
       console.log("🔔 Token de notificação:", token);
       alert("Notificações ativadas com sucesso!");
       // Aqui você pode salvar o token no Firestore para enviar notificações depois
-    }else{
-      alert("Não foi possível ativar notificações.");
     }
   }catch(err){
     console.error("Erro ao ativar notificações:", err);
@@ -280,7 +285,8 @@ window.finalizarPedido = async ()=>{
 
   localStorage.removeItem("produtoSelecionado");
 
-  await ativarNotificacoes(); // ativa notificações após pedido
+  // Ativa notificações após pedido
+  await ativarNotificacoes();
 
   alert("✅ Pedido enviado com sucesso!");
   window.location.href = "index.html";
@@ -297,4 +303,3 @@ window.adicionarCarrinho = ()=>{
 
 </body>
 </html>
-
