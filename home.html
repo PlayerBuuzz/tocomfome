@@ -388,6 +388,7 @@ window.irPedidos = ()=> location.href = "pedidos.html";
 async function carregarProdutos(){
   produtos = [];
   lista.innerHTML = "";
+  tipoComercio: comercio.tipo || ""
 
   const comerciosSnap = await getDocs(collection(db,"comercios"));
 
@@ -412,6 +413,7 @@ async function carregarProdutos(){
       categoria: p.categoria || "",
       img: p.imagemUrl || "https://images.unsplash.com/photo-1550547660-d9450f859349",
       comercio: comercio.nome,
+      tipoComercio: comercio.tipo || "",
       bairro: comercio.endereco?.bairro || "",
       cidade: comercio.endereco?.cidade || ""
     };
@@ -479,6 +481,20 @@ chatBalao.addEventListener("click", ()=>{
 
 /* INIT */
 carregarProdutos();
+window.filtrarTipoComercio = (tipo)=>{
+  lista.innerHTML = "";
+
+  const filtrados = produtos.filter(p =>
+    p.tipoComercio.toLowerCase() === tipo.toLowerCase()
+  );
+
+  if(filtrados.length === 0){
+    lista.innerHTML = "<p style='padding:20px;color:#777'>Nenhum comércio encontrado.</p>";
+    return;
+  }
+
+  filtrados.forEach(render);
+};
 </script>
 </body>
 </html>
