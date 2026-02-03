@@ -261,7 +261,7 @@ document.getElementById("resetSenhaBtn").addEventListener("click", async ()=>{
   }
   try{
     await sendPasswordResetEmail(auth, email);
-    alert("📧 Email de redefinição enviado! Verifique sua caixa de spam.");
+    alert("📧 Email de redefinição enviado! Verifique sua caixa de entrada.");
   }catch(err){
     alert("Erro ao enviar redefinição: " + err.message);
   }
