@@ -1,6 +1,6 @@
 // firebase-messaging-sw.js
-importScripts("https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js");
-importScripts("https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js");
+importScripts("https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js");
+importScripts("https://www.gstatic.com/firebasejs/9.6.11/firebase-messaging-compat.js");
 
 firebase.initializeApp({
   apiKey: "AIzaSyD6a29L24aFSgVjmC7NFGXpdWW4g1uQsio",
@@ -12,7 +12,6 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-// Exibe notificação quando chega em background
 messaging.onBackgroundMessage((payload) => {
   self.registration.showNotification(payload.notification.title, {
     body: payload.notification.body,
