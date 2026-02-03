@@ -11,7 +11,7 @@
   --laranja-escuro:#e67300;
   --branco:#ffffff;
   --cinza:#f9f9f9;
-  --cinza-claro:#f1f1f1;
+  --cinza-claro:#ececec;
   --texto:#333;
 }
 
@@ -69,7 +69,9 @@ form{
   gap:12px;
 }
 
-input{
+input[type="text"],
+input[type="email"],
+input[type="password"]{
   width:100%;
   padding:14px;
   border-radius:14px;
@@ -82,6 +84,31 @@ input:focus{
   outline:none;
   border-color:var(--laranja);
   box-shadow:0 0 6px rgba(255,140,26,0.4);
+}
+
+.termos{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:0.9em;
+  color:#555;
+}
+
+.termos input[type="checkbox"]{
+  accent-color:var(--laranja);
+  width:18px;
+  height:18px;
+  cursor:pointer;
+}
+
+.termos a{
+  color:var(--laranja);
+  text-decoration:none;
+  font-weight:600;
+}
+
+.termos a:hover{
+  text-decoration:underline;
 }
 
 button{
@@ -113,37 +140,6 @@ button:active{
   font-size:0.85em;
   color:#777;
 }
-
-/* 🔒 Termos de Uso - Mobile bonito */
-.termos{
-  background:var(--cinza-claro);
-  border:1px solid #ddd;
-  border-radius:16px;
-  padding:14px;
-  font-size:.85em;
-  color:#444;
-  display:flex;
-  align-items:flex-start;
-  gap:10px;
-  line-height:1.5;
-  margin-top:6px;
-}
-.termos input[type="checkbox"]{
-  margin-top:3px;
-  accent-color:var(--laranja);
-  flex-shrink:0;
-}
-.termos span{
-  flex:1;
-}
-.termos a{
-  color:var(--laranja);
-  font-weight:600;
-  text-decoration:none;
-}
-.termos a:hover{
-  text-decoration:underline;
-}
 </style>
 </head>
 
@@ -164,22 +160,18 @@ button:active{
     <input type="email" id="email" placeholder="Email" required>
     <input type="password" id="senha" placeholder="Senha" required>
 
-    <!-- 🔒 Termos de uso estilizados -->
     <div class="termos">
       <input type="checkbox" id="aceiteTermos" required>
-      <span>
-        Eu li e aceito os 
-        <a href="#" onclick="alert('Termos de Uso: Este é um texto genérico. Ao usar o Tôcomfome você concorda em fornecer dados corretos e respeitar as regras da plataforma.')">
-          Termos de Uso
-        </a>.
-      </span>
+      <label for="aceiteTermos">
+        Li e aceito os <a href="termos.html" target="_blank">Termos de Uso</a>
+      </label>
     </div>
 
     <button type="submit">Criar Conta</button>
   </form>
 
   <div class="info">
-    Seus dados são usados apenas para pedidos 🔒
+    Seus dados são usados apenas para pedidos 🍔
   </div>
 </div>
 
@@ -205,6 +197,12 @@ const db = getFirestore(app);
 document.getElementById("formCliente").addEventListener("submit", async (e)=>{
   e.preventDefault();
 
+  const aceiteTermos = document.getElementById("aceiteTermos").checked;
+  if(!aceiteTermos){
+    alert("Você precisa aceitar os Termos de Uso para continuar.");
+    return;
+  }
+
   const nome = document.getElementById("nome").value;
   const cpf = document.getElementById("cpf").value;
   const celular = document.getElementById("celular").value;
@@ -223,7 +221,8 @@ document.getElementById("formCliente").addEventListener("submit", async (e)=>{
       cidade: "Colina - SP",
       email,
       tipo: "cliente",
-      criadoEm: new Date()
+      criadoEm: new Date(),
+      aceitouTermos: true
     });
 
     alert("Cadastro realizado com sucesso 🍔");
