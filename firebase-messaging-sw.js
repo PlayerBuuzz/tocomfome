@@ -12,6 +12,7 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
+// Exibe notificação quando chega em background
 messaging.onBackgroundMessage((payload) => {
   self.registration.showNotification(payload.notification.title, {
     body: payload.notification.body,
