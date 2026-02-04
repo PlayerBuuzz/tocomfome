@@ -306,7 +306,7 @@ window.aplicarCupom = ()=>{ alert("🎉 Cupom aplicado com sucesso!"); carregarP
 window.favoritar = ()=>{ localStorage.setItem("favorito_"+comercioSelecionado.comercioId,"true"); alert("❤️ Comércio favoritado!"); };
 
 /* PEDIR */
-window.pedir = (produto)=>{ localStorage.setItem("produtoSelecionado", JSON.stringify(produto)); location.href = "Cliente/produto.html"; };
+window.pedir = (produto)=>{ localStorage.setItem("produtoSelecionado", JSON.stringify(produto)); location.href = "Comercio/produto.html"; };
 
 carregarComercio();
 </script>
