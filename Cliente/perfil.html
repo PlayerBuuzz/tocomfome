@@ -174,7 +174,7 @@ let usuarioAtual;
 /* LOGIN */
 onAuthStateChanged(auth, async (user)=>{
   if(!user){
-    location.href = "login-cliente.html";
+    location.href = "Cliente/login-cliente.html";
     return;
   }
 
@@ -228,7 +228,7 @@ window.salvar = async ()=>{
 /* SAIR */
 window.sair = async ()=>{
   await signOut(auth);
-  location.href = "login-cliente.html";
+  location.href = "Cliente/login-cliente.html";
 }
 
 /* 🌙 Alternar Tema */
