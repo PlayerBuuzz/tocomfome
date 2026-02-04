@@ -404,13 +404,13 @@ window.irBusca = () => {
 };
 
 window.irPedidos = () => {
-  window.location.href = "pedidos.html";
+  window.location.href = "Cliente/pedidos.html";
 };
 
 window.irPerfil = () => {
   window.location.href = auth.currentUser
     ? "Cliente/perfil.html"
-    : "login-cliente.html";
+    : "Cliente/login-cliente.html";
 };
 
 /* =========================
@@ -514,7 +514,7 @@ window.abrirComercio = (comercioId) => {
     "comercioSelecionado",
     JSON.stringify({ comercioId })
   );
-  window.location.href = "perfil-comercio.html";
+  window.location.href = "Comercio/perfil-comercio.html";
 };
 
 /* =========================
@@ -522,8 +522,8 @@ window.abrirComercio = (comercioId) => {
 ========================= */
 chatBalao?.addEventListener("click", () => {
   window.location.href = auth.currentUser
-    ? "chat-cliente.html"
-    : "login-cliente.html";
+    ? "Cliente/chat-cliente.html"
+    : "Cliente/login-cliente.html";
 });
 
 /* =========================
