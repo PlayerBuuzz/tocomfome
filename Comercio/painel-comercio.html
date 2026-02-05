@@ -2,119 +2,129 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
+<title>Tôcomfome 🍔 | Painel do Comércio</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Painel do Comércio</title>
 
 <style>
-:root {
-  --vermelho: #e50914;
-  --preto: #0f0f0f;
-  --cinza: #1c1c1c;
-  --cinza-claro: #2a2a2a;
+:root{
+  --laranja:#ff8c1a;
+  --laranja-claro:#fff1e2;
+  --branco:#fff;
+  --cinza:#f6f6f6;
+  --texto:#333;
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: Arial, Helvetica, sans-serif;
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Segoe UI', Arial, sans-serif;
 }
 
-body {
-  background: var(--preto);
-  color: #fff;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+body{
+  background:var(--cinza);
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
 }
 
-/* ===== TOPO ===== */
-header {
-  background: linear-gradient(180deg, #000, #111);
-  padding: 18px;
-  text-align: center;
-  border-bottom: 2px solid var(--vermelho);
+/* CONTAINER */
+.painel{
+  background:var(--branco);
+  width:100%;
+  max-width:420px;
+  border-radius:22px;
+  overflow:hidden;
+  box-shadow:0 10px 26px rgba(0,0,0,.12);
 }
 
-header h1 {
-  font-size: 22px;
-  letter-spacing: 1px;
+/* HEADER */
+.header{
+  background:var(--laranja);
+  padding:22px 16px;
+  text-align:center;
 }
 
-/* ===== CONTEÚDO ===== */
-main {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
+.header h1{
+  color:#fff;
+  font-size:1.5em;
 }
 
-/* ===== MENU CENTRAL ===== */
-.menu {
-  width: 100%;
-  max-width: 420px;
-  background: var(--cinza);
-  border-radius: 14px;
-  padding: 28px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  box-shadow: 0 0 25px rgba(0,0,0,.6);
+.header p{
+  color:#ffe5c7;
+  font-size:.9em;
+  margin-top:4px;
 }
 
-/* BOTÕES */
-.menu button {
-  background: var(--cinza-claro);
-  color: #fff;
-  border: none;
-  padding: 18px;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: .2s;
+/* MENU */
+.menu{
+  padding:22px 18px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
 }
 
-.menu button:hover {
-  background: var(--vermelho);
-  transform: scale(1.02);
+.card{
+  background:var(--laranja-claro);
+  border-radius:18px;
+  padding:20px 14px;
+  text-align:center;
+  cursor:pointer;
+  transition:.2s;
 }
 
-/* ===== RODAPÉ ===== */
-footer {
-  background: #000;
-  text-align: center;
-  padding: 14px;
-  font-size: 12px;
-  color: #aaa;
-  border-top: 1px solid #222;
+.card:hover{
+  transform:scale(1.03);
+}
+
+.card span{
+  font-size:1.8em;
+  display:block;
+}
+
+.card p{
+  margin-top:8px;
+  font-weight:600;
+  color:var(--texto);
 }
 </style>
 </head>
 
 <body>
 
-<header>
-  <h1>Painel do Comércio</h1>
-</header>
-
-<main>
-  <div class="menu">
-    <button onclick="irPara('comandas.html')">📋 Comandas Ativas</button>
-    <button onclick="irPara('comandas-encerradas.html')">✅ Comandas Encerradas</button>
-    <button onclick="irPara('cupons.html')">🎟️ Cupons</button>
-    <button onclick="irPara('editarperfil-comercio.html')">👤 Editar Perfil</button>
+<div class="painel">
+  <div class="header">
+    <h1>🍔 Tôcomfome</h1>
+    <p>Painel do Comércio</p>
   </div>
-</main>
 
-<footer>
-  © Toocomfome • Painel do Comerciante
-</footer>
+  <div class="menu">
+    <div class="card" onclick="irPara('comandas.html')">
+      <span>📦</span>
+      <p>Comandas Ativas</p>
+    </div>
+
+    <div class="card" onclick="irPara('comandas-encerradas.html')">
+      <span>✅</span>
+      <p>Encerradas</p>
+    </div>
+
+    <div class="card" onclick="irPara('cupons.html')">
+      <span>🎟️</span>
+      <p>Cupons</p>
+    </div>
+
+    <div class="card" onclick="irPara('editarperfil-comercio.html')">
+      <span>⚙️</span>
+      <p>Perfil</p>
+    </div>
+  </div>
+</div>
 
 <script>
-function irPara(pagina) {
-  window.location.href = pagina;
+function irPara(pagina){
+  window.location.href = `/comercio/${pagina}`;
 }
 </script>
 
