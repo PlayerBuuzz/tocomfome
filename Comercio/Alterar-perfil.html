@@ -8,8 +8,9 @@
 <style>
 :root{
   --laranja:#ff8c1a;
-  --cinza:#f4f5f7;
+  --laranja-escuro:#e67300;
   --branco:#ffffff;
+  --cinza:#f9f9f9;
   --texto:#333;
 }
 
@@ -17,7 +18,7 @@
   margin:0;
   padding:0;
   box-sizing:border-box;
-  font-family:'Segoe UI',Arial;
+  font-family:'Segoe UI', Arial, sans-serif;
 }
 
 body{
@@ -33,7 +34,7 @@ body{
   background:var(--branco);
   width:100%;
   max-width:450px;
-  padding:24px;
+  padding:28px;
   border-radius:20px;
   box-shadow:0 10px 24px rgba(0,0,0,.12);
 }
@@ -67,13 +68,19 @@ label{
   font-weight:600;
   color:var(--texto);
 }
-input{
+input, select{
   width:100%;
-  padding:10px;
+  padding:12px;
   margin-top:5px;
   border:1px solid #ddd;
-  border-radius:10px;
+  border-radius:12px;
   font-size:.95em;
+  transition:border-color 0.25s ease, box-shadow 0.25s ease;
+}
+input:focus, select:focus{
+  outline:none;
+  border-color:var(--laranja);
+  box-shadow:0 0 6px rgba(255,140,26,0.4);
 }
 
 /* Botão salvar */
@@ -82,15 +89,15 @@ input{
   border:none;
   background:var(--laranja);
   color:#fff;
-  padding:12px;
-  border-radius:12px;
+  padding:14px;
+  border-radius:14px;
   font-weight:600;
   margin-top:20px;
   cursor:pointer;
   transition:.3s;
 }
 .salvar:hover{
-  background:#e67600;
+  background:var(--laranja-escuro);
 }
 
 /* Voltar */
@@ -121,7 +128,14 @@ input{
     <input type="text" id="nomeComercio">
 
     <label>Categoria</label>
-    <input type="text" id="categoriaComercio">
+    <select id="categoriaComercio" required>
+      <option value="">Selecione a categoria</option>
+      <option>Hamburgueria</option>
+      <option>Pizzaria</option>
+      <option>Lanchonete</option>
+      <option>Pastelaria</option>
+      <option>Açaí / Sorveteria</option>
+    </select>
 
     <label>Rua</label>
     <input type="text" id="rua">
