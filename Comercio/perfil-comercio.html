@@ -2,14 +2,15 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Tôcomfome 🍔 | Comércio</title>
+<title>Tôcomfome | Comércio</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 :root{
   --laranja:#ff8c1a;
-  --cinza:#f5f5f5;
-  --texto:#333;
+  --cinza:#f5f6f8;
+  --texto:#2e2e2e;
+  --sub:#777;
   --sombra:rgba(0,0,0,.08);
 }
 
@@ -17,36 +18,38 @@
   margin:0;
   padding:0;
   box-sizing:border-box;
-  font-family:'Segoe UI',Arial;
+  font-family:'Segoe UI', Arial, sans-serif;
 }
 
 body{
   background:var(--cinza);
-  padding-bottom:70px;
+  padding-bottom:80px;
 }
 
 /* HEADER */
 .header{
   background:#fff;
-  padding:16px;
+  padding:18px;
   box-shadow:0 2px 6px var(--sombra);
 }
 
 .header h2{
   color:var(--laranja);
-  font-size:1.4em;
+  font-size:1.5em;
+  font-weight:700;
 }
 
 .header p{
   font-size:.9em;
-  color:#666;
+  color:var(--sub);
   margin-top:4px;
 }
 
-.top-actions{
+.tags{
   display:flex;
-  gap:10px;
+  gap:8px;
   margin-top:10px;
+  flex-wrap:wrap;
 }
 
 .tag{
@@ -64,6 +67,7 @@ body{
   border-radius:16px;
   box-shadow:0 4px 10px var(--sombra);
   font-size:.9em;
+  color:#555;
 }
 
 /* CUPOM */
@@ -73,10 +77,10 @@ body{
   margin:14px;
   padding:14px;
   border-radius:16px;
-  font-size:.9em;
   display:flex;
   justify-content:space-between;
   align-items:center;
+  font-size:.9em;
 }
 
 .cupom strong{
@@ -87,7 +91,7 @@ body{
   border:none;
   background:var(--laranja);
   color:#fff;
-  padding:8px 12px;
+  padding:8px 14px;
   border-radius:10px;
   font-size:.8em;
   cursor:pointer;
@@ -113,12 +117,16 @@ body{
   height:90px;
   border-radius:14px;
   object-fit:cover;
+  background:#eee;
 }
 
-.card-info{flex:1}
+.card-info{
+  flex:1;
+}
 
 .card-info h4{
   font-size:1.05em;
+  color:var(--texto);
 }
 
 .preco{
@@ -142,14 +150,7 @@ body{
   color:#fff;
   font-weight:600;
   cursor:pointer;
-}
-
-/* VOLTAR */
-.voltar{
   margin-top:8px;
-  font-size:.85em;
-  color:#666;
-  cursor:pointer;
 }
 </style>
 </head>
@@ -160,13 +161,11 @@ body{
   <h2 id="nomeComercio">Comércio</h2>
   <p id="categoriaComercio"></p>
 
-  <div class="top-actions">
-    <div class="tag">⚡ Entrega rápida</div>
-    <div class="tag">🔥 Promoções</div>
-    <div class="tag" onclick="favoritar()">❤️ Favoritar</div>
+  <div class="tags">
+    <div class="tag">Entrega rápida</div>
+    <div class="tag">Promoções</div>
+    <div class="tag" onclick="favoritar()">Favoritar</div>
   </div>
-
-  <div class="voltar" onclick="history.back()">← Voltar</div>
 </div>
 
 <div class="info">
@@ -177,26 +176,18 @@ body{
 <!-- CUPOM -->
 <div class="cupom" id="cupomBox" style="display:none">
   <div>
-    🎟️ Cupom disponível: <strong id="cupomNome"></strong><br>
+    Cupom disponível: <strong id="cupomNome"></strong><br>
     <small id="cupomDesc"></small>
   </div>
   <button onclick="aplicarCupom()">Usar</button>
 </div>
 
 <div class="lista" id="listaProdutos"></div>
-<!-- AVALIAÇÕES -->
-<div class="lista" id="listaAvaliacoes"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
-  getFirestore,
-  doc,
-  getDoc,
-  getDocs,
-  collection,
-  query,
-  where
+  getFirestore, doc, getDoc, getDocs, collection
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 /* FIREBASE */
@@ -205,8 +196,13 @@ const firebaseConfig = {
   authDomain: "tocomfome-754e1.firebaseapp.com",
   projectId: "tocomfome-754e1",
 };
+
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+
+/* ESTADO */
+const comercioSelecionado = JSON.parse(localStorage.getItem("comercioSelecionado"));
+let cupomAtivo = null;
 
 /* ELEMENTOS */
 const nomeEl = document.getElementById("nomeComercio");
@@ -214,101 +210,76 @@ const categoriaEl = document.getElementById("categoriaComercio");
 const enderecoEl = document.getElementById("endereco");
 const telefoneEl = document.getElementById("telefone");
 const lista = document.getElementById("listaProdutos");
-const listaAvaliacoes = document.getElementById("listaAvaliacoes");
 
 const cupomBox = document.getElementById("cupomBox");
 const cupomNome = document.getElementById("cupomNome");
 const cupomDesc = document.getElementById("cupomDesc");
 
-/* ESTADO */
-let comercioSelecionado = JSON.parse(localStorage.getItem("comercioSelecionado"));
-let cupomAtivo = null;
-
-/* CARREGAR COMÉRCIO */
+/* COMÉRCIO */
 async function carregarComercio(){
-  const ref = doc(db,"comercios",comercioSelecionado.comercioId);
-  const snap = await getDoc(ref);
-
+  const snap = await getDoc(doc(db,"comercios",comercioSelecionado.comercioId));
   if(!snap.exists()) return;
 
   const c = snap.data();
+  nomeEl.textContent = c.nome;
+  categoriaEl.textContent = c.categoria || "";
+  enderecoEl.textContent = `📍 ${c.endereco?.rua || ""}, ${c.endereco?.numero || ""}`;
+  telefoneEl.textContent = `📞 ${c.telefone || ""}`;
 
-  nomeEl.innerText = c.nome;
-  categoriaEl.innerText = c.categoria || "";
-  enderecoEl.innerText = `📍 ${c.endereco?.rua || ""}, ${c.endereco?.numero || ""} - ${c.endereco?.bairro || ""}`;
-  telefoneEl.innerText = `📞 ${c.telefone || ""}`;
-
-  // CUPOM FIXO EXEMPLO
-  cupomAtivo = { nome:"BEMVINDO10", desconto:10 };
-  cupomNome.innerText = cupomAtivo.nome;
-  cupomDesc.innerText = `Ganhe ${cupomAtivo.desconto}% de desconto`;
-  cupomBox.style.display = "flex";
-
+  await carregarCupom();
   carregarProdutos();
-  carregarAvaliacoes();
+}
+
+/* CUPOM REAL */
+async function carregarCupom(){
+  const snap = await getDocs(collection(db,"comercios",comercioSelecionado.comercioId,"cupons"));
+  if(snap.empty) return;
+
+  const c = snap.docs[0].data();
+  cupomAtivo = c;
+
+  cupomNome.textContent = c.codigo;
+  cupomDesc.textContent = `Desconto de ${c.desconto}%`;
+  cupomBox.style.display = "flex";
 }
 
 /* PRODUTOS */
 async function carregarProdutos(){
   lista.innerHTML = "";
-  const produtosSnap = await getDocs(collection(db,"comercios",comercioSelecionado.comercioId,"produtos"));
-  produtosSnap.forEach(docu=>{
-    const p = docu.data();
-    let valor = Number(p.valor);
-    let valorComDesconto = cupomAtivo ? valor - (valor * cupomAtivo.desconto / 100) : valor;
+  const snap = await getDocs(collection(db,"comercios",comercioSelecionado.comercioId,"produtos"));
+
+  snap.forEach(d=>{
+    const p = d.data();
+    const valor = Number(p.valor);
+    const final = cupomAtivo ? valor - (valor * cupomAtivo.desconto / 100) : valor;
 
     lista.innerHTML += `
       <div class="card">
-        <img src="${p.img || 'https://images.unsplash.com/photo-1550547660-d9450f859349'}">
+        <img src="${p.imagemUrl}">
         <div class="card-info">
           <h4>${p.nome}</h4>
           ${cupomAtivo ? `<div class="preco-antigo">${valor.toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}</div>` : ""}
-          <div class="preco">${valorComDesconto.toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}</div>
+          <div class="preco">${final.toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}</div>
           <div style="font-size:.85em;color:#666">${p.descricao || ""}</div>
-          <button class="btn" onclick='pedir(${JSON.stringify({...p,valor:valorComDesconto,comercioId:comercioSelecionado.comercioId})})'>Pedir</button>
+          <button class="btn" onclick='pedir(${JSON.stringify({...p,valor:final,comercioId:comercioSelecionado.comercioId})})'>
+            Pedir
+          </button>
         </div>
       </div>
     `;
   });
 }
 
-/* AVALIAÇÕES */
-async function carregarAvaliacoes(){
-  listaAvaliacoes.innerHTML = "<h3>📝 Avaliações</h3>";
-  const q = query(collection(db,"pedidos"), where("comercioId","==",comercioSelecionado.comercioId));
-  const pedidosSnap = await getDocs(q);
-
-  pedidosSnap.forEach(docu=>{
-    const p = docu.data();
-    if(p.avaliacao){
-      listaAvaliacoes.innerHTML += `
-        <div class="card">
-          <div class="card-info">
-            <h4>${p.clienteNome || "Cliente"}</h4>
-            <div style="color:#555;font-size:.9em">🍔 Pedido: ${p.produtoNome}</div>
-            <div style="margin-top:6px">⭐ Avaliação do lanche: ${p.avaliacao.pedido}</div>
-            <div style="font-size:.85em;color:#666">🛵 Motoboy: ${p.avaliacao.motoboy} | ⏱ Tempo: ${p.avaliacao.tempo} min</div>
-          </div>
-        </div>
-      `;
-    }
-  });
-
-  if(listaAvaliacoes.innerHTML === "<h3>📝 Avaliações</h3>"){
-    listaAvaliacoes.innerHTML += `<div style="color:#666;margin-top:10px">Ainda não há avaliações.</div>`;
-  }
-}
-
-/* CUPOM */
-window.aplicarCupom = ()=>{ alert("🎉 Cupom aplicado com sucesso!"); carregarProdutos(); };
-
-/* FAVORITO */
-window.favoritar = ()=>{ localStorage.setItem("favorito_"+comercioSelecionado.comercioId,"true"); alert("❤️ Comércio favoritado!"); };
-
-/* PEDIR */
-window.pedir = (produto)=>{ localStorage.setItem("produtoSelecionado", JSON.stringify(produto)); location.href = "produto.html"; };
+/* AÇÕES */
+window.aplicarCupom = ()=> alert("🎉 Cupom aplicado!");
+window.favoritar = ()=> alert("❤️ Comércio favoritado!");
+window.pedir = produto=>{
+  localStorage.setItem("produtoSelecionado", JSON.stringify(produto));
+  location.href = "produto.html";
+};
 
 carregarComercio();
 </script>
+
 </body>
 </html>
