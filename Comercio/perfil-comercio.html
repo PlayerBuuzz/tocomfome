@@ -7,14 +7,13 @@
 
 <style>
 :root{
-  --primary:#ff8c1a;
-  --bg:#f6f7fb;
-  --card:#ffffff;
-  --text:#1f2937;
+  --laranja:#ff8c1a;
+  --cinza:#f6f7fb;
+  --texto:#1f2937;
   --muted:#6b7280;
-  --border:#e5e7eb;
+  --borda:#e5e7eb;
+  --sombra:0 4px 12px rgba(0,0,0,.08);
   --radius:16px;
-  --shadow:0 4px 12px rgba(0,0,0,.08);
 }
 
 *{
@@ -25,9 +24,9 @@
 }
 
 body{
-  background:var(--bg);
-  color:var(--text);
-  padding-bottom:90px;
+  background:var(--cinza);
+  color:var(--texto);
+  padding-bottom:80px;
 }
 
 /* HEADER */
@@ -35,14 +34,15 @@ body{
 .header{
   background:#fff;
   padding:18px 16px;
-  box-shadow:0 2px 6px rgba(0,0,0,.08);
+  box-shadow:0 2px 8px rgba(0,0,0,.08);
   position:sticky;
   top:0;
   z-index:10;
+  border-bottom:1px solid var(--borda);
 }
 
 .header h2{
-  color:var(--primary);
+  color:var(--laranja);
   font-size:1.5em;
   font-weight:700;
 }
@@ -69,6 +69,7 @@ body{
   border-radius:50px;
   font-size:.75em;
   font-weight:600;
+  white-space:nowrap;
 }
 
 /* VOLTAR */
@@ -83,11 +84,11 @@ body{
 /* INFO */
 
 .info{
-  background:var(--card);
+  background:#fff;
   margin:14px;
   padding:14px;
   border-radius:var(--radius);
-  box-shadow:var(--shadow);
+  box-shadow:var(--sombra);
   font-size:.9em;
   line-height:1.5;
 }
@@ -96,29 +97,31 @@ body{
 
 .cupom{
   background:#fff7ed;
-  border:1px dashed var(--primary);
+  border:1px dashed var(--laranja);
   margin:14px;
   padding:14px;
   border-radius:var(--radius);
+  font-size:.85em;
   display:flex;
   justify-content:space-between;
   align-items:center;
   gap:10px;
-  font-size:.85em;
 }
 
 .cupom strong{
-  color:var(--primary);
+  color:var(--laranja);
+  font-size:1em;
 }
 
 .cupom button{
   border:none;
-  background:var(--primary);
+  background:var(--laranja);
   color:#fff;
   padding:7px 14px;
   border-radius:50px;
   font-size:.75em;
   font-weight:600;
+  cursor:pointer;
 }
 
 /* LISTA */
@@ -130,21 +133,29 @@ body{
 /* CARD */
 
 .card{
-  background:var(--card);
+  background:#fff;
   border-radius:var(--radius);
   padding:12px;
   margin-bottom:14px;
   display:flex;
   gap:12px;
-  box-shadow:var(--shadow);
-  border:1px solid var(--border);
+  box-shadow:var(--sombra);
+  border:1px solid var(--borda);
+  transition:.2s;
 }
+
+.card:active{
+  transform:scale(.98);
+}
+
+/* IMAGEM */
 
 .card img{
   width:85px;
   height:85px;
   border-radius:12px;
   object-fit:cover;
+  border:1px solid var(--borda);
 }
 
 /* INFO CARD */
@@ -158,14 +169,16 @@ body{
 .card-info h4{
   font-size:1em;
   font-weight:600;
+  margin-bottom:2px;
 }
 
 /* PREÇOS */
 
 .preco{
-  color:var(--primary);
+  color:var(--laranja);
   font-weight:700;
   margin:4px 0;
+  font-size:1em;
 }
 
 .preco-antigo{
@@ -182,39 +195,38 @@ body{
   padding:9px;
   border:none;
   border-radius:50px;
-  background:#ff8c1a;
+  background:linear-gradient(135deg,#ff8c1a,#ff6a00);
   color:#fff;
   font-weight:600;
   font-size:.85em;
+  cursor:pointer;
 }
 
 /* AVALIAÇÕES */
 
 #listaAvaliacoes h3{
-  margin:10px 0;
+  margin-bottom:10px;
   font-size:1em;
+  color:#374151;
 }
 </style>
+
 </head>
 
 <body>
-
-<!-- HEADER -->
 
 <div class="header">
   <h2 id="nomeComercio">Comércio</h2>
   <p id="categoriaComercio"></p>
 
   <div class="top-actions">
-    <div class="tag">⚡ Rápido</div>
-    <div class="tag">🔥 Promo</div>
-    <div class="tag" onclick="favoritar()">❤️ Favorito</div>
+    <div class="tag">⚡ Entrega rápida</div>
+    <div class="tag">🔥 Promoções</div>
+    <div class="tag" onclick="favoritar()">❤️ Favoritar</div>
   </div>
 
   <div class="voltar" onclick="history.back()">← Voltar</div>
 </div>
-
-<!-- INFO -->
 
 <div class="info">
   <div id="endereco"></div>
@@ -222,25 +234,20 @@ body{
 </div>
 
 <!-- CUPOM -->
-
 <div class="cupom" id="cupomBox" style="display:none">
   <div>
-    🎟️ <strong id="cupomNome"></strong><br>
+    🎟️ Cupom disponível: <strong id="cupomNome"></strong><br>
     <small id="cupomDesc"></small>
   </div>
   <button onclick="aplicarCupom()">Usar</button>
 </div>
 
-<!-- PRODUTOS -->
-
 <div class="lista" id="listaProdutos"></div>
 
 <!-- AVALIAÇÕES -->
-
 <div class="lista" id="listaAvaliacoes"></div>
 
 <script type="module">
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
   getFirestore,
@@ -253,18 +260,15 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 /* FIREBASE */
-
 const firebaseConfig = {
   apiKey: "AIzaSyD6a29L24aFSgVjmC7NFGXpdWW4g1uQsio",
   authDomain: "tocomfome-754e1.firebaseapp.com",
   projectId: "tocomfome-754e1",
 };
-
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 /* ELEMENTOS */
-
 const nomeEl = document.getElementById("nomeComercio");
 const categoriaEl = document.getElementById("categoriaComercio");
 const enderecoEl = document.getElementById("endereco");
@@ -277,16 +281,11 @@ const cupomNome = document.getElementById("cupomNome");
 const cupomDesc = document.getElementById("cupomDesc");
 
 /* ESTADO */
-
 let comercioSelecionado = JSON.parse(localStorage.getItem("comercioSelecionado"));
 let cupomAtivo = null;
 
 /* CARREGAR COMÉRCIO */
-
 async function carregarComercio(){
-
-  if(!comercioSelecionado) return;
-
   const ref = doc(db,"comercios",comercioSelecionado.comercioId);
   const snap = await getDoc(ref);
 
@@ -299,13 +298,10 @@ async function carregarComercio(){
   enderecoEl.innerText = `📍 ${c.endereco?.rua || ""}, ${c.endereco?.numero || ""} - ${c.endereco?.bairro || ""}`;
   telefoneEl.innerText = `📞 ${c.telefone || ""}`;
 
-  /* CUPOM EXEMPLO */
-
+  // CUPOM FIXO EXEMPLO
   cupomAtivo = { nome:"BEMVINDO10", desconto:10 };
-
   cupomNome.innerText = cupomAtivo.nome;
-  cupomDesc.innerText = `Ganhe ${cupomAtivo.desconto}% OFF`;
-
+  cupomDesc.innerText = `Ganhe ${cupomAtivo.desconto}% de desconto`;
   cupomBox.style.display = "flex";
 
   carregarProdutos();
@@ -313,32 +309,27 @@ async function carregarComercio(){
 }
 
 /* PRODUTOS */
-
 async function carregarProdutos(){
-
   lista.innerHTML = "";
 
-  const snap = await getDocs(
+  const produtosSnap = await getDocs(
     collection(db,"comercios",comercioSelecionado.comercioId,"produtos")
   );
 
-  snap.forEach(docu=>{
-
+  produtosSnap.forEach(docu=>{
     const p = docu.data();
 
     let valor = Number(p.valor);
 
-    let final = cupomAtivo
+    let valorComDesconto = cupomAtivo
       ? valor - (valor * cupomAtivo.desconto / 100)
       : valor;
 
     lista.innerHTML += `
       <div class="card">
-
         <img src="${p.img || 'https://images.unsplash.com/photo-1550547660-d9450f859349'}">
 
         <div class="card-info">
-
           <h4>${p.nome}</h4>
 
           ${
@@ -348,18 +339,17 @@ async function carregarProdutos(){
           }
 
           <div class="preco">
-            ${final.toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}
+            ${valorComDesconto.toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}
           </div>
 
-          <div style="font-size:.8em;color:#666">
+          <div style="font-size:.85em;color:#666">
             ${p.descricao || ""}
           </div>
 
           <button class="btn"
-            onclick='pedir(${JSON.stringify({...p,valor:final,comercioId:comercioSelecionado.comercioId})})'>
+            onclick='pedir(${JSON.stringify({...p,valor:valorComDesconto,comercioId:comercioSelecionado.comercioId})})'>
             Pedir
           </button>
-
         </div>
       </div>
     `;
@@ -367,9 +357,7 @@ async function carregarProdutos(){
 }
 
 /* AVALIAÇÕES */
-
 async function carregarAvaliacoes(){
-
   listaAvaliacoes.innerHTML = "<h3>📝 Avaliações</h3>";
 
   const q = query(
@@ -377,31 +365,28 @@ async function carregarAvaliacoes(){
     where("comercioId","==",comercioSelecionado.comercioId)
   );
 
-  const snap = await getDocs(q);
+  const pedidosSnap = await getDocs(q);
 
-  snap.forEach(docu=>{
-
+  pedidosSnap.forEach(docu=>{
     const p = docu.data();
 
     if(p.avaliacao){
-
       listaAvaliacoes.innerHTML += `
         <div class="card">
-
           <div class="card-info">
-
             <h4>${p.clienteNome || "Cliente"}</h4>
 
-            <div style="font-size:.85em;color:#555">
-              🍔 ${p.produtoNome}
+            <div style="color:#555;font-size:.9em">
+              🍔 Pedido: ${p.produtoNome}
             </div>
 
-            <div>⭐ ${p.avaliacao.pedido}</div>
-
-            <div style="font-size:.75em;color:#777">
-              🛵 ${p.avaliacao.motoboy} | ⏱ ${p.avaliacao.tempo}min
+            <div style="margin-top:6px">
+              ⭐ Avaliação do lanche: ${p.avaliacao.pedido}
             </div>
 
+            <div style="font-size:.85em;color:#666">
+              🛵 Motoboy: ${p.avaliacao.motoboy} | ⏱ Tempo: ${p.avaliacao.tempo} min
+            </div>
           </div>
         </div>
       `;
@@ -410,32 +395,30 @@ async function carregarAvaliacoes(){
 
   if(listaAvaliacoes.innerHTML === "<h3>📝 Avaliações</h3>"){
     listaAvaliacoes.innerHTML += `
-      <div style="color:#666;font-size:.85em">
-        Sem avaliações ainda.
+      <div style="color:#666;margin-top:10px">
+        Ainda não há avaliações.
       </div>
     `;
   }
 }
 
 /* CUPOM */
-
 window.aplicarCupom = ()=>{
-  alert("🎉 Cupom aplicado!");
+  alert("🎉 Cupom aplicado com sucesso!");
   carregarProdutos();
 };
 
 /* FAVORITO */
-
 window.favoritar = ()=>{
   localStorage.setItem(
     "favorito_"+comercioSelecionado.comercioId,
     "true"
   );
-  alert("❤️ Salvo nos favoritos!");
+
+  alert("❤️ Comércio favoritado!");
 };
 
 /* PEDIR */
-
 window.pedir = (produto)=>{
   localStorage.setItem(
     "produtoSelecionado",
@@ -446,7 +429,6 @@ window.pedir = (produto)=>{
 };
 
 carregarComercio();
-
 </script>
 
 </body>
