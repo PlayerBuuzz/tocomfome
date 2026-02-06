@@ -12,15 +12,9 @@
   --card:#ffffff;
   --texto:#333;
   --texto-sec:#666;
-  --linha:#eee;
 }
 
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:'Segoe UI', Arial;
-}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI', Arial;}
 
 body{
   background:var(--cinza);
@@ -48,20 +42,10 @@ body{
   box-shadow:0 4px 10px rgba(0,0,0,.08);
 }
 
-.card h4{
-  margin-bottom:4px;
-}
+.card h4{margin-bottom:4px;}
 
-.preco{
-  color:var(--laranja);
-  font-weight:700;
-}
-
-.info{
-  font-size:.85em;
-  color:var(--texto-sec);
-  margin:6px 0;
-}
+.preco{color:var(--laranja);font-weight:700;}
+.info{font-size:.85em;color:var(--texto-sec);margin:6px 0;}
 
 .status{
   display:inline-block;
@@ -71,18 +55,12 @@ body{
   font-weight:600;
   margin-bottom:10px;
 }
-
 .status.novo{background:#fff3cd;color:#856404}
 .status.preparando{background:#d1ecf1;color:#0c5460}
 .status.saiu{background:#cce5ff;color:#004085}
 .status.entregue{background:#d4edda;color:#155724}
 
-.acoes{
-  display:flex;
-  gap:8px;
-  margin-top:10px;
-}
-
+.acoes{display:flex;gap:8px;margin-top:10px;}
 .acoes button{
   flex:1;
   padding:10px;
@@ -92,30 +70,34 @@ body{
   font-weight:600;
   cursor:pointer;
 }
-
 .btn-preparar{background:#17a2b8;color:#fff}
 .btn-saiu{background:#007bff;color:#fff}
 .btn-entregue{background:#28a745;color:#fff}
 
-.vazio{
-  text-align:center;
-  color:var(--texto-sec);
-  margin-top:40px;
-}
+.vazio{text-align:center;color:var(--texto-sec);margin-top:40px;}
 </style>
 </head>
 
 <body>
 
 <div class="header">📦 Comandas</div>
+
 <div class="lista" id="listaPedidos"></div>
 
 <script type="module">
-
-/* Firebase */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, query, where, onSnapshot, doc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { 
+  getFirestore, 
+  collection, 
+  query, 
+  where, 
+  onSnapshot, 
+  doc, 
+  updateDoc, 
+  setDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js";
 
 /* Config Firebase */
@@ -132,47 +114,50 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const messaging = getMessaging(app);
-
-/* DOM */
 const lista = document.getElementById("listaPedidos");
 
 /* Registrar Service Worker */
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("/firebase-messaging-sw.js")
-    .then(() => console.log("✅ Service Worker OK"))
-    .catch(e => console.error("❌ SW erro:", e));
+    .then(() => console.log("✅ Service Worker registrado"))
+    .catch(err => console.error("❌ Erro ao registrar SW:", err));
 }
 
-/* Registrar Token FCM do Comércio */
-async function registrarToken(uid){
+/* Ativar notificações e salvar token do comércio */
+async function ativarNotificacoes(uid){
   try{
-    const perm = await Notification.requestPermission();
-    if(perm !== "granted"){
-      alert("⚠️ Permita notificações para receber novos pedidos!");
+    const permission = await Notification.requestPermission();
+    if(permission !== "granted"){
+      alert("❌ Permita notificações para receber pedidos");
       return;
     }
 
     const registration = await navigator.serviceWorker.ready;
+
     const token = await getToken(messaging, {
       vapidKey: "COLOQUE_SUA_VAPID_KEY_AQUI",
       serviceWorkerRegistration: registration
     });
 
-    if(!token) return console.log("Sem token FCM");
+    if(!token){
+      console.log("Sem token FCM");
+      return;
+    }
 
     await setDoc(doc(db,"tokens",uid),{
-      token: token,
-      atualizadoEm: Date.now()
+      token,
+      atualizadoEm: serverTimestamp()
     });
 
-    console.log("🔥 Token registrado:", token);
-
+    console.log("🔥 Token do comércio salvo:", token);
+    alert("Notificações ativadas com sucesso!");
   }catch(err){
-    console.error("❌ Erro token:", err);
+    console.error("Erro ao ativar notificações:", err);
+    alert("❌ Erro ao ativar notificações, veja console.");
   }
 }
 
-/* Atualizar status */
+/* Atualizar status do pedido */
 window.mudarStatus = async (id,status)=>{
   let msg = "";
   if(status==="preparando") msg="👨‍🍳 Marcar como preparando?";
@@ -180,67 +165,63 @@ window.mudarStatus = async (id,status)=>{
   if(status==="entregue") msg="✅ Pedido entregue?";
   if(!confirm(msg)) return;
 
-  await updateDoc(doc(db,"pedidos",id),{ status });
+  await updateDoc(doc(db,"pedidos",id),{status});
   alert("Status atualizado");
 };
 
-/* Carregar pedidos do comércio */
+/* Carregar pedidos em tempo real */
 function carregarPedidos(uid){
-  const q = query(collection(db,"pedidos"), where("comercioId","==",uid));
-  onSnapshot(q, snap=>{
-    lista.innerHTML = "";
+  const q = query(collection(db,"pedidos"),where("comercioId","==",uid));
+  onSnapshot(q,snap=>{
+    lista.innerHTML="";
     if(snap.empty){
-      lista.innerHTML = `<div class="vazio">📭 Nenhum pedido</div>`;
+      lista.innerHTML=`<div class="vazio">📭 Nenhum pedido</div>`;
       return;
     }
-
-    let ativos = 0;
+    let ativos=0;
     snap.forEach(d=>{
       const p = d.data();
       if(p.status==="entregue") return;
       ativos++;
-      lista.innerHTML += `
+      lista.innerHTML+=`
         <div class="card">
           <h4>${p.produtoNome}</h4>
           <div class="preco">R$ ${Number(p.valor).toFixed(2)}</div>
           <div class="info">👤 ${p.clienteNome||"-"}</div>
           <div class="status ${p.status||"novo"}">${p.status||"novo"}</div>
           <div class="acoes">
-            ${p.status==="novo" ? `<button class="btn-preparar" onclick="mudarStatus('${d.id}','preparando')">👨‍🍳 Preparar</button>` : ""}
-            ${p.status==="preparando" ? `<button class="btn-saiu" onclick="mudarStatus('${d.id}','saiu')">🛵 Saiu</button>` : ""}
-            ${p.status==="saiu" ? `<button class="btn-entregue" onclick="mudarStatus('${d.id}','entregue')">✅ Entregue</button>` : ""}
+            ${p.status==="novo"?`<button class="btn-preparar" onclick="mudarStatus('${d.id}','preparando')">👨‍🍳 Preparar</button>`:""}
+            ${p.status==="preparando"?`<button class="btn-saiu" onclick="mudarStatus('${d.id}','saiu')">🛵 Saiu</button>`:""}
+            ${p.status==="saiu"?`<button class="btn-entregue" onclick="mudarStatus('${d.id}','entregue')">✅ Entregue</button>`:""}
           </div>
         </div>
       `;
     });
-
     if(ativos===0){
-      lista.innerHTML = `<div class="vazio">📭 Nenhum pedido</div>`;
+      lista.innerHTML=`<div class="vazio">📭 Nenhum pedido</div>`;
     }
   });
 }
 
-/* Foreground notifications */
-onMessage(messaging, payload=>{
-  console.log("🔔 Notificação recebida:", payload);
-  new Notification(payload.notification.title, {
-    body: payload.notification.body,
-    icon: "/img/logo.png"
-  });
-});
-
-/* Auth */
-onAuthStateChanged(auth, user=>{
+/* Auth e inicialização */
+onAuthStateChanged(auth,user=>{
   if(!user){
     location.href="Comercio/login-comercio.html";
     return;
   }
-
-  // Ativa notificações
-  registrarToken(user.uid);
-
-  // Carrega pedidos
+  // Registra token do comércio
+  ativarNotificacoes(user.uid);
+  // Carrega pedidos em tempo real
   carregarPedidos(user.uid);
+});
+
+/* Mensagem em foreground */
+onMessage(messaging,(payload)=>{
+  console.log("📩 Mensagem recebida em foreground:",payload);
+  new Notification(payload.notification.title,{
+    body: payload.notification.body,
+    icon:"/img/logo.png"
+  });
 });
 
 </script>
