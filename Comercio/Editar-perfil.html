@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Editar Perfil do Comércio</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .editar-perfil { max-width: 600px; margin: auto; }
+    .foto-perfil img { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; }
+    label { display: block; margin-top: 10px; font-weight: bold; }
+    input { width: 100%; padding: 8px; margin-top: 4px; }
+    button { margin-top: 20px; padding: 10px 15px; background: #007bff; color: #fff; border: none; cursor: pointer; }
+    button:hover { background: #0056b3; }
+  </style>
+</head>
+<body>
+  <div class="editar-perfil">
+    <h2>Editar Perfil do Comércio</h2>
+
+    <!-- Foto de perfil -->
+    <div class="foto-perfil">
+      <img id="previewFoto" src="default.jpg" alt="Foto do comércio">
+      <input type="file" id="fotoInput" accept="image/*">
+    </div>
+
+    <!-- Formulário -->
+    <form id="formPerfil">
+      <label>Nome do Comércio</label>
+      <input type="text" id="nomeComercio">
+
+      <label>Categoria</label>
+      <input type="text" id="categoriaComercio">
+
+      <label>Rua</label>
+      <input type="text" id="rua">
+      <label>Número</label>
+      <input type="text" id="numero">
+      <label>Bairro</label>
+      <input type="text" id="bairro">
+      <label>Cidade</label>
+      <input type="text" id="cidade">
+
+      <label>Telefone</label>
+      <input type="text" id="telefone">
+
+      <button type="submit">Salvar alterações</button>
+    </form>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD6a29L24aFSgVjmC7NFGXpdWW4g1uQsio",
+      authDomain: "tocomfome-754e1.firebaseapp.com",
+      projectId: "tocomfome-754e1",
+      appId: "1:997975886937:web:9bf408c35f1ed8aea13548"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const CLOUD_NAME = "daqyssjdj";
+    const UPLOAD_PRESET = "TOCOMFOME";
+
+    async function uploadCloudinary(file){
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("upload_preset", UPLOAD_PRESET);
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, { method:"POST", body:fd });
+      const data = await res.json();
+      return data.secure_url;
+    }
+
+    const fotoInput = document.getElementById("fotoInput");
+    const previewFoto = document.getElementById("previewFoto");
+    fotoInput.addEventListener("change", e=>{
+      const file = e.target.files[0];
+      if(file) previewFoto.src = URL.createObjectURL(file);
+    });
+
+    const formPerfil = document.getElementById("formPerfil");
+
+    onAuthStateChanged(auth, async user=>{
+      if(!user) location.href="login-comercio.html";
+
+      // Carregar dados atuais
+      const ref = doc(db,"comercios",user.uid);
+      const snap = await getDoc(ref);
+      if(snap.exists()){
+        const c = snap.data();
+        document.getElementById("nomeComercio").value = c.nome || "";
+        document.getElementById("categoriaComercio").value = c.categoria || "";
+        document.getElementById("rua").value = c.endereco?.rua || "";
+        document.getElementById("numero").value = c.endereco?.numero || "";
+        document.getElementById("bairro").value = c.endereco?.bairro || "";
+        document.getElementById("cidade").value = c.endereco?.cidade || "";
+        document.getElementById("telefone").value = c.telefone || "";
+        if(c.fotoPerfil) previewFoto.src = c.fotoPerfil;
+      }
+
+      formPerfil.addEventListener("submit", async e=>{
+        e.preventDefault();
+
+        let fotoUrl = previewFoto.src;
+        if(fotoInput.files[0]){
+          fotoUrl = await uploadCloudinary(fotoInput.files[0]);
+        }
+
+        await updateDoc(ref,{
+          nome: document.getElementById("nomeComercio").value,
+          categoria: document.getElementById("categoriaComercio").value,
+          endereco: {
+            rua: document.getElementById("rua").value,
+            numero: document.getElementById("numero").value,
+            bairro: document.getElementById("bairro").value,
+            cidade: document.getElementById("cidade").value
+          },
+          telefone: document.getElementById("telefone").value,
+          fotoPerfil: fotoUrl
+        });
+
+        alert("Perfil atualizado com sucesso!");
+      });
+    });
+  </script>
+</body>
+</html>
