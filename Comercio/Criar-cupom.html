@@ -81,6 +81,33 @@ h2{
   font-weight:600;
 }
 
+/* Ações */
+.acoes{
+  display:flex;
+  gap:8px;
+  margin-top:10px;
+}
+
+.acoes button{
+  flex:1;
+  border:none;
+  padding:8px;
+  border-radius:8px;
+  font-size:.8em;
+  font-weight:600;
+  cursor:pointer;
+}
+
+.btn-editar{
+  background:#2563eb;
+  color:#fff;
+}
+
+.btn-excluir{
+  background:#dc2626;
+  color:#fff;
+}
+
 /* Mensagem vazia */
 .vazio{
   text-align:center;
@@ -122,7 +149,10 @@ import {
   collection,
   getDocs,
   query,
-  orderBy
+  orderBy,
+  doc,
+  deleteDoc,
+  updateDoc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 
@@ -150,6 +180,7 @@ if(!comercio || !comercio.comercioId){
 async function carregarCupons(){
 
   const lista = document.getElementById("lista");
+  lista.innerHTML = "";
 
   try{
 
@@ -164,7 +195,6 @@ async function carregarCupons(){
 
     const snapshot = await getDocs(q);
 
-    /* Se não tiver cupom */
     if(snapshot.empty){
 
       lista.innerHTML = `
@@ -175,10 +205,10 @@ async function carregarCupons(){
       return;
     }
 
-    /* Se tiver */
-    snapshot.forEach(doc=>{
+    snapshot.forEach(docu=>{
 
-      const c = doc.data();
+      const c = docu.data();
+      const id = docu.id;
 
       const status = c.ativo
         ? '<span class="ativo">Ativo</span>'
@@ -192,6 +222,22 @@ async function carregarCupons(){
         <p>💰 Desconto: ${c.desconto}%</p>
         <p>📅 Validade: ${formatarData(c.validade)}</p>
         <p>Status: ${status}</p>
+
+        <div class="acoes">
+          <button class="btn-editar"
+            onclick="editarCupom('${id}',
+              '${c.nome}',
+              ${c.desconto},
+              '${c.validade}',
+              ${c.ativo})">
+            ✏️ Editar
+          </button>
+
+          <button class="btn-excluir"
+            onclick="excluirCupom('${id}')">
+            🗑️ Excluir
+          </button>
+        </div>
       `;
 
       lista.appendChild(div);
@@ -214,14 +260,99 @@ async function carregarCupons(){
 }
 
 
+/* EXCLUIR */
+window.excluirCupom = async (id)=>{
+
+  if(!confirm("Deseja excluir este cupom?")) return;
+
+  try{
+
+    await deleteDoc(
+      doc(
+        db,
+        "comercios",
+        comercio.comercioId,
+        "cupons",
+        id
+      )
+    );
+
+    alert("🗑️ Cupom excluído!");
+    carregarCupons();
+
+  }catch(e){
+
+    alert("Erro ao excluir.");
+    console.error(e);
+
+  }
+
+};
+
+
+/* EDITAR */
+window.editarCupom = async (id,nome,desconto,validade,ativo)=>{
+
+  const novoNome =
+    prompt("Nome do cupom:", nome);
+
+  if(!novoNome) return;
+
+
+  const novoDesconto =
+    prompt("Desconto (%):", desconto);
+
+  if(!novoDesconto) return;
+
+
+  const novaValidade =
+    prompt("Validade (AAAA-MM-DD):", validade);
+
+  if(!novaValidade) return;
+
+
+  const novoStatus =
+    confirm("Deseja deixar ATIVO?\nOK = Sim | Cancelar = Não");
+
+
+  try{
+
+    await updateDoc(
+      doc(
+        db,
+        "comercios",
+        comercio.comercioId,
+        "cupons",
+        id
+      ),
+      {
+        nome: novoNome.toUpperCase(),
+        desconto: Number(novoDesconto),
+        validade: novaValidade,
+        ativo: novoStatus
+      }
+    );
+
+    alert("✏️ Cupom atualizado!");
+    carregarCupons();
+
+  }catch(e){
+
+    alert("Erro ao atualizar.");
+    console.error(e);
+
+  }
+
+};
+
+
 /* FORMATAR DATA */
 function formatarData(data){
 
   if(!data) return "-";
 
-  const d = new Date(data);
-
-  return d.toLocaleDateString("pt-BR");
+  return new Date(data)
+    .toLocaleDateString("pt-BR");
 
 }
 
