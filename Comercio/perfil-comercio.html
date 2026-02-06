@@ -13,16 +13,15 @@
   --text:#1f2937;
   --muted:#6b7280;
   --border:#e5e7eb;
-  --radius:18px;
-  --shadow:0 6px 18px rgba(0,0,0,.08);
-  --shadow-soft:0 3px 8px rgba(0,0,0,.05);
+  --radius:16px;
+  --shadow:0 4px 12px rgba(0,0,0,.08);
 }
 
 *{
   margin:0;
   padding:0;
   box-sizing:border-box;
-  font-family:'Inter','Segoe UI',Arial,sans-serif;
+  font-family:'Segoe UI',Arial,sans-serif;
 }
 
 body{
@@ -34,142 +33,118 @@ body{
 /* HEADER */
 
 .header{
-  background:linear-gradient(135deg,#fff,#fff7ed);
-  padding:20px 18px;
-  box-shadow:var(--shadow-soft);
-  border-bottom:1px solid var(--border);
+  background:#fff;
+  padding:18px 16px;
+  box-shadow:0 2px 6px rgba(0,0,0,.08);
+  position:sticky;
+  top:0;
+  z-index:10;
 }
 
 .header h2{
   color:var(--primary);
-  font-size:1.6em;
+  font-size:1.5em;
   font-weight:700;
 }
 
 .header p{
-  font-size:.9em;
+  font-size:.85em;
   color:var(--muted);
-  margin-top:4px;
+  margin-top:3px;
 }
 
 /* TAGS */
 
 .top-actions{
   display:flex;
-  gap:10px;
-  margin-top:14px;
+  gap:8px;
+  margin-top:12px;
   flex-wrap:wrap;
 }
 
 .tag{
-  background:#fef3e7;
+  background:#fff3e6;
   color:#9a4b00;
   padding:6px 12px;
   border-radius:50px;
   font-size:.75em;
   font-weight:600;
-  cursor:pointer;
-  transition:.2s;
-}
-
-.tag:hover{
-  background:var(--primary);
-  color:#fff;
 }
 
 /* VOLTAR */
 
 .voltar{
-  margin-top:12px;
-  font-size:.85em;
+  margin-top:10px;
+  font-size:.8em;
   color:var(--muted);
   cursor:pointer;
-  display:inline-block;
-}
-
-.voltar:hover{
-  text-decoration:underline;
 }
 
 /* INFO */
 
 .info{
   background:var(--card);
-  margin:16px;
-  padding:16px;
+  margin:14px;
+  padding:14px;
   border-radius:var(--radius);
-  box-shadow:var(--shadow-soft);
+  box-shadow:var(--shadow);
   font-size:.9em;
-  line-height:1.6;
+  line-height:1.5;
 }
 
 /* CUPOM */
 
 .cupom{
-  background:linear-gradient(135deg,#fff7ed,#ffedd5);
+  background:#fff7ed;
   border:1px dashed var(--primary);
-  margin:16px;
-  padding:16px;
+  margin:14px;
+  padding:14px;
   border-radius:var(--radius);
-  font-size:.9em;
   display:flex;
   justify-content:space-between;
   align-items:center;
-  gap:12px;
+  gap:10px;
+  font-size:.85em;
 }
 
 .cupom strong{
   color:var(--primary);
-  font-size:1.1em;
 }
 
 .cupom button{
   border:none;
   background:var(--primary);
   color:#fff;
-  padding:9px 16px;
+  padding:7px 14px;
   border-radius:50px;
-  font-size:.8em;
+  font-size:.75em;
   font-weight:600;
-  cursor:pointer;
-  transition:.2s;
-}
-
-.cupom button:hover{
-  opacity:.9;
-  transform:scale(1.05);
 }
 
 /* LISTA */
 
 .lista{
-  padding:16px;
+  padding:14px;
 }
 
-/* CARD PRODUTO */
+/* CARD */
 
 .card{
   background:var(--card);
   border-radius:var(--radius);
-  padding:14px;
-  margin-bottom:18px;
+  padding:12px;
+  margin-bottom:14px;
   display:flex;
-  gap:14px;
+  gap:12px;
   box-shadow:var(--shadow);
-  transition:.2s;
   border:1px solid var(--border);
-}
-
-.card:hover{
-  transform:translateY(-3px);
 }
 
 .card img{
-  width:90px;
-  height:90px;
-  border-radius:14px;
+  width:85px;
+  height:85px;
+  border-radius:12px;
   object-fit:cover;
-  border:1px solid var(--border);
 }
 
 /* INFO CARD */
@@ -181,22 +156,21 @@ body{
 }
 
 .card-info h4{
-  font-size:1.05em;
+  font-size:1em;
   font-weight:600;
 }
 
-/* PREÇO */
+/* PREÇOS */
 
 .preco{
   color:var(--primary);
   font-weight:700;
-  margin:6px 0;
-  font-size:1.05em;
+  margin:4px 0;
 }
 
 .preco-antigo{
   text-decoration:line-through;
-  font-size:.8em;
+  font-size:.75em;
   color:#9ca3af;
 }
 
@@ -205,27 +179,20 @@ body{
 .btn{
   margin-top:auto;
   width:100%;
-  padding:11px;
+  padding:9px;
   border:none;
   border-radius:50px;
-  background:linear-gradient(135deg,#ff8c1a,#ff6a00);
+  background:#ff8c1a;
   color:#fff;
   font-weight:600;
-  cursor:pointer;
-  transition:.2s;
-}
-
-.btn:hover{
-  opacity:.9;
-  transform:scale(1.03);
+  font-size:.85em;
 }
 
 /* AVALIAÇÕES */
 
 #listaAvaliacoes h3{
-  margin-bottom:12px;
-  font-size:1.1em;
-  color:#374151;
+  margin:10px 0;
+  font-size:1em;
 }
 </style>
 </head>
@@ -233,39 +200,48 @@ body{
 <body>
 
 <!-- HEADER -->
+
 <div class="header">
   <h2 id="nomeComercio">Comércio</h2>
   <p id="categoriaComercio"></p>
 
   <div class="top-actions">
-    <div class="tag">⚡ Entrega rápida</div>
-    <div class="tag">🔥 Promoções</div>
-    <div class="tag" onclick="favoritar()">❤️ Favoritar</div>
+    <div class="tag">⚡ Rápido</div>
+    <div class="tag">🔥 Promo</div>
+    <div class="tag" onclick="favoritar()">❤️ Favorito</div>
   </div>
 
   <div class="voltar" onclick="history.back()">← Voltar</div>
 </div>
 
 <!-- INFO -->
+
 <div class="info">
   <div id="endereco"></div>
   <div id="telefone"></div>
 </div>
 
 <!-- CUPOM -->
-<div id="areaCupom"></div>
+
+<div class="cupom" id="cupomBox" style="display:none">
+  <div>
+    🎟️ <strong id="cupomNome"></strong><br>
+    <small id="cupomDesc"></small>
+  </div>
+  <button onclick="aplicarCupom()">Usar</button>
+</div>
 
 <!-- PRODUTOS -->
+
 <div class="lista" id="listaProdutos"></div>
 
 <!-- AVALIAÇÕES -->
-<div class="lista" id="listaAvaliacoes"></div>
 
+<div class="lista" id="listaAvaliacoes"></div>
 
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-
 import {
   getFirestore,
   doc,
@@ -276,8 +252,8 @@ import {
   where
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-
 /* FIREBASE */
+
 const firebaseConfig = {
   apiKey: "AIzaSyD6a29L24aFSgVjmC7NFGXpdWW4g1uQsio",
   authDomain: "tocomfome-754e1.firebaseapp.com",
@@ -287,31 +263,29 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-
 /* ELEMENTOS */
+
 const nomeEl = document.getElementById("nomeComercio");
 const categoriaEl = document.getElementById("categoriaComercio");
 const enderecoEl = document.getElementById("endereco");
 const telefoneEl = document.getElementById("telefone");
-
 const lista = document.getElementById("listaProdutos");
 const listaAvaliacoes = document.getElementById("listaAvaliacoes");
 
-const areaCupom = document.getElementById("areaCupom");
-
+const cupomBox = document.getElementById("cupomBox");
+const cupomNome = document.getElementById("cupomNome");
+const cupomDesc = document.getElementById("cupomDesc");
 
 /* ESTADO */
+
 let comercioSelecionado = JSON.parse(localStorage.getItem("comercioSelecionado"));
 let cupomAtivo = null;
 
-
 /* CARREGAR COMÉRCIO */
+
 async function carregarComercio(){
 
-  if(!comercioSelecionado){
-    alert("Comércio não encontrado.");
-    return;
-  }
+  if(!comercioSelecionado) return;
 
   const ref = doc(db,"comercios",comercioSelecionado.comercioId);
   const snap = await getDoc(ref);
@@ -322,83 +296,39 @@ async function carregarComercio(){
 
   nomeEl.innerText = c.nome;
   categoriaEl.innerText = c.categoria || "";
-  enderecoEl.innerText =
-    `📍 ${c.endereco?.rua || ""}, ${c.endereco?.numero || ""} - ${c.endereco?.bairro || ""}`;
-
+  enderecoEl.innerText = `📍 ${c.endereco?.rua || ""}, ${c.endereco?.numero || ""} - ${c.endereco?.bairro || ""}`;
   telefoneEl.innerText = `📞 ${c.telefone || ""}`;
 
-  await carregarCupom();
+  /* CUPOM EXEMPLO */
+
+  cupomAtivo = { nome:"BEMVINDO10", desconto:10 };
+
+  cupomNome.innerText = cupomAtivo.nome;
+  cupomDesc.innerText = `Ganhe ${cupomAtivo.desconto}% OFF`;
+
+  cupomBox.style.display = "flex";
+
   carregarProdutos();
   carregarAvaliacoes();
 }
 
-
-/* CUPONS */
-async function carregarCupom(){
-
-  const hoje = new Date().toISOString().split("T")[0];
-
-  const cuponsSnap = await getDocs(
-    collection(db,"comercios",comercioSelecionado.comercioId,"cupons")
-  );
-
-  let cuponsValidos = [];
-
-  cuponsSnap.forEach(docu=>{
-
-    const c = docu.data();
-
-    if(c.ativo && c.validade >= hoje){
-      cuponsValidos.push(c);
-    }
-
-  });
-
-  /* Sem cupom */
-  if(cuponsValidos.length === 0){
-
-    areaCupom.innerHTML = `
-      <div class="sem-cupom">
-        😕 Este comércio não possui cupons ativos no momento.
-      </div>
-    `;
-
-    return;
-  }
-
-  /* Usa o primeiro cupom válido */
-  cupomAtivo = cuponsValidos[0];
-
-  areaCupom.innerHTML = `
-    <div class="cupom">
-      <div>
-        🎟️ Use o cupom <strong>${cupomAtivo.nome}</strong><br>
-        <small>Ganhe ${cupomAtivo.desconto}% de desconto</small>
-      </div>
-
-      <button onclick="aplicarCupom()">Aplicar</button>
-    </div>
-  `;
-
-}
-
-
 /* PRODUTOS */
+
 async function carregarProdutos(){
 
   lista.innerHTML = "";
 
-  const produtosSnap = await getDocs(
+  const snap = await getDocs(
     collection(db,"comercios",comercioSelecionado.comercioId,"produtos")
   );
 
-  produtosSnap.forEach(docu=>{
+  snap.forEach(docu=>{
 
     const p = docu.data();
 
     let valor = Number(p.valor);
 
-    let valorComDesconto = cupomAtivo
+    let final = cupomAtivo
       ? valor - (valor * cupomAtivo.desconto / 100)
       : valor;
 
@@ -413,39 +343,31 @@ async function carregarProdutos(){
 
           ${
             cupomAtivo
-            ? `<div class="preco-antigo">
-                ${valor.toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}
-               </div>`
+            ? `<div class="preco-antigo">${valor.toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}</div>`
             : ""
           }
 
           <div class="preco">
-            ${valorComDesconto.toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}
+            ${final.toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}
           </div>
 
-          <div style="font-size:.85em;color:#666">
+          <div style="font-size:.8em;color:#666">
             ${p.descricao || ""}
           </div>
 
           <button class="btn"
-            onclick='pedir(${JSON.stringify({
-              ...p,
-              valor:valorComDesconto,
-              comercioId:comercioSelecionado.comercioId
-            })})'>
+            onclick='pedir(${JSON.stringify({...p,valor:final,comercioId:comercioSelecionado.comercioId})})'>
             Pedir
           </button>
 
         </div>
       </div>
     `;
-
   });
-
 }
 
-
 /* AVALIAÇÕES */
+
 async function carregarAvaliacoes(){
 
   listaAvaliacoes.innerHTML = "<h3>📝 Avaliações</h3>";
@@ -455,9 +377,9 @@ async function carregarAvaliacoes(){
     where("comercioId","==",comercioSelecionado.comercioId)
   );
 
-  const pedidosSnap = await getDocs(q);
+  const snap = await getDocs(q);
 
-  pedidosSnap.forEach(docu=>{
+  snap.forEach(docu=>{
 
     const p = docu.data();
 
@@ -470,69 +392,51 @@ async function carregarAvaliacoes(){
 
             <h4>${p.clienteNome || "Cliente"}</h4>
 
-            <div style="color:#555;font-size:.9em">
-              🍔 Pedido: ${p.produtoNome}
+            <div style="font-size:.85em;color:#555">
+              🍔 ${p.produtoNome}
             </div>
 
-            <div style="margin-top:6px">
-              ⭐ Pedido: ${p.avaliacao.pedido}
-            </div>
+            <div>⭐ ${p.avaliacao.pedido}</div>
 
-            <div style="font-size:.85em;color:#666">
-              🛵 Motoboy: ${p.avaliacao.motoboy}
-              | ⏱ ${p.avaliacao.tempo} min
+            <div style="font-size:.75em;color:#777">
+              🛵 ${p.avaliacao.motoboy} | ⏱ ${p.avaliacao.tempo}min
             </div>
 
           </div>
         </div>
       `;
     }
-
   });
 
-
   if(listaAvaliacoes.innerHTML === "<h3>📝 Avaliações</h3>"){
-
     listaAvaliacoes.innerHTML += `
-      <div style="color:#777;margin-top:10px">
-        Ainda não há avaliações.
+      <div style="color:#666;font-size:.85em">
+        Sem avaliações ainda.
       </div>
     `;
-
   }
-
 }
 
-
 /* CUPOM */
+
 window.aplicarCupom = ()=>{
-
-  if(!cupomAtivo){
-    alert("Nenhum cupom disponível.");
-    return;
-  }
-
-  alert(`🎉 Cupom ${cupomAtivo.nome} aplicado!`);
-
+  alert("🎉 Cupom aplicado!");
   carregarProdutos();
 };
 
-
 /* FAVORITO */
-window.favoritar = ()=>{
 
+window.favoritar = ()=>{
   localStorage.setItem(
     "favorito_"+comercioSelecionado.comercioId,
     "true"
   );
-
-  alert("❤️ Comércio favoritado!");
+  alert("❤️ Salvo nos favoritos!");
 };
 
-
 /* PEDIR */
-window.pedir = (produto)=>{
 
+window.pedir = (produto)=>{
   localStorage.setItem(
     "produtoSelecionado",
     JSON.stringify(produto)
@@ -541,8 +445,6 @@ window.pedir = (produto)=>{
   location.href = "produto.html";
 };
 
-
-/* INICIAR */
 carregarComercio();
 
 </script>
