@@ -1,44 +1,34 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
+
 admin.initializeApp();
 
 exports.notificarNovoPedido = functions.firestore
-  .document("pedidos/{pedidoId}")
-  .onCreate(async (snap, context) => {
+  .document("pedidos/{id}")
+  .onCreate(async (snap) => {
+
     const pedido = snap.data();
 
-    // Buscar token do comércio
-    const tokenSnap = await admin.firestore()
-      .collection("tokensComercio")
-      .doc(pedido.comercioId)
+    const comercioId = pedido.comercioId;
+
+    const tokenDoc = await admin
+      .firestore()
+      .collection("tokens")
+      .doc(comercioId)
       .get();
 
-    if (!tokenSnap.exists) {
-      console.log("❌ Comércio sem token de notificação");
-      return null;
-    }
+    if(!tokenDoc.exists) return;
 
-    const token = tokenSnap.data().token;
+    const token = tokenDoc.data().token;
 
-    // Mensagem de notificação
-    const message = {
-      token: token,
+    const payload = {
       notification: {
-        title: "📦 Novo Pedido!",
-        body: `Pedido de ${pedido.clienteNome}: ${pedido.produtoNome}`
-      },
-      data: {
-        pedidoId: context.params.pedidoId,
-        comercioId: pedido.comercioId
+        title: "🍔 Novo Pedido!",
+        body: `Pedido de ${pedido.clienteNome}`,
+        icon: "/img/logo.png"
       }
     };
 
-    try {
-      await admin.messaging().send(message);
-      console.log("✅ Notificação enviada ao comércio");
-    } catch (err) {
-      console.error("Erro ao enviar notificação:", err);
-    }
+    return admin.messaging().sendToDevice(token, payload);
 
-    return null;
   });
