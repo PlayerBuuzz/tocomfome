@@ -14,20 +14,35 @@
   --texto-sec:#666;
 }
 
-body{margin:0; padding:0; background:var(--cinza); font-family:'Segoe UI',Arial; color:var(--texto);}
-.header{background:var(--laranja); color:#fff; padding:16px; text-align:center; font-size:1.1em; font-weight:600;}
+body{
+  margin:0; padding:0; background:var(--cinza);
+  font-family:'Segoe UI',Arial; color:var(--texto);
+}
+.header{
+  background:var(--laranja); color:#fff; padding:16px;
+  text-align:center; font-size:1.1em; font-weight:600;
+}
 .lista{padding:16px;}
-.card{background:var(--card); border-radius:16px; padding:14px; margin-bottom:14px; box-shadow:0 4px 10px rgba(0,0,0,.08);}
+.card{
+  background:var(--card); border-radius:16px; padding:14px;
+  margin-bottom:14px; box-shadow:0 4px 10px rgba(0,0,0,.08);
+}
 .card h4{margin-bottom:4px;}
 .preco{color:var(--laranja); font-weight:700;}
 .info{font-size:.85em; color:var(--texto-sec); margin:6px 0;}
-.status{display:inline-block; padding:6px 12px; border-radius:20px; font-size:.75em; font-weight:600; margin-bottom:10px;}
+.status{
+  display:inline-block; padding:6px 12px; border-radius:20px;
+  font-size:.75em; font-weight:600; margin-bottom:10px;
+}
 .status.novo{background:#fff3cd;color:#856404;}
 .status.preparando{background:#d1ecf1;color:#0c5460;}
 .status.saiu{background:#cce5ff;color:#004085;}
 .status.entregue{background:#d4edda;color:#155724;}
 .acoes{display:flex; gap:8px; margin-top:10px;}
-.acoes button{flex:1; padding:10px; border:none; border-radius:12px; font-size:.8em; font-weight:600; cursor:pointer;}
+.acoes button{
+  flex:1; padding:10px; border:none; border-radius:12px;
+  font-size:.8em; font-weight:600; cursor:pointer;
+}
 .btn-preparar{background:#17a2b8;color:#fff;}
 .btn-saiu{background:#007bff;color:#fff;}
 .btn-entregue{background:#28a745;color:#fff;}
@@ -70,7 +85,7 @@ if ("serviceWorker" in navigator) {
     .catch(err => console.error("❌ SW erro:", err));
 }
 
-/* Registrar token para push notifications */
+/* Registrar token FCM */
 async function registrarToken(uid){
   try{
     const permission = await Notification.requestPermission();
@@ -79,12 +94,13 @@ async function registrarToken(uid){
     const registration = await navigator.serviceWorker.ready;
 
     const token = await getToken(messaging,{
-      vapidKey:"BB3N1EQpjWRYNQQpB_Dwo1lCScMl03xYIq_WrJo_nxs5HcKbRrUze3ATLLlW9B0xV3Trm6Fm_NwAMvQeLcJBTgU", // 🔑 coloque a chave pública do Firebase
+      vapidKey:"BB3N1EQpjWRYNQQpB_Dwo1lCScMl03xYIq_WrJo_nxs5HcKbRrUze3ATLLlW9B0xV3Trm6Fm_NwAMvQeLcJBTgU",
       serviceWorkerRegistration:registration
     });
 
     if(!token){ console.log("Sem token"); return; }
 
+    // ✅ Salva token usando UID do comércio como ID do documento
     await setDoc(doc(db,"tokens",uid),{
       token,
       atualizadoEm: serverTimestamp()
@@ -113,10 +129,7 @@ function carregarPedidos(uid){
   const q = query(collection(db,"pedidos"), where("comercioId","==",uid));
   onSnapshot(q,snap=>{
     lista.innerHTML="";
-    if(snap.empty){
-      lista.innerHTML=`<div class="vazio">📭 Nenhum pedido</div>`;
-      return;
-    }
+    if(snap.empty){ lista.innerHTML=`<div class="vazio">📭 Nenhum pedido</div>`; return; }
 
     let ativos=0;
     snap.forEach(d=>{
@@ -144,7 +157,7 @@ function carregarPedidos(uid){
 /* Auth */
 onAuthStateChanged(auth,user=>{
   if(!user){ location.href="Comercio/login-comercio.html"; return; }
-  registrarToken(user.uid); // registra token FCM
+  registrarToken(user.uid); // registra token FCM corretamente
   carregarPedidos(user.uid);
 });
 
