@@ -2,28 +2,108 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Editar Perfil do Comércio</title>
+  <title>Editar Perfil</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    .editar-perfil { max-width: 600px; margin: auto; }
-    .foto-perfil img { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; }
-    label { display: block; margin-top: 10px; font-weight: bold; }
-    input { width: 100%; padding: 8px; margin-top: 4px; }
-    button { margin-top: 20px; padding: 10px 15px; background: #007bff; color: #fff; border: none; cursor: pointer; }
-    button:hover { background: #0056b3; }
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 0;
+    }
+
+    .header {
+      background: #fff;
+      padding: 15px;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header h2 {
+      margin: 0;
+      font-size: 1.4em;
+      color: #333;
+    }
+
+    .voltar {
+      cursor: pointer;
+      color: #007bff;
+      font-weight: bold;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 30px auto;
+      background: #fff;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .foto-perfil {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .foto-perfil img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #eee;
+    }
+
+    .foto-perfil input {
+      margin-top: 10px;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: 600;
+      color: #444;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 1em;
+    }
+
+    button {
+      margin-top: 25px;
+      width: 100%;
+      padding: 12px;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 1.1em;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
   </style>
 </head>
 <body>
-  <div class="editar-perfil">
-    <h2>Editar Perfil do Comércio</h2>
+  <div class="header">
+    <h2>Editar Perfil</h2>
+    <div class="voltar" onclick="history.back()">← Voltar</div>
+  </div>
 
-    <!-- Foto de perfil -->
+  <div class="container">
     <div class="foto-perfil">
       <img id="previewFoto" src="default.jpg" alt="Foto do comércio">
       <input type="file" id="fotoInput" accept="image/*">
     </div>
 
-    <!-- Formulário -->
     <form id="formPerfil">
       <label>Nome do Comércio</label>
       <input type="text" id="nomeComercio">
@@ -87,7 +167,6 @@
     onAuthStateChanged(auth, async user=>{
       if(!user) location.href="login-comercio.html";
 
-      // Carregar dados atuais
       const ref = doc(db,"comercios",user.uid);
       const snap = await getDoc(ref);
       if(snap.exists()){
@@ -123,7 +202,7 @@
           fotoPerfil: fotoUrl
         });
 
-        alert("Perfil atualizado com sucesso!");
+        alert("✅ Perfil atualizado com sucesso!");
       });
     });
   </script>
