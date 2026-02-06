@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Tôcomfome | Criar Cupom</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+:root{
+  --laranja:#ff8c1a;
+  --laranja-hover:#ff7a00;
+  --cinza:#f4f5f7;
+  --branco:#fff;
+  --texto:#333;
+}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Segoe UI',Arial;
+}
+
+body{
+  background:var(--cinza);
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.box{
+  background:var(--branco);
+  width:100%;
+  max-width:420px;
+  padding:26px;
+  border-radius:20px;
+  box-shadow:0 10px 24px rgba(0,0,0,.12);
+}
+
+h2{
+  text-align:center;
+  color:var(--laranja);
+  margin-bottom:20px;
+}
+
+label{
+  font-size:.9em;
+  color:#555;
+  display:block;
+  margin-top:14px;
+}
+
+input{
+  width:100%;
+  padding:10px;
+  margin-top:6px;
+  border-radius:10px;
+  border:1px solid #ddd;
+  font-size:.9em;
+}
+
+button{
+  width:100%;
+  margin-top:22px;
+  padding:12px;
+  background:var(--laranja);
+  border:none;
+  border-radius:12px;
+  color:#fff;
+  font-weight:600;
+  cursor:pointer;
+}
+
+button:hover{
+  background:var(--laranja-hover);
+}
+
+.voltar{
+  text-align:center;
+  margin-top:14px;
+  font-size:.85em;
+  color:#777;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+
+  <h2>🎟️ Criar Cupom</h2>
+
+  <label>Nome do Cupom</label>
+  <input type="text" id="nome" placeholder="Ex: BEMVINDO10">
+
+  <label>Desconto (%)</label>
+  <input type="number" id="desconto" placeholder="Ex: 10">
+
+  <label>Validade</label>
+  <input type="date" id="validade">
+
+  <button onclick="salvarCupom()">Salvar Cupom</button>
+
+  <div class="voltar" onclick="history.back()">← Voltar</div>
+
+</div>
+
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  Timestamp
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+
+/* FIREBASE */
+const firebaseConfig = {
+  apiKey: "AIzaSyD6a29L24aFSgVjmC7NFGXpdWW4g1uQsio",
+  authDomain: "tocomfome-754e1.firebaseapp.com",
+  projectId: "tocomfome-754e1",
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+
+/* COMERCIO LOGADO */
+const comercio = JSON.parse(localStorage.getItem("comercioLogado"));
+
+if(!comercio){
+  alert("Faça login novamente.");
+  location.href = "login-comercio.html";
+}
+
+
+/* SALVAR CUPOM */
+window.salvarCupom = async ()=>{
+
+  const nome = document.getElementById("nome").value.trim().toUpperCase();
+  const desconto = Number(document.getElementById("desconto").value);
+  const validade = document.getElementById("validade").value;
+
+  if(!nome || !desconto || !validade){
+    alert("Preencha todos os campos.");
+    return;
+  }
+
+  if(desconto <= 0 || desconto > 90){
+    alert("Desconto deve ser entre 1% e 90%");
+    return;
+  }
+
+  try{
+
+    await addDoc(
+      collection(db,"comercios",comercio.id,"cupons"),
+      {
+        nome,
+        desconto,
+        validade,
+        ativo:true,
+        criadoEm: Timestamp.now()
+      }
+    );
+
+    alert("✅ Cupom criado com sucesso!");
+
+    document.getElementById("nome").value = "";
+    document.getElementById("desconto").value = "";
+    document.getElementById("validade").value = "";
+
+  }catch(e){
+
+    alert("Erro ao salvar cupom");
+    console.error(e);
+
+  }
+
+};
+
+</script>
+
+</body>
+</html>
