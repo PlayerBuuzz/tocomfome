@@ -141,106 +141,190 @@ const db = getFirestore(app);
 const lista = document.getElementById("listaPedidos");
 
 
-/* Atualizar status COM confirmação */
+/* ================== NOTIFICAÇÃO ================== */
+
+let pedidosAnteriores = new Set();
+
+/* Pedir permissão */
+if ("Notification" in window) {
+  Notification.requestPermission();
+}
+
+/* Som */
+function tocarSom() {
+  const audio = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-bell-notification-933.mp3");
+  audio.play();
+}
+
+/* Mostrar notificação */
+function notificarNovoPedido(p) {
+
+  if (Notification.permission === "granted") {
+
+    new Notification("🍔 Novo Pedido!", {
+      body: `Cliente: ${p.clienteNome || "Cliente"}\nProduto: ${p.produtoNome}`,
+      icon: "https://cdn-icons-png.flaticon.com/512/1046/1046784.png"
+    });
+
+  }
+
+  tocarSom();
+}
+
+
+/* ================== STATUS ================== */
+
 window.mudarStatus = async (id, status) => {
+
   let mensagem = "";
 
   if (status === "preparando") {
-    mensagem = "👨‍🍳 Deseja marcar este pedido como PREPARANDO?";
+    mensagem = "👨‍🍳 Deseja marcar como PREPARANDO?";
   }
 
   if (status === "saiu") {
-    mensagem = "🛵 Deseja marcar este pedido como SAIU PARA ENTREGA?";
+    mensagem = "🛵 Deseja marcar como SAIU?";
   }
 
   if (status === "entregue") {
-    mensagem = "✅ Deseja marcar este pedido como ENTREGUE?";
+    mensagem = "✅ Deseja marcar como ENTREGUE?";
   }
 
-  const confirmar = confirm(mensagem);
-
-  if (!confirmar) {
-    return;
-  }
+  if (!confirm(mensagem)) return;
 
   try {
-    await updateDoc(doc(db, "pedidos", id), {
-      status
-    });
-    alert("✅ Status atualizado com sucesso!");
-  } catch (error) {
-    alert("❌ Erro ao atualizar: " + error.message);
+
+    await updateDoc(doc(db, "pedidos", id), { status });
+
+    alert("✅ Atualizado!");
+
+  } catch (e) {
+
+    alert("❌ Erro: " + e.message);
+
   }
 };
 
 
-/* Carregar pedidos */
+/* ================== CARREGAR PEDIDOS ================== */
+
 function carregarPedidos(uid) {
+
   const q = query(
     collection(db, "pedidos"),
     where("comercioId", "==", uid)
   );
 
   onSnapshot(q, snap => {
+
     lista.innerHTML = "";
 
+    let pedidosAtuais = new Set();
+    let exibidos = 0;
+
     if (snap.empty) {
+
       lista.innerHTML = `
         <div class="vazio">
           📭 Nenhum pedido no momento
         </div>
       `;
+
       return;
     }
 
-    let pedidosExibidos = 0;
-
     snap.forEach(d => {
+
       const p = d.data();
+
+      pedidosAtuais.add(d.id);
+
+      /* Notificação */
+      if (!pedidosAnteriores.has(d.id) && p.status === "novo") {
+        notificarNovoPedido(p);
+      }
 
       if (p.status === "entregue") return;
 
-      pedidosExibidos++;
+      exibidos++;
 
       lista.innerHTML += `
         <div class="card">
+
           <h4>${p.produtoNome}</h4>
-          <div class="preco">R$ ${Number(p.valor).toFixed(2)}</div>
-          <div class="info">👤 Cliente: ${p.clienteNome || "-"}</div>
-          <div class="status ${p.status || "novo"}">${p.status || "novo"}</div>
-          <div class="acoes">
-            ${p.status === "novo" ? `
-              <button class="btn-preparar" onclick="mudarStatus('${d.id}','preparando')">👨‍🍳 Preparar</button>
-            ` : ""}
-            ${p.status === "preparando" ? `
-              <button class="btn-saiu" onclick="mudarStatus('${d.id}','saiu')">🛵 Saiu</button>
-            ` : ""}
-            ${p.status === "saiu" ? `
-              <button class="btn-entregue" onclick="mudarStatus('${d.id}','entregue')">✅ Entregue</button>
-            ` : ""}
+
+          <div class="preco">
+            R$ ${Number(p.valor).toFixed(2)}
           </div>
+
+          <div class="info">
+            👤 Cliente: ${p.clienteNome || "-"}
+          </div>
+
+          <div class="status ${p.status || "novo"}">
+            ${p.status || "novo"}
+          </div>
+
+          <div class="acoes">
+
+            ${p.status === "novo" ? `
+              <button class="btn-preparar"
+                onclick="mudarStatus('${d.id}','preparando')">
+                👨‍🍳 Preparar
+              </button>
+            ` : ""}
+
+            ${p.status === "preparando" ? `
+              <button class="btn-saiu"
+                onclick="mudarStatus('${d.id}','saiu')">
+                🛵 Saiu
+              </button>
+            ` : ""}
+
+            ${p.status === "saiu" ? `
+              <button class="btn-entregue"
+                onclick="mudarStatus('${d.id}','entregue')">
+                ✅ Entregue
+              </button>
+            ` : ""}
+
+          </div>
+
         </div>
       `;
+
     });
 
-    if (pedidosExibidos === 0) {
+
+    if (exibidos === 0) {
+
       lista.innerHTML = `
         <div class="vazio">
           📭 Nenhum pedido no momento
         </div>
       `;
+
     }
+
+    /* Atualiza base */
+    pedidosAnteriores = pedidosAtuais;
+
   });
+
 }
 
 
-/* Auth */
+/* ================== AUTH ================== */
+
 onAuthStateChanged(auth, user => {
+
   if (!user) {
     location.href = "Comercio/login-comercio.html";
     return;
   }
+
   carregarPedidos(user.uid);
+
 });
 
 </script>
