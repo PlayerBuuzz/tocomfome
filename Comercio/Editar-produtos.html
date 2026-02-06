@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Tôcomfome | Editar Produto</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+:root{
+  --laranja:#ff8c1a;
+  --laranja-hover:#ff7a00;
+  --branco:#fff;
+  --cinza:#f4f5f7;
+  --texto:#333;
+  --sub:#777;
+}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Segoe UI', Arial, sans-serif;
+}
+
+body{
+  background:var(--cinza);
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+/* CONTAINER */
+.container{
+  background:var(--branco);
+  width:100%;
+  max-width:420px;
+  border-radius:20px;
+  box-shadow:0 12px 30px rgba(0,0,0,.12);
+  overflow:hidden;
+}
+
+/* HEADER */
+.header{
+  background:linear-gradient(135deg, var(--laranja), var(--laranja-hover));
+  padding:24px 20px;
+  text-align:center;
+  color:#fff;
+}
+
+.header h1{
+  font-size:1.3em;
+  font-weight:700;
+}
+
+.header p{
+  font-size:.85em;
+  opacity:.9;
+  margin-top:4px;
+}
+
+/* FORM */
+.form{
+  padding:22px;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+label{
+  font-size:.8em;
+  font-weight:600;
+  color:var(--sub);
+  text-transform:uppercase;
+}
+
+input, textarea{
+  padding:14px;
+  border-radius:12px;
+  border:1px solid #ddd;
+  font-size:.95em;
+}
+
+textarea{
+  resize:none;
+  min-height:80px;
+}
+
+.preview{
+  display:none;
+  margin-top:10px;
+}
+
+.preview img{
+  width:100%;
+  border-radius:14px;
+}
+
+button{
+  margin-top:10px;
+  padding:14px;
+  border:none;
+  border-radius:14px;
+  font-size:1em;
+  font-weight:600;
+  cursor:pointer;
+  background:var(--laranja);
+  color:#fff;
+  transition:.2s;
+}
+
+button:hover{
+  background:var(--laranja-hover);
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1 id="titulo">Cadastrar Produto</h1>
+    <p id="subtitulo">Adicione um novo item</p>
+  </div>
+
+  <form class="form" id="formProduto">
+
+    <label>Nome do produto</label>
+    <input id="nomeProduto" required>
+
+    <label>Preço</label>
+    <input id="valorProduto" type="number" step="0.01" required>
+
+    <label>Descrição</label>
+    <textarea id="descricaoProduto"></textarea>
+
+    <label>Imagem do produto</label>
+    <input id="imagemProduto" type="file" accept="image/*">
+
+    <div class="preview" id="preview">
+      <img id="previewImg">
+    </div>
+
+    <button type="submit" id="btnSalvar">Salvar Produto</button>
+
+  </form>
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  doc,
+  getDoc,
+  updateDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+/* Firebase */
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD6a29L24aFSgVjmC7NFGXpdWW4g1uQsio",
+  authDomain: "tocomfome-754e1.firebaseapp.com",
+  projectId: "tocomfome-754e1",
+  appId: "1:997975886937:web:9bf408c35f1ed8aea13548"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+
+/* Cloudinary */
+
+const CLOUD_NAME = "daqyssjdj";
+const UPLOAD_PRESET = "TOCOMFOME";
+
+async function uploadCloudinary(file){
+
+  const fd = new FormData();
+
+  fd.append("file", file);
+  fd.append("upload_preset", UPLOAD_PRESET);
+
+  const res = await fetch(
+    `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+    { method:"POST", body:fd }
+  );
+
+  const data = await res.json();
+
+  return data.secure_url;
+}
+
+
+/* URL PARAM */
+
+const params = new URLSearchParams(location.search);
+const produtoId = params.get("id");
+
+let usuarioAtual = null;
+let imagemAtual = null;
+
+
+/* Preview */
+
+imagemProduto.addEventListener("change", e=>{
+
+  const file = e.target.files[0];
+
+  if(!file) return;
+
+  preview.style.display="block";
+  previewImg.src = URL.createObjectURL(file);
+
+});
+
+
+/* Auth */
+
+onAuthStateChanged(auth, async user=>{
+
+  if(!user){
+    location.href="login-comercio.html";
+    return;
+  }
+
+  usuarioAtual = user;
+
+  if(produtoId){
+    carregarProduto();
+  }
+
+});
+
+
+/* Carregar Produto */
+
+async function carregarProduto(){
+
+  titulo.innerText = "Editar Produto";
+  subtitulo.innerText = "Atualize as informações";
+  btnSalvar.innerText = "Atualizar Produto";
+
+  const ref = doc(
+    db,
+    "comercios",
+    usuarioAtual.uid,
+    "produtos",
+    produtoId
+  );
+
+  const snap = await getDoc(ref);
+
+  if(!snap.exists()){
+    alert("Produto não encontrado!");
+    return;
+  }
+
+  const p = snap.data();
+
+  nomeProduto.value = p.nome;
+  valorProduto.value = p.valor;
+  descricaoProduto.value = p.descricao || "";
+  imagemAtual = p.imagemUrl;
+
+  if(imagemAtual){
+    preview.style.display="block";
+    previewImg.src = imagemAtual;
+  }
+
+}
+
+
+/* Submit */
+
+formProduto.addEventListener("submit", async e=>{
+
+  e.preventDefault();
+
+  const user = usuarioAtual;
+
+  let imagemFinal = imagemAtual;
+
+
+  if(imagemProduto.files.length){
+    imagemFinal = await uploadCloudinary(imagemProduto.files[0]);
+  }
+
+
+  if(produtoId){
+
+    /* EDITAR */
+
+    const ref = doc(
+      db,
+      "comercios",
+      user.uid,
+      "produtos",
+      produtoId
+    );
+
+    await updateDoc(ref,{
+      nome: nomeProduto.value,
+      valor: valorProduto.value,
+      descricao: descricaoProduto.value,
+      imagemUrl: imagemFinal,
+      atualizadoEm: serverTimestamp()
+    });
+
+    alert("Produto atualizado com sucesso!");
+
+  }else{
+
+    /* NOVO */
+
+    await addDoc(
+      collection(db,"comercios",user.uid,"produtos"),
+      {
+        nome: nomeProduto.value,
+        valor: valorProduto.value,
+        descricao: descricaoProduto.value,
+        imagemUrl: imagemFinal,
+        criadoEm: serverTimestamp()
+      }
+    );
+
+    alert("Produto cadastrado com sucesso!");
+  }
+
+
+  location.href="painel.html";
+
+});
+
+</script>
+
+</body>
+</html>
