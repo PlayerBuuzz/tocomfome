@@ -11,8 +11,9 @@
   --laranja-hover:#ff7a00;
   --branco:#fff;
   --cinza:#f4f5f7;
-  --texto:#333;
+  --texto:#222;
   --sub:#777;
+  --card:#fafafa;
 }
 
 *{
@@ -23,7 +24,7 @@
 }
 
 body{
-  background:var(--cinza);
+  background:linear-gradient(180deg,#f7f7f7,#eee);
   min-height:100vh;
 }
 
@@ -31,43 +32,48 @@ body{
 
 .topo{
   background:linear-gradient(135deg,var(--laranja),var(--laranja-hover));
-  padding:18px;
+  padding:22px;
   color:#fff;
   text-align:center;
+  box-shadow:0 4px 12px rgba(0,0,0,.15);
 }
 
 .topo h1{
-  font-size:1.2em;
+  font-size:1.3em;
 }
 
 
 /* LISTA */
 
 .lista{
-  max-width:600px;
+  max-width:680px;
   margin:20px auto;
-  padding:10px;
+  padding:12px;
 }
 
 .card{
-  background:#fff;
-  border-radius:14px;
-  box-shadow:0 4px 12px rgba(0,0,0,.08);
-  padding:12px;
-  margin-bottom:12px;
+  background:var(--branco);
+  border-radius:18px;
+  box-shadow:0 6px 18px rgba(0,0,0,.08);
+  padding:14px;
+  margin-bottom:16px;
 }
+
+
+/* PRODUTO */
 
 .produto{
   display:flex;
-  gap:12px;
+  gap:14px;
   align-items:center;
 }
 
 .produto img{
-  width:70px;
-  height:70px;
-  border-radius:10px;
+  width:80px;
+  height:80px;
+  border-radius:14px;
   object-fit:cover;
+  border:1px solid #eee;
 }
 
 .info{
@@ -75,29 +81,35 @@ body{
 }
 
 .info h3{
-  font-size:.95em;
+  font-size:1em;
   margin-bottom:4px;
+  color:var(--texto);
 }
 
 .info p{
-  font-size:.8em;
-  color:#666;
+  font-size:.82em;
+  color:var(--sub);
+  margin-bottom:4px;
 }
 
 .info span{
-  font-weight:600;
+  font-weight:700;
   color:var(--laranja);
-  font-size:.9em;
+  font-size:.95em;
 }
+
+
+/* AÇÕES */
 
 .acoes button{
   background:var(--laranja);
   color:#fff;
   border:none;
-  border-radius:10px;
-  padding:7px 10px;
+  border-radius:12px;
+  padding:8px 14px;
   font-size:.75em;
   cursor:pointer;
+  transition:.2s;
 }
 
 .acoes button:hover{
@@ -105,28 +117,45 @@ body{
 }
 
 
-/* FORM EDITAR */
+/* EDITAR */
 
 .editarBox{
   display:none;
-  margin-top:12px;
+  margin-top:14px;
   border-top:1px solid #eee;
-  padding-top:12px;
+  padding-top:14px;
+}
+
+.editarBox label{
+  font-size:.7em;
+  color:#777;
+  font-weight:600;
+  text-transform:uppercase;
 }
 
 .editarBox input,
 .editarBox textarea{
   width:100%;
-  margin-bottom:8px;
-  padding:10px;
-  border-radius:8px;
+  margin:6px 0 10px;
+  padding:11px;
+  border-radius:10px;
   border:1px solid #ddd;
-  font-size:.8em;
+  font-size:.85em;
 }
 
-.editarBox button{
+.preview{
   width:100%;
-  margin-top:6px;
+  border-radius:12px;
+  margin-bottom:10px;
+  display:none;
+}
+
+.btnSalvar{
+  width:100%;
+  background:linear-gradient(135deg,var(--laranja),var(--laranja-hover));
+  padding:12px;
+  border-radius:12px;
+  font-size:.9em;
 }
 
 
@@ -134,7 +163,7 @@ body{
 
 .vazio{
   text-align:center;
-  margin-top:40px;
+  margin-top:50px;
   color:#777;
   font-size:.9em;
 }
@@ -184,9 +213,32 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 
+/* Cloudinary */
+
+const CLOUD_NAME = "daqyssjdj";
+const UPLOAD_PRESET = "TOCOMFOME";
+
+async function uploadCloudinary(file){
+
+  const fd = new FormData();
+  fd.append("file",file);
+  fd.append("upload_preset",UPLOAD_PRESET);
+
+  const res = await fetch(
+    `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+    {method:"POST",body:fd}
+  );
+
+  const data = await res.json();
+
+  return data.secure_url;
+
+}
+
+
 /* Auth */
 
-onAuthStateChanged(auth, user=>{
+onAuthStateChanged(auth,user=>{
 
   if(!user){
     location.href="login-comercio.html";
@@ -204,7 +256,7 @@ async function carregarProdutos(uid){
 
   const ref = collection(db,"comercios",uid,"produtos");
 
-  const q = query(ref, orderBy("criadoEm","desc"));
+  const q = query(ref,orderBy("criadoEm","desc"));
 
   const snap = await getDocs(q);
 
@@ -227,7 +279,7 @@ async function carregarProdutos(uid){
 
       <div class="produto">
 
-        <img src="${p.imagemUrl}">
+        <img src="${p.imagemUrl}" id="img-${docu.id}">
 
         <div class="info">
           <h3>${p.nome}</h3>
@@ -246,15 +298,26 @@ async function carregarProdutos(uid){
 
       <div class="editarBox" id="edit-${docu.id}">
 
+        <label>Nome</label>
         <input id="nome-${docu.id}" value="${p.nome}">
 
+        <label>Valor</label>
         <input id="valor-${docu.id}" type="number" step="0.01"
                value="${p.valor}">
 
+        <label>Descrição</label>
         <textarea id="desc-${docu.id}">${p.descricao || ""}</textarea>
 
-        <button onclick="salvar('${docu.id}')">
-          Salvar Alterações
+        <label>Nova Imagem</label>
+        <input type="file" accept="image/*"
+               onchange="previewImg(event,'${docu.id}')">
+
+        <img class="preview" id="prev-${docu.id}">
+
+
+        <button class="btnSalvar"
+          onclick="salvar('${docu.id}')">
+          💾 Salvar Alterações
         </button>
 
       </div>
@@ -268,16 +331,33 @@ async function carregarProdutos(uid){
 }
 
 
-/* Abrir edição */
+/* Abrir */
 
 window.abrirEditar = function(id){
 
   const box = document.getElementById("edit-"+id);
 
   box.style.display =
-    box.style.display === "block"
+    box.style.display==="block"
     ? "none"
     : "block";
+
+}
+
+
+/* Preview */
+
+window.previewImg = function(e,id){
+
+  const file = e.target.files[0];
+
+  if(!file) return;
+
+  const img = document.getElementById("prev-"+id);
+
+  img.src = URL.createObjectURL(file);
+
+  img.style.display="block";
 
 }
 
@@ -292,10 +372,23 @@ window.salvar = async function(id){
   const valor = document.getElementById("valor-"+id).value;
   const desc  = document.getElementById("desc-"+id).value;
 
+  const fileInput =
+    document.querySelector(`#edit-${id} input[type="file"]`);
+
+  let imagemUrl = null;
+
 
   if(!nome || !valor){
     alert("Preencha nome e valor");
     return;
+  }
+
+
+  if(fileInput.files.length){
+
+    imagemUrl =
+      await uploadCloudinary(fileInput.files[0]);
+
   }
 
 
@@ -308,14 +401,22 @@ window.salvar = async function(id){
   );
 
 
-  await updateDoc(ref,{
+  const dados = {
     nome:nome,
     valor:valor,
     descricao:desc
-  });
+  };
 
 
-  alert("Produto atualizado! ✅");
+  if(imagemUrl){
+    dados.imagemUrl = imagemUrl;
+  }
+
+
+  await updateDoc(ref,dados);
+
+
+  alert("Produto atualizado com sucesso! ✅");
 
   location.reload();
 
