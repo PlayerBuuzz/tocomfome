@@ -336,7 +336,7 @@ body{
   <p id="categoriaComercio"></p>
 
   <div class="top-actions">
-    <div class="tag">⚡ Entrega rápida</div>
+    <div class="tag">⚡ Mais pedidos</div>
     <div class="tag">🔥 Promoções</div>
     <div class="tag" onclick="favoritar()">❤️ Favoritar</div>
   </div>
@@ -544,10 +544,11 @@ async function carregarProdutos(){
 
       <div class="card">
 
-        <img src="${
-          p.img ||
-          'https://images.unsplash.com/photo-1550547660-d9450f859349'
-        }">
+      <img src="${
+        p.imagemUrl ||
+        p.img ||
+        'https://images.unsplash.com/photo-1550547660-d9450f859349'
+      }">
 
         <div class="card-info">
 
