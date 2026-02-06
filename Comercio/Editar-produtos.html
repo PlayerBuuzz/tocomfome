@@ -53,14 +53,17 @@ body{
   background:#fff;
   border-radius:14px;
   box-shadow:0 4px 12px rgba(0,0,0,.08);
-  display:flex;
-  gap:12px;
   padding:12px;
   margin-bottom:12px;
+}
+
+.produto{
+  display:flex;
+  gap:12px;
   align-items:center;
 }
 
-.card img{
+.produto img{
   width:70px;
   height:70px;
   border-radius:10px;
@@ -92,14 +95,42 @@ body{
   color:#fff;
   border:none;
   border-radius:10px;
-  padding:8px 12px;
-  font-size:.8em;
+  padding:7px 10px;
+  font-size:.75em;
   cursor:pointer;
 }
 
 .acoes button:hover{
   background:var(--laranja-hover);
 }
+
+
+/* FORM EDITAR */
+
+.editarBox{
+  display:none;
+  margin-top:12px;
+  border-top:1px solid #eee;
+  padding-top:12px;
+}
+
+.editarBox input,
+.editarBox textarea{
+  width:100%;
+  margin-bottom:8px;
+  padding:10px;
+  border-radius:8px;
+  border:1px solid #ddd;
+  font-size:.8em;
+}
+
+.editarBox button{
+  width:100%;
+  margin-top:6px;
+}
+
+
+/* VAZIO */
 
 .vazio{
   text-align:center;
@@ -119,7 +150,7 @@ body{
 <div class="lista" id="listaProdutos"></div>
 
 <p class="vazio" id="msgVazio" style="display:none;">
-  Nenhum produto cadastrado ainda.
+  Nenhum produto cadastrado.
 </p>
 
 
@@ -133,7 +164,9 @@ import {
   collection,
   getDocs,
   query,
-  orderBy
+  orderBy,
+  doc,
+  updateDoc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 
@@ -165,7 +198,7 @@ onAuthStateChanged(auth, user=>{
 });
 
 
-/* Carregar produtos */
+/* Carregar */
 
 async function carregarProdutos(uid){
 
@@ -187,23 +220,45 @@ async function carregarProdutos(uid){
     const p = docu.data();
 
     const div = document.createElement("div");
-
     div.className="card";
 
+
     div.innerHTML = `
-      <img src="${p.imagemUrl}">
-      
-      <div class="info">
-        <h3>${p.nome}</h3>
-        <p>${p.descricao || ""}</p>
-        <span>R$ ${Number(p.valor).toFixed(2)}</span>
+
+      <div class="produto">
+
+        <img src="${p.imagemUrl}">
+
+        <div class="info">
+          <h3>${p.nome}</h3>
+          <p>${p.descricao || ""}</p>
+          <span>R$ ${Number(p.valor).toFixed(2)}</span>
+        </div>
+
+        <div class="acoes">
+          <button onclick="abrirEditar('${docu.id}')">
+            Editar
+          </button>
+        </div>
+
       </div>
 
-      <div class="acoes">
-        <button onclick="editar('${docu.id}')">
-          Editar
+
+      <div class="editarBox" id="edit-${docu.id}">
+
+        <input id="nome-${docu.id}" value="${p.nome}">
+
+        <input id="valor-${docu.id}" type="number" step="0.01"
+               value="${p.valor}">
+
+        <textarea id="desc-${docu.id}">${p.descricao || ""}</textarea>
+
+        <button onclick="salvar('${docu.id}')">
+          Salvar Alterações
         </button>
+
       </div>
+
     `;
 
     listaProdutos.appendChild(div);
@@ -213,13 +268,58 @@ async function carregarProdutos(uid){
 }
 
 
-/* Editar */
+/* Abrir edição */
 
-window.editar = function(id){
+window.abrirEditar = function(id){
 
-  location.href = `editar-produtos.html?id=${id}`;
+  const box = document.getElementById("edit-"+id);
+
+  box.style.display =
+    box.style.display === "block"
+    ? "none"
+    : "block";
 
 }
+
+
+/* Salvar */
+
+window.salvar = async function(id){
+
+  const user = auth.currentUser;
+
+  const nome  = document.getElementById("nome-"+id).value;
+  const valor = document.getElementById("valor-"+id).value;
+  const desc  = document.getElementById("desc-"+id).value;
+
+
+  if(!nome || !valor){
+    alert("Preencha nome e valor");
+    return;
+  }
+
+
+  const ref = doc(
+    db,
+    "comercios",
+    user.uid,
+    "produtos",
+    id
+  );
+
+
+  await updateDoc(ref,{
+    nome:nome,
+    valor:valor,
+    descricao:desc
+  });
+
+
+  alert("Produto atualizado! ✅");
+
+  location.reload();
+
+};
 
 </script>
 
