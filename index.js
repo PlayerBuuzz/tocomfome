@@ -1,57 +1,50 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
+const nodemailer = require("nodemailer");
 
 admin.initializeApp();
 
-exports.notificarComercio = functions.firestore
-  .document("pedidos/{pedidoId}")
-  .onCreate(async (snap) => {
+// Configuração do transporte SMTP (exemplo com Gmail)
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: "SEU_EMAIL@gmail.com",
+    pass: "SUA_SENHA_DE_APP" // precisa ser senha de app, não a senha normal
+  }
+});
 
+exports.enviarEmailPedido = functions.firestore
+  .document("pedidos/{pedidoId}")
+  .onCreate(async (snap, context) => {
     const pedido = snap.data();
 
-    if (!pedido.comercioId) {
-      console.log("Pedido sem comercioId");
-      return;
-    }
-
-    const tokenSnap = await admin.firestore()
-      .collection("tokens")
+    // Buscar e-mail do comércio
+    const comercioSnap = await admin.firestore()
+      .collection("comercios")
       .doc(pedido.comercioId)
       .get();
 
-    if (!tokenSnap.exists) {
-      console.log("Token não encontrado");
+    if (!comercioSnap.exists) return;
+    const comercio = comercioSnap.data();
+    const emailComercio = comercio.email;
+
+    if (!emailComercio) {
+      console.log("Comércio sem e-mail cadastrado");
       return;
     }
 
-    const token = tokenSnap.data().token;
-
-    console.log("Enviando para token:", token);
-
-    const message = {
-      token,
-
-      notification: {
-        title: "📦 Novo Pedido!",
-        body: `${pedido.produtoNome} - R$ ${pedido.valor}`
-      },
-
-      webpush: {
-        notification: {
-          icon: "/img/logo.png",
-          requireInteraction: true
-        },
-        fcmOptions: {
-          link: "/comandas.html"
-        }
-      }
+    // Montar mensagem
+    const mailOptions = {
+      from: "SEU_EMAIL@gmail.com",
+      to: emailComercio,
+      subject: "🍔 Novo pedido recebido!",
+      text: `Cliente: ${pedido.clienteNome}\nProduto: ${pedido.produtoNome}\nValor: R$ ${pedido.valor}`
     };
 
     try {
-      const res = await admin.messaging().send(message);
-      console.log("Push enviado:", res);
-    } catch (err) {
-      console.error("Erro push:", err);
+      await transporter.sendMail(mailOptions);
+      console.log("E-mail enviado para:", emailComercio);
+    } catch (error) {
+      console.error("Erro ao enviar e-mail:", error);
     }
-
   });
