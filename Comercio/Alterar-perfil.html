@@ -237,5 +237,109 @@ onAuthStateChanged(auth, async user=>{
   });
 });
 </script>
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, collection, query, where, onSnapshot, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js";
+
+/* Firebase */
+const firebaseConfig = {
+  apiKey: "AIzaSyD6a29L24aFSgVjmC7NFGXpdWW4g1uQsio",
+  authDomain: "tocomfome-754e1.firebaseapp.com",
+  projectId: "tocomfome-754e1",
+  storageBucket: "tocomfome-754e1.appspot.com",
+  messagingSenderId: "997975886937",
+  appId: "1:997975886937:web:9bf408c35f1ed8aea13548"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const messaging = getMessaging(app);
+
+/* Service Worker */
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/firebase-messaging-sw.js");
+}
+
+/* Registrar Token */
+async function registrarToken(uid){
+
+  const perm = await Notification.requestPermission();
+  if(perm !== "granted") return;
+
+  const reg = await navigator.serviceWorker.ready;
+
+  const token = await getToken(messaging,{
+    vapidKey:"BB3N1EQpjWRYNQQpB_Dwo1lCScMl03xYIq_WrJo_nxs5HcKbRrUze3ATLLlW9B0xV3Trm6Fm_NwAMvQeLcJBTgU",
+    serviceWorkerRegistration: reg
+  });
+
+  if(!token) return;
+
+  await setDoc(doc(db,"tokens",uid),{
+    token,
+    atualizadoEm: serverTimestamp()
+  });
+
+}
+
+/* 🔔 Escutar pedidos (somente notificação) */
+function escutarPedidos(uid){
+
+  const q = query(
+    collection(db,"pedidos"),
+    where("comercioId","==",uid)
+  );
+
+  let primeira = true;
+
+  onSnapshot(q,snap=>{
+
+    if(!primeira){
+
+      snap.docChanges().forEach(change=>{
+
+        if(change.type === "added"){
+
+          const p = change.doc.data();
+
+          new Notification("📦 Novo Pedido!",{
+            body:`${p.clienteNome} pediu ${p.produtoNome}`,
+            icon:"/img/logo.png"
+          });
+
+          const audio = new Audio("/audio/alerta.mp3");
+          audio.play().catch(()=>{});
+
+        }
+
+      });
+
+    }
+
+    primeira = false;
+
+  });
+
+}
+
+/* Auth */
+onAuthStateChanged(auth,user=>{
+
+  if(!user){
+    location.href="/comercio/login-comercio.html";
+    return;
+  }
+
+  registrarToken(user.uid);
+
+  escutarPedidos(user.uid); // 🔥 AGORA NOTIFICA NESSA TELA
+
+});
+
+</script>
 </body>
 </html>
