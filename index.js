@@ -9,22 +9,27 @@ exports.notificarComercio = functions.firestore
 
     const pedido = snap.data();
 
-    if (!pedido.comercioId) return;
+    if (!pedido.comercioId) {
+      console.log("Pedido sem comercioId");
+      return;
+    }
 
-    const tokenDoc = await admin.firestore()
+    const tokenSnap = await admin.firestore()
       .collection("tokens")
       .doc(pedido.comercioId)
       .get();
 
-    if (!tokenDoc.exists) {
-      console.log("Sem token");
+    if (!tokenSnap.exists) {
+      console.log("Token não encontrado");
       return;
     }
 
-    const token = tokenDoc.data().token;
+    const token = tokenSnap.data().token;
+
+    console.log("Enviando para token:", token);
 
     const message = {
-      token: token,
+      token,
 
       notification: {
         title: "📦 Novo Pedido!",
@@ -32,21 +37,21 @@ exports.notificarComercio = functions.firestore
       },
 
       webpush: {
-        headers: {
-          Urgency: "high"
-        },
         notification: {
           icon: "/img/logo.png",
           requireInteraction: true
+        },
+        fcmOptions: {
+          link: "/comandas.html"
         }
       }
     };
 
     try {
-      await admin.messaging().send(message);
-      console.log("✅ Push enviado");
-    } catch (e) {
-      console.error("❌ Erro push:", e);
+      const res = await admin.messaging().send(message);
+      console.log("Push enviado:", res);
+    } catch (err) {
+      console.error("Erro push:", err);
     }
 
   });
