@@ -188,7 +188,7 @@ button:active{
 
   <div class="link">
     Não tem cadastro?
-    <a href="Comercio/cadastro-comercio">Cadastrar comércio</a>
+    <a href="cadastro-comercio">Cadastrar comércio</a>
   </div>
 
   <div class="link">
@@ -241,14 +241,14 @@ document.getElementById("formLogin").addEventListener("submit", async (e) => {
 
     const snap = await getDoc(doc(db, "comercios", uid));
     if (!snap.exists()) {
-      alert("❌ Conta não é de comércio");
+      alert("⚠️ Conta não é de comércio");
       await auth.signOut();
       return;
     }
 
     window.location.href = "painel-comercio.html";
   } catch (error) {
-    alert("❌ Email ou senha inválidos");
+    alert("⚠️ Email ou senha inválidos");
   }
 });
 
@@ -263,7 +263,7 @@ document.getElementById("resetSenhaBtn").addEventListener("click", async ()=>{
     await sendPasswordResetEmail(auth, email);
     alert("📧 Email de redefinição enviado! Verifique sua caixa de entrada.");
   }catch(err){
-    alert("Erro ao enviar redefinição: " + err.message);
+    alert("⚠️ Erro ao enviar redefinição: " + err.message);
   }
 });
 </script>
