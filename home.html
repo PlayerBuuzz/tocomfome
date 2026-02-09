@@ -269,6 +269,15 @@ body{
 #chat-balao img{
   width:20px;
 }
+/* Remove barra de rolagem do carrossel */
+.carrossel-track{
+  scrollbar-width: none;          /* Firefox */
+  -ms-overflow-style: none;       /* IE / Edge antigo */
+}
+
+.carrossel-track::-webkit-scrollbar{
+  display: none;                  /* Chrome / Safari */
+}
 </style>
 </head>
 
@@ -560,6 +569,27 @@ chatBalao?.addEventListener("click", () => {
    INIT
 ========================= */
 carregarComercios();
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const track = document.querySelector(".carrossel-track");
+  let scrollAmount = 0;
+  const scrollStep = 1;   // velocidade (quanto menor, mais suave)
+  const delay = 25;       // intervalo do movimento
+
+  setInterval(() => {
+    if (!track) return;
+
+    scrollAmount += scrollStep;
+    track.scrollLeft = scrollAmount;
+
+    // quando chegar no fim, volta pro começo
+    if (track.scrollLeft + track.clientWidth >= track.scrollWidth) {
+      scrollAmount = 0;
+      track.scrollLeft = 0;
+    }
+  }, delay);
+});
 </script>
 
 </body>
