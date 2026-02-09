@@ -2,214 +2,158 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Tôcomfome 🍔 | Comércio</title>
+<title>Tôcomfome 🍔| Painel do Comércio</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- FAVICON CORRIGIDO -->
-<link rel="icon" type="image/png" href="../img/Logo.png">
+<link rel="icon" type="image/ico" href="/img/Logo.png">
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
 :root{
-  --primary:#ff8c1a;
-  --primary-dark:#ff6a00;
-  --bg:#f4f6fb;
+  --laranja:#ff8c1a;
+  --laranja-hover:#ff7a00;
+  --branco:#ffffff;
+  --cinza:#f4f5f7;
   --card:#ffffff;
-  --text:#1f2937;
-  --muted:#6b7280;
-  --border:#e5e7eb;
-  --shadow-sm:0 2px 6px rgba(0,0,0,.06);
-  --shadow:0 6px 16px rgba(0,0,0,.08);
-  --radius-sm:12px;
-  --radius:18px;
-  --radius-lg:22px;
+  --texto:#2e2e2e;
+  --subtexto:#777;
 }
 
-/* RESET */
 *{
   margin:0;
   padding:0;
   box-sizing:border-box;
-  font-family:'Inter','Segoe UI',Arial,sans-serif;
+  font-family:'Segoe UI', Arial, sans-serif;
 }
 
 body{
-  background:var(--bg);
-  color:var(--text);
-  padding-bottom:90px;
+  background:var(--cinza);
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+/* CONTAINER */
+.painel{
+  background:var(--branco);
+  width:100%;
+  max-width:420px;
+  border-radius:20px;
+  overflow:hidden;
+  box-shadow:0 12px 30px rgba(0,0,0,.12);
 }
 
 /* HEADER */
 .header{
-  background:linear-gradient(135deg,#fff,#fff7ed);
-  padding:20px 16px 18px;
-  box-shadow:var(--shadow-sm);
-  border-bottom:1px solid var(--border);
-  position:sticky;
-  top:0;
-  z-index:20;
+  background:linear-gradient(135deg, var(--laranja), var(--laranja-hover));
+  padding:32px 20px;
+  text-align:center;
 }
 
-.header h2{
-  color:var(--primary);
-  font-size:1.55em;
+.header h1{
+  color:#fff;
+  font-size:1.4em;
   font-weight:700;
+  letter-spacing:.3px;
 }
 
 .header p{
+  color:#ffe6cc;
   font-size:.85em;
-  color:var(--muted);
-  margin-top:4px;
+  margin-top:6px;
 }
 
-/* TAGS */
-.top-actions{
-  display:flex;
-  gap:8px;
-  margin-top:14px;
-  flex-wrap:wrap;
+/* MENU */
+.menu{
+  padding:26px 22px 30px;
+  margin-top:18px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:18px;
 }
 
-.tag{
-  background:#fff3e6;
-  color:#9a4b00;
-  padding:6px 14px;
-  border-radius:100px;
-  font-size:.72em;
-  font-weight:600;
-}
-
-/* VOLTAR */
-.voltar{
-  margin-top:12px;
-  font-size:.78em;
-  color:var(--muted);
-  cursor:pointer;
-}
-
-/* INFO */
-.info{
-  background:var(--card);
-  margin:14px;
-  padding:15px 16px;
-  border-radius:var(--radius);
-  box-shadow:var(--shadow);
-  border:1px solid var(--border);
-  font-size:.88em;
-}
-
-/* CUPOM */
-.cupom{
-  background:linear-gradient(135deg,#fff7ed,#fff);
-  border:1px dashed var(--primary);
-  margin:14px;
-  padding:14px 16px;
-  border-radius:var(--radius-lg);
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:12px;
-}
-
-.cupom button{
-  border:none;
-  background:linear-gradient(135deg,var(--primary),var(--primary-dark));
-  color:#fff;
-  padding:7px 16px;
-  border-radius:100px;
-  font-size:.75em;
-  font-weight:600;
-  cursor:pointer;
-}
-
-/* LISTA */
-.lista{
-  padding:14px;
-}
-
-/* CARD */
 .card{
   background:var(--card);
-  border-radius:var(--radius);
-  padding:12px;
-  margin-bottom:14px;
-  display:flex;
-  gap:12px;
-  box-shadow:var(--shadow);
-  border:1px solid var(--border);
-}
-
-.card img{
-  width:88px;
-  height:88px;
-  border-radius:14px;
-  object-fit:cover;
-}
-
-/* INFO CARD */
-.card-info{
-  flex:1;
-  display:flex;
-  flex-direction:column;
-}
-
-.preco{
-  color:var(--primary);
-  font-weight:700;
-}
-
-.preco-antigo{
-  text-decoration:line-through;
-  font-size:.72em;
-  color:#9ca3af;
-}
-
-.btn{
-  margin-top:auto;
-  width:100%;
-  padding:9px;
-  border:none;
-  border-radius:100px;
-  background:linear-gradient(135deg,var(--primary),var(--primary-dark));
-  color:#fff;
-  font-weight:600;
+  border-radius:16px;
+  padding:26px 16px;
+  text-align:center;
   cursor:pointer;
+  transition:.25s ease;
+  box-shadow:0 6px 14px rgba(0,0,0,.08);
+}
+
+.card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 10px 22px rgba(0,0,0,.12);
+}
+
+.card span{
+  font-size:1.6em;
+  display:block;
+  color:var(--laranja);
+}
+
+.card p{
+  margin-top:10px;
+  font-size:.95em;
+  font-weight:600;
+  color:var(--texto);
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">
-  <h2 id="nomeComercio">Comércio</h2>
-  <p id="categoriaComercio"></p>
-
-  <div class="top-actions">
-    <div class="tag">⚡ Mais pedidos</div>
-    <div class="tag">🔥 Promoções</div>
-    <div class="tag" onclick="favoritar()">❤️ Favoritar</div>
+<div class="painel">
+  <div class="header">
+    <h1>Tôcomfome</h1>
+    <p>Painel do Comércio</p>
   </div>
 
-  <div class="voltar" onclick="history.back()">← Voltar</div>
-</div>
+  <div class="menu">
 
-<div class="info">
-  <div id="endereco"></div>
-  <div id="telefone"></div>
-</div>
+    <div class="card" onclick="irPara('comandas.html')">
+      <span>📦</span>
+      <p>Comandas Ativas</p>
+    </div>
 
-<div class="cupom" id="cupomBox" style="display:none">
-  <div>
-    🎟️ Cupom disponível:
-    <strong id="cupomNome"></strong><br>
-    <small id="cupomDesc"></small>
+    <div class="card" onclick="irPara('comandas-encerradas.html')">
+      <span>✔️</span>
+      <p>Encerradas</p>
+    </div>
+
+    <div class="card" onclick="irPara('Criar-cupom.html')">
+      <span>🎟️</span>
+      <p>Cupons</p>
+    </div>
+
+    <div class="card" onclick="irPara('editar-produtos.html')">
+      <span>✎</span>
+      <p>Editar Produtos</p>
+    </div>
+
+    <div class="card" onclick="irPara('Cadastrar-produto.html')">
+      <span>＋</span>
+      <p>Adicionar Produto</p>
+    </div>
+
+    <div class="card" onclick="irPara('alterar-perfil.html')">
+      <span>✎</span>
+      <p>Alterar Perfil</p>
+    </div>
+
+    <div class="card" onclick="irPara('visao-cliente.html')">
+      <span>👁️</span>
+      <p>Visão do Cliente</p>
+    </div>
+
+    <div class="card" onclick="irPara('grafico-vendas.html')">
+      <span>📊</span>
+      <p>Gráfico de Vendas</p>
+    </div>
+
   </div>
-  <button onclick="aplicarCupom()">Usar</button>
 </div>
-
-<div class="lista" id="listaProdutos"></div>
-<div class="lista" id="listaAvaliacoes"></div>
 
 <!-- FUNÇÃO GLOBAL -->
 <script>
