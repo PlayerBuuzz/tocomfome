@@ -23,7 +23,7 @@
 
 body{
   background:var(--cinza);
-  padding-bottom:90px;
+  padding-bottom:95px;
 }
 
 /* HEADER */
@@ -207,7 +207,7 @@ body{
   cursor:pointer;
 }
 
-/* MENU INFERIOR */
+/* MENU INFERIOR – VERSÃO PRO */
 .menu-inferior{
   position:fixed;
   bottom:0;
@@ -216,28 +216,61 @@ body{
   background:#fff;
   display:flex;
   justify-content:space-around;
-  padding:10px 0;
-  box-shadow:0 -3px 10px var(--sombra);
+  padding:12px 0 10px;
+  box-shadow:0 -4px 16px rgba(0,0,0,.1);
+  border-top:1px solid #eee;
+  z-index:5;
 }
 
 .menu-inferior div{
   flex:1;
   text-align:center;
   font-size:.75em;
-  color:#444;
+  color:#777;
   cursor:pointer;
+  position:relative;
+  transition:.25s;
 }
 
 .menu-inferior .icon{
   width:24px;
   display:block;
   margin:0 auto 4px;
+  transition:.25s;
+}
+
+/* ATIVO */
+.menu-inferior .ativo{
+  color:var(--laranja);
+  font-weight:700;
+}
+
+.menu-inferior .ativo .icon{
+  transform:scale(1.15);
+}
+
+/* INDICADOR */
+.menu-inferior .ativo::after{
+  content:'';
+  position:absolute;
+  bottom:-6px;
+  left:50%;
+  transform:translateX(-50%);
+  width:6px;
+  height:6px;
+  background:var(--laranja);
+  border-radius:50%;
+}
+
+/* CLIQUE */
+.menu-inferior div:active{
+  transform:scale(.95);
 }
 
 /* CHAT */
 #chat-balao{
   position:fixed;
-  bottom:86px;
+  bottom:90px;
   right:18px;
   background:linear-gradient(135deg,var(--laranja),var(--laranja-escuro));
   color:#fff;
@@ -307,12 +340,15 @@ body{
   <div onclick="irInicio()">
     <img src="img/home.png" class="icon">Início
   </div>
-  <div onclick="irBusca()">
+
+  <div class="ativo" onclick="irBusca()">
     <img src="img/buscar.png" class="icon">Buscar
   </div>
+
   <div onclick="irPedidos()">
     <img src="img/pedidos.png" class="icon">Pedidos
   </div>
+
   <div onclick="irPerfil()">
     <img src="img/perfil.png" class="icon">Perfil
   </div>
