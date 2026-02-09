@@ -573,22 +573,34 @@ carregarComercios();
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   const track = document.querySelector(".carrossel-track");
-  let scrollAmount = 0;
-  const scrollStep = 1;   // velocidade (quanto menor, mais suave)
-  const delay = 25;       // intervalo do movimento
+  if (!track) return;
 
-  setInterval(() => {
-    if (!track) return;
+  let scrollAmount = 0;
+  const scrollStep = 1;
+  const delay = 25;
+  let autoScroll = true;
+
+  // Auto scroll
+  const interval = setInterval(() => {
+    if (!autoScroll) return;
 
     scrollAmount += scrollStep;
     track.scrollLeft = scrollAmount;
 
-    // quando chegar no fim, volta pro começo
     if (track.scrollLeft + track.clientWidth >= track.scrollWidth) {
       scrollAmount = 0;
       track.scrollLeft = 0;
     }
   }, delay);
+
+  // Se o usuário interagir, para o auto scroll
+  const stopAutoScroll = () => {
+    autoScroll = false;
+  };
+
+  track.addEventListener("touchstart", stopAutoScroll, { passive: true });
+  track.addEventListener("mousedown", stopAutoScroll);
+  track.addEventListener("wheel", stopAutoScroll);
 });
 </script>
 
