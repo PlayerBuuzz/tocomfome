@@ -157,7 +157,7 @@ body{
   padding:16px;
 }
 
-/* CARD */
+/* CARD COMÉRCIO */
 .card-comercio{
   background:#fff;
   border-radius:20px;
@@ -166,6 +166,11 @@ body{
   display:flex;
   gap:14px;
   box-shadow:0 6px 16px var(--sombra);
+  transition:transform .2s ease;
+}
+
+.card-comercio:hover{
+  transform:translateY(-2px);
 }
 
 .card-comercio img{
@@ -173,6 +178,22 @@ body{
   height:92px;
   border-radius:16px;
   object-fit:cover;
+}
+
+.card-comercio h4{
+  font-size:1.05em;
+  margin-bottom:4px;
+}
+
+.card-comercio .tipo{
+  font-size:.8em;
+  color:#777;
+}
+
+.card-comercio .local{
+  font-size:.75em;
+  color:#aaa;
+  margin:6px 0 10px;
 }
 
 .btn{
@@ -186,17 +207,17 @@ body{
   cursor:pointer;
 }
 
-/* MENU INFERIOR — MAIS VIVO */
+/* MENU INFERIOR – SEM ESTADO, SÓ UX */
 .menu-inferior{
   position:fixed;
   bottom:0;
   left:0;
   width:100%;
-  background:linear-gradient(to top,#fff,#fafafa);
+  background:#fff;
   display:flex;
   justify-content:space-around;
   padding:12px 0 10px;
-  box-shadow:0 -6px 18px rgba(0,0,0,.12);
+  box-shadow:0 -6px 18px rgba(0,0,0,.14);
   border-top:1px solid #eee;
   z-index:5;
 }
@@ -205,21 +226,23 @@ body{
   flex:1;
   text-align:center;
   font-size:.75em;
-  color:#666;
+  color:#777;
   cursor:pointer;
-  transition:.2s ease;
+  transition:transform .15s ease, opacity .15s ease;
 }
 
 .menu-inferior .icon{
   width:26px;
   display:block;
-  margin:0 auto 4px;
-  transition:.2s ease;
+  margin:0 auto 5px;
+  filter:brightness(1); /* ícones laranja */
+  transition:transform .15s ease;
 }
 
-/* FEEDBACK */
+/* FEEDBACK DE TOQUE */
 .menu-inferior div:active{
   transform:scale(.92);
+  opacity:.85;
 }
 
 .menu-inferior div:active .icon{
@@ -251,12 +274,28 @@ body{
 
 <body>
 
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <h3><img src="img/menu.png"> Menu</h3>
+
+  <a href="#" onclick="filtrarTipoComercio('Hamburgueria')">Hamburgueria</a>
+  <a href="#" onclick="filtrarTipoComercio('Pizzaria')">Pizzaria</a>
+  <a href="#" onclick="filtrarTipoComercio('Pastelaria')">Pastelaria</a>
+  <a href="#" onclick="filtrarTipoComercio('Açai / Sorveteria')">Açai / Sorveteria</a>
+  <a href="#" onclick="filtrarTipoComercio('Lanchonete')">Lanchonete</a>
+
+  <a href="#" onclick="irPerfil();fecharMenu()">Meu Perfil</a>
+  <a href="#" onclick="logoff()">Sair</a>
+</div>
+
+<div class="overlay" id="overlay" onclick="fecharMenu()"></div>
+
 <!-- HEADER -->
 <div class="header">
   <div class="menu-btn" onclick="toggleMenu()">
     <img src="img/menu.png">
   </div>
-  <input placeholder="Buscar restaurantes ou comidas...">
+  <input id="buscaInput" placeholder="Buscar restaurantes ou comidas...">
   <div class="usuario">Olá 👋</div>
 </div>
 
@@ -265,6 +304,18 @@ body{
   <img src="img/endereco.png" class="icon">
   <span>Entregar em <strong>Colina - SP</strong></span>
 </div>
+
+<!-- CARROSSEL -->
+<div class="carrossel">
+  <div class="carrossel-track">
+    <img src="img/banner1.jpg">
+    <img src="img/banner2.jpg">
+    <img src="img/banner3.jpg">
+  </div>
+</div>
+
+<!-- LISTA -->
+<div class="lista" id="listaProdutos"></div>
 
 <!-- MENU INFERIOR -->
 <div class="menu-inferior">
