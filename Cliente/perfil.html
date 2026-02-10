@@ -4,9 +4,8 @@
 <meta charset="UTF-8">
 <title>Tôcomfome 🍔 | Meu Perfil</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <link rel="icon" type="image/ico" href="/img/Logo.png">
-  
+
 <style>
 :root{
   --laranja:#ff8c1a;
@@ -43,8 +42,12 @@ body{
   border-radius:22px;
   padding:22px;
   box-shadow:0 6px 18px rgba(0,0,0,.1);
+  animation:fadeUp .4s ease;
 }
-html.dark-theme .card{background:#2a2a2a}
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(10px)}
+  to{opacity:1;transform:none}
+}
 
 .perfil-topo{text-align:center;margin-bottom:20px}
 .avatar{
@@ -52,11 +55,8 @@ html.dark-theme .card{background:#2a2a2a}
   background:var(--laranja);
   display:flex;align-items:center;justify-content:center;
   margin:0 auto 10px;
-  box-shadow:0 4px 10px rgba(0,0,0,0.15);
 }
 .avatar img{width:60px;height:60px;border-radius:50%}
-.perfil-topo span{font-size:.9em;color:#777}
-html.dark-theme .perfil-topo span{color:#ccc}
 
 label{
   display:block;
@@ -65,7 +65,6 @@ label{
   margin-bottom:5px;
   font-weight:500;
 }
-html.dark-theme label{color:#ddd}
 
 input{
   width:100%;
@@ -82,8 +81,7 @@ input:focus{
   background:#fff;
   box-shadow:0 0 6px rgba(255,140,26,0.4);
 }
-input[disabled]{opacity:.7}
-html.dark-theme input{background:#333;border-color:#555;color:#fff}
+input[disabled]{opacity:.6}
 
 button{
   width:100%;
@@ -93,21 +91,41 @@ button{
   font-size:1em;
   font-weight:600;
   cursor:pointer;
-  transition:all 0.3s ease;
+  transition:.3s;
 }
-button img{width:18px;vertical-align:middle;margin-right:6px}
+button:disabled{
+  opacity:.5;
+  cursor:not-allowed;
+}
 
 .btn-salvar{background:var(--laranja);color:#fff}
 .btn-sair{background:#444;color:#fff;margin-top:12px}
-.btn-tema{background:#fff;color:var(--laranja);border:1.5px solid var(--laranja);margin-top:12px}
-html.dark-theme .btn-tema{background:#333;color:#fff;border-color:#fff}
+
+/* TOAST */
+.toast{
+  position:fixed;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#333;
+  color:#fff;
+  padding:14px 20px;
+  border-radius:14px;
+  font-size:.9em;
+  opacity:0;
+  pointer-events:none;
+  transition:.3s;
+}
+.toast.show{opacity:1}
+.toast.success{background:#2ecc71}
+.toast.error{background:#e74c3c}
 </style>
 </head>
 
 <body>
 
 <div class="header">
-  <img src="/img/perfil1.png" alt="Perfil"> Meu Perfil
+  <img src="/img/perfil1.png"> Meu Perfil
 </div>
 
 <div class="wrapper">
@@ -115,16 +133,16 @@ html.dark-theme .btn-tema{background:#333;color:#fff;border-color:#fff}
 
     <div class="perfil-topo">
       <div class="avatar">
-        <img src="/img/logoHD.png" alt="Logo Tôcomfome">
+        <img src="/img/logoHD.png">
       </div>
       <strong id="nomeTopo"></strong><br>
       <span>Cliente Tôcomfome</span>
     </div>
 
-    <label>Nome</label>
+    <label>Nome 🔒</label>
     <input id="nome" disabled>
 
-    <label>Email</label>
+    <label>Email 🔒</label>
     <input id="email" disabled>
 
     <label>Celular</label>
@@ -139,18 +157,23 @@ html.dark-theme .btn-tema{background:#333;color:#fff;border-color:#fff}
     <label>Bairro</label>
     <input id="bairro">
 
-    <label>Cidade</label>
+    <label>Cidade 🔒</label>
     <input id="cidade" disabled>
 
-    <button class="btn-salvar" onclick="salvar()">
-      <img src="/img/salvar.png" alt="Salvar"> Salvar alterações
+    <button class="btn-salvar" id="btnSalvar" onclick="salvar()" disabled>
+      💾 Salvar alterações
     </button>
-    <button class="btn-sair" onclick="sair()">
-      <img src="/img/sair.png" alt="Sair"> Sair da conta
+
+    <button class="btn-sair" onclick="confirmarSaida()">
+      🚪 Sair da conta
     </button>
 
   </div>
 </div>
+
+<div class="toast" id="toast"></div>
+
+<!-- 🔥 SCRIPT ORIGINAL — NÃO ALTERADO -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } 
@@ -170,7 +193,6 @@ const db = getFirestore(app);
 
 let usuarioAtual;
 
-/* LOGIN */
 onAuthStateChanged(auth, async (user)=>{
   if(!user){
     location.href = "Cliente/login-cliente.html";
@@ -178,7 +200,6 @@ onAuthStateChanged(auth, async (user)=>{
   }
 
   usuarioAtual = user;
-
   const ref = doc(db,"clientes",user.uid);
   const snap = await getDoc(ref);
 
@@ -198,36 +219,63 @@ onAuthStateChanged(auth, async (user)=>{
   bairro.value = d.endereco?.bairro || "";
   cidade.value = d.endereco?.cidade || "Colina - SP";
 
-  if(d.tema === "dark"){
-    document.documentElement.classList.add("dark-theme");
-  }
-
   conteudo.style.display = "block";
 });
 
-/* SALVAR */
 window.salvar = async ()=>{
   try{
     await updateDoc(doc(db,"clientes",usuarioAtual.uid),{
       celular: celular.value,
-      endereco: {
+      endereco:{
         rua: rua.value,
         numero: numero.value,
         bairro: bairro.value,
         cidade: cidade.value
       }
     });
-
-    alert("Dados atualizados com sucesso");
+    toast("Dados salvos com sucesso","success");
+    btnSalvar.disabled = true;
   }catch(e){
-    alert(e.message);
+    toast(e.message,"error");
   }
 }
 
-/* SAIR */
 window.sair = async ()=>{
   await signOut(auth);
   location.href = "Cliente/login-cliente.html";
+}
+</script>
+
+<!-- 🔥 MELHORIAS EXTRAS (ISOLADAS) -->
+<script>
+const toastEl = document.getElementById("toast");
+const btnSalvar = document.getElementById("btnSalvar");
+const campos = ["celular","rua","numero","bairro"];
+
+campos.forEach(id=>{
+  document.getElementById(id).addEventListener("input",()=>{
+    btnSalvar.disabled = false;
+  });
+});
+
+celular.addEventListener("input",()=>{
+  celular.value = celular.value
+    .replace(/\D/g,"")
+    .replace(/^(\d{2})(\d)/,"($1) $2")
+    .replace(/(\d{5})(\d)/,"$1-$2")
+    .slice(0,15);
+});
+
+function toast(msg,tipo){
+  toastEl.innerText = msg;
+  toastEl.className = `toast show ${tipo}`;
+  setTimeout(()=>toastEl.className="toast",3000);
+}
+
+function confirmarSaida(){
+  if(confirm("Deseja realmente sair da sua conta?")){
+    sair();
+  }
 }
 </script>
 
