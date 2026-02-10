@@ -241,17 +241,24 @@ async function carregarAvaliacoes(comercioId, produtoNome){
   let count = 0;
   let comentariosHTML = "";
 
-  snap.forEach(doc=>{
-    const d = doc.data();
+  snap.forEach(docSnap => {
+    const d = docSnap.data();
 
-    // só considera pedidos que REALMENTE têm avaliação
-    if(typeof d.avaliacao === "number"){
-      total += d.avaliacao;
-      count++;
+    // 🔥 avaliação é um OBJETO
+    if(d.avaliacao && d.avaliacao.nota){
+      const nota = Number(d.avaliacao.nota);
 
-      if(d.comentario){
+      if(!isNaN(nota)){
+        total += nota;
+        count++;
+      }
+
+      if(d.avaliacao.comentario){
         comentariosHTML += `
-          <p><strong>${d.clienteNome || "Cliente"}:</strong> ${d.comentario}</p>
+          <p>
+            <strong>${d.clienteNome || "Cliente"}:</strong>
+            ${d.avaliacao.comentario}
+          </p>
         `;
       }
     }
@@ -265,6 +272,7 @@ async function carregarAvaliacoes(comercioId, produtoNome){
     ${comentariosHTML || "<p>Sem comentários ainda.</p>"}
   `;
 }
+
 
 
 /* ✅ FINALIZAR PEDIDO */
