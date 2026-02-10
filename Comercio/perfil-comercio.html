@@ -207,7 +207,7 @@ body{
   </div>
 </div>
 
-<div class="section-title">📞 Contato</div>
+<div class="section-title">Contato</div>
 <div class="info">
   <div id="endereco"></div>
   <div id="telefone"></div>
@@ -221,7 +221,7 @@ body{
   <button onclick="aplicarCupom()">Usar</button>
 </div>
 
-<div class="section-title">🍽️ Cardápio</div>
+<div class="section-title">Cardápio</div>
 <div class="lista" id="listaProdutos"></div>
 
 <div class="section-title">⭐ Avaliações</div>
@@ -265,7 +265,7 @@ async function carregarComercio(){
 
   nomeEl.innerText = c.nome;
   categoriaEl.innerText = c.categoria || "";
-  enderecoEl.innerText = `📍 ${c.endereco?.rua || ""}, ${c.endereco?.numero || ""}`;
+  enderecoEl.innerText = `📍 ${c.endereco?.bairro || ""}, ${c.endereco?.rua || ""}, ${c.endereco?.numero || ""}`;
   telefoneEl.innerText = `📞 ${c.telefone || ""}`;
 
   if(c.fotoPerfil) fotoPerfil.src = c.fotoPerfil;
