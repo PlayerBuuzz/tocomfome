@@ -11,41 +11,33 @@
 :root{
   --laranja:#ff8c1a;
   --cinza:#f5f5f5;
-  --cinza-claro:#ffffff;
-  --texto:#333;
-  --texto-sec:#555;
   --card:#ffffff;
-  --header:#ffffff;
+  --texto:#333;
+  --texto-sec:#666;
 }
 
-html.dark-theme{
-  --cinza:#1e1e1e;
-  --cinza-claro:#2a2a2a;
-  --texto:#f5f5f5;
-  --texto-sec:#cfcfcf;
-  --card:#2a2a2a;
-  --header:#2a2a2a;
+*{
+  box-sizing:border-box;
+  font-family:'Segoe UI', Arial, sans-serif;
 }
-
-*{box-sizing:border-box;font-family:'Segoe UI', Arial;}
 
 body{
   background:var(--cinza);
   margin:0;
-  padding:0;
   color:var(--texto);
 }
 
 header{
-  background:var(--header);
+  background:#fff;
   padding:16px;
   font-size:1.1em;
   font-weight:700;
   box-shadow:0 2px 6px rgba(0,0,0,.08);
-  color:var(--texto);
 }
 
-.container{padding:20px}
+.container{
+  padding:20px;
+}
 
 .card{
   background:var(--card);
@@ -54,53 +46,47 @@ header{
   box-shadow:0 6px 16px rgba(0,0,0,.08);
 }
 
-h2{margin:0 0 10px;color:var(--texto)}
-
-.preco{
-  color:var(--laranja);
-  font-size:1.5em;
-  font-weight:800;
-  margin:10px 0;
-}
-
-.descricao{
-  color:var(--texto-sec);
-  margin-bottom:20px;
-}
-
 .produto-img{
   width:100%;
   border-radius:14px;
   margin-bottom:15px;
 }
 
-.detalhes{
-  list-style:none;
-  padding:0;
-  margin:0 0 20px;
+h2{
+  margin:0 0 6px;
 }
-.detalhes li{
-  margin:6px 0;
+
+.preco{
+  color:var(--laranja);
+  font-size:1.6em;
+  font-weight:800;
+  margin-bottom:12px;
+}
+
+.descricao{
   color:var(--texto-sec);
+  line-height:1.5;
+  margin-bottom:20px;
 }
 
-.avaliacao{
-  margin:15px 0;
-  font-size:1.1em;
-  color:#ffbb33;
-}
-
-.comentarios{
+.avaliacoes{
   margin-top:20px;
 }
-.comentarios h3{
+
+.avaliacoes h3{
   margin-bottom:10px;
-  color:var(--texto);
 }
-.comentarios p{
-  margin:6px 0;
-  color:var(--texto-sec);
+
+.comentario{
+  background:#fafafa;
+  border-radius:12px;
+  padding:10px 12px;
+  margin-bottom:8px;
   font-size:.95em;
+}
+
+.comentario strong{
+  color:#000;
 }
 
 .btn{
@@ -114,7 +100,7 @@ h2{margin:0 0 10px;color:var(--texto)}
   font-weight:700;
   cursor:pointer;
   transition:.2s;
-  margin-top:10px;
+  margin-top:15px;
 }
 .btn:hover{opacity:.9}
 
@@ -122,7 +108,6 @@ h2{margin:0 0 10px;color:var(--texto)}
   text-align:center;
   margin-top:40px;
   font-weight:600;
-  color:var(--texto);
 }
 </style>
 </head>
@@ -137,27 +122,17 @@ h2{margin:0 0 10px;color:var(--texto)}
 
   <div class="card" id="conteudo" style="display:none">
     <img id="fotoProduto" class="produto-img" alt="Foto do produto">
+
     <h2 id="nome"></h2>
     <div class="preco" id="preco"></div>
+
     <p class="descricao" id="descricao"></p>
 
-    <ul class="detalhes">
-      <li>🍟 Porção individual</li>
-      <li>⏱️ Preparo: 15 min</li>
-      <li>🥩 Ingredientes: carne, queijo, molho especial</li>
-    </ul>
-
-    <div class="avaliacao" id="avaliacao">
-      ⭐⭐⭐⭐☆ (4.2)
-    </div>
-
     <button class="btn" onclick="finalizarPedido()">✅ Finalizar Pedido</button>
-    <button class="btn" onclick="ativarNotificacoes()">🔔 Ativar Notificações</button>
 
-    <div class="comentarios">
-      <h3>Comentários de clientes</h3>
-      <p><strong>Ana:</strong> Muito saboroso, recomendo!</p>
-      <p><strong>João:</strong> Chegou quentinho e rápido 😋</p>
+    <div class="avaliacoes">
+      <h3>O que os clientes acharam</h3>
+      <div id="listaAvaliacoes"></div>
     </div>
   </div>
 
@@ -174,8 +149,6 @@ import {
   collection, 
   serverTimestamp 
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { getMessaging, getToken, onMessage } 
-from "https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js";
 
 /* 🔥 FIREBASE */
 const firebaseConfig = {
@@ -190,53 +163,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-const messaging = getMessaging(app);
 
 let produto = null;
 let clienteNome = "";
-
-/* Registrar Service Worker */
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/firebase-messaging-sw.js")
-    .then(reg => console.log("✅ Service Worker registrado"))
-    .catch(err => console.error("❌ Erro ao registrar SW:", err));
-}
-
-async function ativarNotificacoes() {
-  try {
-    const permission = await Notification.requestPermission();
-    if (permission !== "granted") {
-      alert("Você precisa permitir notificações para continuar.");
-      return;
-    }
-
-    const registration = await navigator.serviceWorker.ready;
-
-    const token = await getToken(messaging, {
-      vapidKey: "BB3N1EQpjWRYNQQpB_Dwo1lCScMl03xYIq_WrJo_nxs5HcKbRrUze3ATLLlW9B0xV3Trm6Fm_NwAMvQeLcJBTgU",
-      serviceWorkerRegistration: registration
-    });
-
-    if (token) {
-      console.log("🔔 Token de notificação:", token);
-      alert("Notificações ativadas com sucesso!");
-      // ✅ Salvar token no Firestore para uso futuro
-      const user = auth.currentUser;
-      if (user) {
-        await addDoc(collection(db, "tokens"), {
-          uid: user.uid,
-          token: token,
-          criadoEm: serverTimestamp()
-        });
-      }
-    }
-  } catch (err) {
-    console.error("Erro ao ativar notificações:", err);
-    alert("❌ Erro ao ativar notificações. Veja o console.");
-  }
-}
-
-window.ativarNotificacoes = ativarNotificacoes;
 
 /* 🔐 LOGIN */
 onAuthStateChanged(auth, async (user)=>{
@@ -248,17 +177,11 @@ onAuthStateChanged(auth, async (user)=>{
   const clienteSnap = await getDoc(doc(db, "clientes", user.uid));
   if(!clienteSnap.exists()){
     alert("Apenas clientes podem realizar pedidos.");
-    window.location.href = "home.html";
+    window.location.href = "/index.html/";
     return;
   }
 
-  const dados = clienteSnap.data();
-  clienteNome = dados.nome || "Cliente";
-
-  if(dados.tema === "dark"){
-    document.documentElement.classList.add("dark-theme");
-  }
-
+  clienteNome = clienteSnap.data().nome || "Cliente";
   carregarProduto();
 });
 
@@ -266,9 +189,11 @@ onAuthStateChanged(auth, async (user)=>{
 function carregarProduto(){
   try{
     produto = JSON.parse(localStorage.getItem("produtoSelecionado"));
-  }catch{produto = null;}
+  }catch{
+    produto = null;
+  }
 
-  if(!produto || !produto.nome || !produto.valor || !produto.comercioId){
+  if(!produto){
     alert("Produto não encontrado.");
     window.location.href = "/index.html/";
     return;
@@ -279,8 +204,31 @@ function carregarProduto(){
 
   document.getElementById("nome").innerText = produto.nome;
   document.getElementById("preco").innerText = "R$ " + Number(produto.valor).toFixed(2);
-  document.getElementById("descricao").innerText = produto.descricao || "Produto delicioso preparado com carinho 😋";
-  document.getElementById("fotoProduto").src = produto.img || produto.imagemUrl || "img/produto.png";
+  document.getElementById("descricao").innerText =
+    produto.descricao || "Produto preparado com ingredientes selecionados e muito sabor 😋";
+
+  document.getElementById("fotoProduto").src =
+    produto.img || produto.imagemUrl || "/img/produto.png";
+
+  renderAvaliacoes(produto.avaliacoes || []);
+}
+
+/* ⭐ AVALIAÇÕES */
+function renderAvaliacoes(lista){
+  const container = document.getElementById("listaAvaliacoes");
+  container.innerHTML = "";
+
+  if(lista.length === 0){
+    container.innerHTML = "<p style='color:#777'>Este produto ainda não possui avaliações.</p>";
+    return;
+  }
+
+  lista.forEach(av=>{
+    const div = document.createElement("div");
+    div.className = "comentario";
+    div.innerHTML = `<strong>${av.nome || "Cliente"}:</strong> ${av.texto}`;
+    container.appendChild(div);
+  });
 }
 
 /* ✅ FINALIZAR */
@@ -301,20 +249,9 @@ window.finalizarPedido = async ()=>{
 
   localStorage.removeItem("produtoSelecionado");
 
-  await ativarNotificacoes();
-
   alert("✅ Pedido enviado com sucesso!");
   window.location.href = "/index.html/";
 };
-
-/* 🔔 Foreground notifications */
-onMessage(messaging, (payload) => {
-  console.log("📩 Mensagem recebida em foreground:", payload);
-  new Notification(payload.notification.title, {
-    body: payload.notification.body,
-    icon: "/img/logo.png"
-  });
-});
 </script>
 
 </body>
