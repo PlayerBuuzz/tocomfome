@@ -4,78 +4,64 @@
 <meta charset="UTF-8">
 <title>Tôcomfome 🍔 | Painel do Comércio</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="image/ico" href="/img/Logo.png">
+<link rel="icon" href="/img/Logo.png">
 
 <style>
 :root{
   --laranja:#ff8c1a;
   --laranja-hover:#ff7a00;
-  --branco:#ffffff;
   --cinza:#f4f5f7;
-  --card:#ffffff;
+  --branco:#fff;
   --texto:#2e2e2e;
-  --subtexto:#777;
+  --sub:#777;
 }
 
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:'Segoe UI', Arial, sans-serif;
-}
-
+*{box-sizing:border-box;font-family:'Segoe UI',Arial}
 body{
+  margin:0;
   background:var(--cinza);
-  min-height:100vh;
   display:flex;
   justify-content:center;
   align-items:center;
+  min-height:100vh;
 }
 
 .painel{
-  background:var(--branco);
   width:100%;
   max-width:420px;
+  background:var(--branco);
   border-radius:20px;
   overflow:hidden;
   box-shadow:0 12px 30px rgba(0,0,0,.12);
-  animation:fade .4s ease;
-}
-
-@keyframes fade{
-  from{opacity:0;transform:translateY(10px)}
-  to{opacity:1;transform:none}
 }
 
 .header{
-  background:linear-gradient(135deg, var(--laranja), var(--laranja-hover));
-  padding:26px 20px;
+  background:linear-gradient(135deg,var(--laranja),var(--laranja-hover));
+  padding:28px 20px;
   text-align:center;
-}
-
-.header h1{
   color:#fff;
-  font-size:1.4em;
-  font-weight:700;
 }
 
-.header p{
-  color:#ffe6cc;
-  font-size:.85em;
-  margin-top:6px;
-}
+.header h1{margin:0;font-size:1.4em}
+.header p{margin-top:6px;font-size:.85em;color:#ffe6cc}
 
 .resumo{
-  background:#fff7ef;
-  padding:14px;
   display:flex;
   justify-content:space-around;
-  font-size:.85em;
-  font-weight:600;
+  padding:16px;
+  background:#fff7ef;
 }
 
-.resumo span{
+.resumo div{
+  text-align:center;
+}
+.resumo strong{
+  font-size:1.4em;
   color:var(--laranja);
+}
+.resumo span{
+  font-size:.8em;
+  color:var(--sub);
 }
 
 .menu{
@@ -86,44 +72,29 @@ body{
 }
 
 .card{
-  background:var(--card);
+  background:#fff;
   border-radius:16px;
-  padding:22px 16px;
+  padding:22px 12px;
   text-align:center;
   cursor:pointer;
-  transition:.25s ease;
+  transition:.2s;
   box-shadow:0 6px 14px rgba(0,0,0,.08);
 }
 
 .card:hover{
   transform:translateY(-4px);
-}
-
-.card:active{
-  transform:scale(.97);
+  box-shadow:0 10px 22px rgba(0,0,0,.12);
 }
 
 .card span{
-  font-size:1.7em;
-  display:block;
+  font-size:1.6em;
   color:var(--laranja);
 }
-
 .card p{
-  margin-top:8px;
-  font-size:.95em;
+  margin-top:10px;
   font-weight:600;
+  font-size:.95em;
   color:var(--texto);
-}
-
-.badge{
-  margin-top:6px;
-  font-size:.75em;
-  background:var(--laranja);
-  color:#fff;
-  padding:4px 10px;
-  border-radius:12px;
-  display:inline-block;
 }
 </style>
 </head>
@@ -131,14 +102,22 @@ body{
 <body>
 
 <div class="painel">
+
   <div class="header">
     <h1>Tôcomfome</h1>
     <p>Painel do Comércio</p>
   </div>
 
+  <!-- 🔥 RESUMO DINÂMICO -->
   <div class="resumo">
-    <div>📦 Ativas: <span id="qtdAtivas">0</span></div>
-    <div>✔️ Encerradas: <span id="qtdEncerradas">0</span></div>
+    <div>
+      <strong id="qtdAtivas">0</strong><br>
+      <span>Comandas Ativas</span>
+    </div>
+    <div>
+      <strong id="qtdEncerradas">0</strong><br>
+      <span>Encerradas</span>
+    </div>
   </div>
 
   <div class="menu">
@@ -146,13 +125,11 @@ body{
     <div class="card" onclick="irPara('comandas.html')">
       <span>📦</span>
       <p>Comandas Ativas</p>
-      <div class="badge" id="badgeAtivas">0</div>
     </div>
 
     <div class="card" onclick="irPara('comandas-encerradas.html')">
       <span>✔️</span>
       <p>Encerradas</p>
-      <div class="badge" id="badgeEncerradas">0</div>
     </div>
 
     <div class="card" onclick="irPara('Criar-cupom.html')">
@@ -171,18 +148,8 @@ body{
     </div>
 
     <div class="card" onclick="irPara('alterar-perfil.html')">
-      <span>✎</span>
+      <span>⚙️</span>
       <p>Alterar Perfil</p>
-    </div>
-
-    <div class="card" onclick="irPara('visao-cliente.html')">
-      <span>👁️</span>
-      <p>Visão do Cliente</p>
-    </div>
-
-    <div class="card" onclick="irPara('grafico-vendas.html')">
-      <span>📊</span>
-      <p>Gráfico de Vendas</p>
     </div>
 
   </div>
@@ -197,7 +164,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, collection, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-/* Firebase */
 const firebaseConfig = {
   apiKey: "AIzaSyD6a29L24aFSgVjmC7NFGXpdWW4g1uQsio",
   authDomain: "tocomfome-754e1.firebaseapp.com",
@@ -208,13 +174,10 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-/* DOM */
 const qtdAtivas = document.getElementById("qtdAtivas");
 const qtdEncerradas = document.getElementById("qtdEncerradas");
-const badgeAtivas = document.getElementById("badgeAtivas");
-const badgeEncerradas = document.getElementById("badgeEncerradas");
 
-/* Contar pedidos corretamente */
+/* 🔥 CONTADOR CORRETO */
 function escutarResumo(uid){
 
   const q = query(
@@ -227,25 +190,27 @@ function escutarResumo(uid){
     let ativas = 0;
     let encerradas = 0;
 
-    snap.forEach(doc=>{
-      const p = doc.data();
-      if(p.status === "entregue"){
+    snap.forEach(d=>{
+      const p = d.data();
+
+      if(p.status === "entregue" || p.status === "cancelado"){
         encerradas++;
-      }else{
+      }else if(
+        p.status === "novo" ||
+        p.status === "preparando" ||
+        p.status === "saiu"
+      ){
         ativas++;
       }
     });
 
     qtdAtivas.innerText = ativas;
-    badgeAtivas.innerText = ativas;
-
     qtdEncerradas.innerText = encerradas;
-    badgeEncerradas.innerText = encerradas;
 
   });
 }
 
-/* Auth */
+/* 🔐 Auth */
 onAuthStateChanged(auth,user=>{
   if(!user){
     location.href="/comercio/login-comercio.html";
