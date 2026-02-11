@@ -2,9 +2,9 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Tôcomfome 🍔| Painel do Comércio</title>
+<title>Tôcomfome 🍔 | Painel do Comércio</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" href="/img/Logo.png">
+<link rel="icon" type="image/ico" href="/img/Logo.png">
 
 <style>
 :root{
@@ -32,7 +32,6 @@ body{
   align-items:center;
 }
 
-/* CONTAINER */
 .painel{
   background:var(--branco);
   width:100%;
@@ -40,12 +39,17 @@ body{
   border-radius:20px;
   overflow:hidden;
   box-shadow:0 12px 30px rgba(0,0,0,.12);
+  animation:fade .4s ease;
 }
 
-/* HEADER */
+@keyframes fade{
+  from{opacity:0;transform:translateY(10px)}
+  to{opacity:1;transform:none}
+}
+
 .header{
   background:linear-gradient(135deg, var(--laranja), var(--laranja-hover));
-  padding:32px 20px;
+  padding:26px 20px;
   text-align:center;
 }
 
@@ -61,63 +65,62 @@ body{
   margin-top:6px;
 }
 
-/* RESUMO */
 .resumo{
+  background:#fff7ef;
+  padding:14px;
   display:flex;
   justify-content:space-around;
-  padding:16px;
-  background:#fff7ef;
-}
-
-.resumo div{
-  text-align:center;
-}
-
-.resumo strong{
-  font-size:1.3em;
-  color:var(--laranja);
+  font-size:.85em;
+  font-weight:600;
+  flex-wrap:wrap;
+  gap:6px;
 }
 
 .resumo span{
-  font-size:.75em;
-  color:var(--subtexto);
+  color:var(--laranja);
 }
 
-/* MENU */
 .menu{
-  padding:26px 22px 30px;
-  margin-top:10px;
+  padding:22px;
   display:grid;
   grid-template-columns:1fr 1fr;
-  gap:18px;
+  gap:16px;
 }
 
 .card{
   background:var(--card);
   border-radius:16px;
-  padding:26px 16px;
+  padding:22px 16px;
   text-align:center;
   cursor:pointer;
   transition:.25s ease;
   box-shadow:0 6px 14px rgba(0,0,0,.08);
 }
 
-.card:hover{
-  transform:translateY(-4px);
-  box-shadow:0 10px 22px rgba(0,0,0,.12);
-}
+.card:hover{ transform:translateY(-4px); }
+.card:active{ transform:scale(.97); }
 
 .card span{
-  font-size:1.6em;
+  font-size:1.7em;
   display:block;
   color:var(--laranja);
 }
 
 .card p{
-  margin-top:10px;
+  margin-top:8px;
   font-size:.95em;
   font-weight:600;
   color:var(--texto);
+}
+
+.badge{
+  margin-top:6px;
+  font-size:.75em;
+  background:var(--laranja);
+  color:#fff;
+  padding:4px 10px;
+  border-radius:12px;
+  display:inline-block;
 }
 </style>
 </head>
@@ -125,26 +128,15 @@ body{
 <body>
 
 <div class="painel">
-
   <div class="header">
     <h1>Tôcomfome</h1>
     <p>Painel do Comércio</p>
   </div>
 
-  <!-- 🔥 RESUMO -->
   <div class="resumo">
-    <div>
-      <strong id="qtdAtivas">0</strong><br>
-      <span>Ativas</span>
-    </div>
-    <div>
-      <strong id="qtdEncerradas">0</strong><br>
-      <span>Encerradas</span>
-    </div>
-    <div>
-      <strong id="ganhoDia">R$ 0,00</strong><br>
-      <span>Ganho do dia</span>
-    </div>
+    <div>📦 Ativas: <span id="qtdAtivas">0</span></div>
+    <div>✔️ Encerradas: <span id="qtdEncerradas">0</span></div>
+    <div>💰 Hoje: <span id="ganhoDia">R$ 0,00</span></div>
   </div>
 
   <div class="menu">
@@ -152,11 +144,13 @@ body{
     <div class="card" onclick="irPara('comandas.html')">
       <span>📦</span>
       <p>Comandas Ativas</p>
+      <div class="badge" id="badgeAtivas">0</div>
     </div>
 
     <div class="card" onclick="irPara('comandas-encerradas.html')">
       <span>✔️</span>
       <p>Encerradas</p>
+      <div class="badge" id="badgeEncerradas">0</div>
     </div>
 
     <div class="card" onclick="irPara('Criar-cupom.html')">
@@ -175,17 +169,25 @@ body{
     </div>
 
     <div class="card" onclick="irPara('alterar-perfil.html')">
-      <span>⚙️</span>
+      <span>✎</span>
       <p>Alterar Perfil</p>
+    </div>
+
+    <div class="card" onclick="irPara('visao-cliente.html')">
+      <span>👁️</span>
+      <p>Visão do Cliente</p>
+    </div>
+
+    <div class="card" onclick="irPara('grafico-vendas.html')">
+      <span>📊</span>
+      <p>Gráfico de Vendas</p>
     </div>
 
   </div>
 </div>
 
 <script>
-window.irPara = pagina => {
-  window.location.href = `/comercio/${pagina}`;
-};
+window.irPara = p => location.href = `/comercio/${p}`;
 </script>
 
 <script type="module">
@@ -203,11 +205,21 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+/* DOM */
 const qtdAtivas = document.getElementById("qtdAtivas");
 const qtdEncerradas = document.getElementById("qtdEncerradas");
-const ganhoDiaEl = document.getElementById("ganhoDia");
+const badgeAtivas = document.getElementById("badgeAtivas");
+const badgeEncerradas = document.getElementById("badgeEncerradas");
+const ganhoDia = document.getElementById("ganhoDia");
 
-/* 🔥 RESUMO EM TEMPO REAL */
+/* Util */
+function ehHoje(data){
+  const d = data.toDate();
+  const hoje = new Date();
+  return d.toDateString() === hoje.toDateString();
+}
+
+/* Escutar pedidos */
 function escutarResumo(uid){
 
   const q = query(
@@ -219,37 +231,30 @@ function escutarResumo(uid){
 
     let ativas = 0;
     let encerradas = 0;
-    let ganhoDia = 0;
+    let totalHoje = 0;
 
-    const inicioHoje = new Date();
-    inicioHoje.setHours(0,0,0,0);
+    snap.forEach(doc=>{
+      const p = doc.data();
 
-    snap.forEach(d=>{
-      const p = d.data();
-
-      // Ativas
-      if(p.status === "novo" || p.status === "preparando" || p.status === "saiu"){
-        ativas++;
-      }
-
-      // Encerradas
-      if(p.status === "entregue" || p.status === "cancelado"){
+      if(p.status === "entregue"){
         encerradas++;
-      }
 
-      // 💰 Ganho do dia
-      if(
-        p.status === "entregue" &&
-        p.criadoEm &&
-        p.criadoEm.toDate() >= inicioHoje
-      ){
-        ganhoDia += Number(p.valor || 0);
+        if(p.createdAt && ehHoje(p.createdAt)){
+          totalHoje += Number(p.valorTotal || p.total || 0);
+        }
+
+      }else{
+        ativas++;
       }
     });
 
     qtdAtivas.innerText = ativas;
+    badgeAtivas.innerText = ativas;
+
     qtdEncerradas.innerText = encerradas;
-    ganhoDiaEl.innerText = ganhoDia.toLocaleString("pt-BR",{
+    badgeEncerradas.innerText = encerradas;
+
+    ganhoDia.innerText = totalHoje.toLocaleString("pt-BR",{
       style:"currency",
       currency:"BRL"
     });
@@ -257,7 +262,7 @@ function escutarResumo(uid){
   });
 }
 
-/* 🔐 Auth */
+/* Auth */
 onAuthStateChanged(auth,user=>{
   if(!user){
     location.href="/comercio/login-comercio.html";
