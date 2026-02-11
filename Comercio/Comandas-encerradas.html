@@ -4,85 +4,146 @@
 <meta charset="UTF-8">
 <title>Tôcomfome 🍔 | Comandas Encerradas</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <link rel="icon" type="image/ico" href="/img/Logo.png">
 
 <style>
 :root{
   --laranja:#ff8c1a;
-  --cinza:#f5f5f5;
-  --card:#ffffff;
-  --texto:#333;
+  --laranja-esc:#ff6f00;
+  --cinza:#f2f2f2;
+  --card:#fff;
+  --texto:#222;
   --texto-sec:#666;
 }
 
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:'Segoe UI', Arial;
-}
+*{box-sizing:border-box;font-family:'Segoe UI',Arial}
 
 body{
+  margin:0;
   background:var(--cinza);
   color:var(--texto);
 }
 
+/* HEADER */
 .header{
-  background:var(--laranja);
+  background:linear-gradient(135deg,var(--laranja),var(--laranja-esc));
   color:#fff;
-  padding:16px;
+  padding:18px;
   text-align:center;
+  font-size:1.2em;
+  font-weight:700;
+  box-shadow:0 4px 12px rgba(0,0,0,.15);
+}
+
+/* FILTROS */
+.filtros{
+  background:#fff;
+  padding:12px;
+  display:flex;
+  gap:8px;
+  position:sticky;
+  top:0;
+  z-index:5;
+  box-shadow:0 2px 6px rgba(0,0,0,.08);
+}
+
+.filtros input{
+  flex:1;
+  padding:10px;
+  border-radius:12px;
+  border:1px solid #ddd;
+  font-size:.85em;
+}
+
+/* RESUMO */
+.resumo{
+  display:flex;
+  gap:10px;
+  padding:14px;
+}
+
+.box{
+  flex:1;
+  background:#fff;
+  border-radius:14px;
+  padding:12px;
+  text-align:center;
+  box-shadow:0 4px 10px rgba(0,0,0,.08);
+}
+
+.box strong{
+  display:block;
   font-size:1.1em;
-  font-weight:600;
+  color:var(--laranja);
 }
 
+/* LISTA */
 .lista{
-  padding:16px;
+  padding:14px;
+  max-width:520px;
+  margin:auto;
 }
 
+/* CARD */
 .card{
   background:var(--card);
   border-radius:16px;
   padding:14px;
-  margin-bottom:14px;
+  margin-bottom:12px;
   box-shadow:0 4px 10px rgba(0,0,0,.08);
+  border-left:6px solid #28a745;
 }
 
 .card h4{
-  margin-bottom:4px;
+  margin:0 0 6px;
+  font-size:1em;
 }
 
 .preco{
-  color:var(--laranja);
-  font-weight:700;
+  font-weight:800;
+  color:#28a745;
+  margin-bottom:6px;
 }
 
 .info{
   font-size:.85em;
   color:var(--texto-sec);
-  margin:6px 0;
+  margin:4px 0;
 }
 
 .vazio{
   text-align:center;
   color:var(--texto-sec);
-  margin-top:40px;
+  margin-top:60px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">Comandas encerradas</div>
+<div class="header">📦 Comandas Encerradas</div>
+
+<div class="filtros">
+  <input type="text" id="filtroNome" placeholder="🔍 Cliente">
+</div>
+
+<div class="resumo">
+  <div class="box">
+    <span>Total de pedidos</span>
+    <strong id="totalPedidos">0</strong>
+  </div>
+  <div class="box">
+    <span>Faturamento</span>
+    <strong id="totalValor">R$ 0,00</strong>
+  </div>
+</div>
+
 <div class="lista" id="listaPedidos"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import {
-  getFirestore, collection, query, where, onSnapshot
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 /* Firebase */
 const firebaseConfig = {
@@ -96,8 +157,46 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 const lista = document.getElementById("listaPedidos");
+const filtroNome = document.getElementById("filtroNome");
+const totalPedidos = document.getElementById("totalPedidos");
+const totalValor = document.getElementById("totalValor");
 
-/* Carregar pedidos entregues */
+let pedidosCache = [];
+
+/* Renderizar */
+function renderizar(){
+  const filtro = filtroNome.value.toLowerCase();
+  lista.innerHTML = "";
+
+  let soma = 0;
+  let qtd = 0;
+
+  pedidosCache.forEach(p=>{
+    if(p.clienteNome?.toLowerCase().includes(filtro)){
+      soma += Number(p.valor);
+      qtd++;
+
+      lista.innerHTML += `
+        <div class="card">
+          <h4>${p.produtoNome}</h4>
+          <div class="preco">R$ ${Number(p.valor).toFixed(2)}</div>
+          <div class="info">👤 ${p.clienteNome || "-"}</div>
+        </div>
+      `;
+    }
+  });
+
+  totalPedidos.textContent = qtd;
+  totalValor.textContent = `R$ ${soma.toFixed(2)}`;
+
+  if(!qtd){
+    lista.innerHTML = `<div class="vazio">Nenhuma comanda encontrada</div>`;
+  }
+}
+
+filtroNome.addEventListener("input",renderizar);
+
+/* Carregar pedidos */
 function carregarPedidos(uid){
   const q = query(
     collection(db,"pedidos"),
@@ -105,24 +204,10 @@ function carregarPedidos(uid){
     where("status","==","entregue")
   );
 
-  onSnapshot(q, snap=>{
-    lista.innerHTML = "";
-
-    if(snap.empty){
-      lista.innerHTML = `<div class="vazio">Nenuma comanda encerrada ainda.</div>`;
-      return;
-    }
-
-    snap.forEach(d=>{
-      const p = d.data();
-      lista.innerHTML += `
-        <div class="card">
-          <h4>${p.produtoNome}</h4>
-          <div class="preco">R$ ${Number(p.valor).toFixed(2)}</div>
-          <div class="info">👤 Cliente: ${p.clienteNome || "-"}</div>
-        </div>
-      `;
-    });
+  onSnapshot(q,snap=>{
+    pedidosCache = [];
+    snap.forEach(d=> pedidosCache.push(d.data()));
+    renderizar();
   });
 }
 
