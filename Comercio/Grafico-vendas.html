@@ -4,49 +4,95 @@
 <meta charset="UTF-8">
 <title>Tôcomfome 🍔 | Relatórios</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <link rel="icon" type="image/ico" href="/img/Logo.png">
 
 <style>
 :root{
   --laranja:#ff8c1a;
-  --cinza:#f5f5f5;
+  --laranja-esc:#ff6f00;
+  --cinza:#f2f2f2;
   --card:#ffffff;
-  --texto:#333;
+  --texto:#222;
   --texto-sec:#666;
 }
 
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:'Segoe UI', Arial;
-}
+*{box-sizing:border-box;font-family:'Segoe UI',Arial}
 
 body{
+  margin:0;
   background:var(--cinza);
   color:var(--texto);
 }
 
+/* HEADER */
 .header{
-  background:var(--laranja);
+  background:linear-gradient(135deg,var(--laranja),var(--laranja-esc));
   color:#fff;
-  padding:16px;
+  padding:18px;
   text-align:center;
-  font-size:1.1em;
-  font-weight:600;
+  font-size:1.2em;
+  font-weight:700;
 }
 
+/* CONTAINER */
 .container{
   padding:20px;
+  max-width:1000px;
+  margin:auto;
+}
+
+/* KPIs */
+.kpis{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:14px;
+  margin-bottom:20px;
+}
+
+.kpi{
+  background:var(--card);
+  border-radius:16px;
+  padding:16px;
+  box-shadow:0 6px 16px rgba(0,0,0,.1);
+}
+
+.kpi span{
+  font-size:.8em;
+  color:var(--texto-sec);
+}
+
+.kpi strong{
+  display:block;
+  font-size:1.4em;
+  margin-top:4px;
+  color:var(--laranja);
+}
+
+/* GRAFICOS */
+.graficos{
+  display:grid;
+  grid-template-columns:2fr 1fr;
+  gap:20px;
+}
+
+.card{
+  background:var(--card);
+  border-radius:18px;
+  padding:16px;
+  box-shadow:0 6px 16px rgba(0,0,0,.1);
+}
+
+.card h3{
+  margin-bottom:10px;
+  font-size:1em;
+  color:var(--texto-sec);
 }
 
 canvas{
-  background:#fff;
-  border-radius:12px;
-  padding:10px;
-  box-shadow:0 4px 10px rgba(0,0,0,.08);
-  margin-bottom:20px;
+  width:100% !important;
+}
+@media(max-width:800px){
+  .graficos{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -56,19 +102,44 @@ canvas{
 <div class="header">📊 Relatórios de Vendas</div>
 
 <div class="container">
-  <canvas id="graficoVendas"></canvas>
-  <canvas id="graficoFluxo"></canvas>
+
+  <!-- KPIs -->
+  <div class="kpis">
+    <div class="kpi">
+      <span>Faturamento Total</span>
+      <strong id="fatTotal">R$ 0,00</strong>
+    </div>
+    <div class="kpi">
+      <span>Pedidos Entregues</span>
+      <strong id="qtdPedidos">0</strong>
+    </div>
+    <div class="kpi">
+      <span>Ticket Médio</span>
+      <strong id="ticket">R$ 0,00</strong>
+    </div>
+  </div>
+
+  <!-- GRÁFICOS -->
+  <div class="graficos">
+    <div class="card">
+      <h3>📅 Vendas por dia</h3>
+      <canvas id="graficoVendas"></canvas>
+    </div>
+    <div class="card">
+      <h3>💰 Distribuição do faturamento</h3>
+      <canvas id="graficoFluxo"></canvas>
+    </div>
+  </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import {
-  getFirestore, collection, query, where, onSnapshot
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-/* Firebase */
+/* FIREBASE */
 const firebaseConfig = {
   apiKey: "AIzaSyD6a29L24aFSgVjmC7NFGXpdWW4g1uQsio",
   authDomain: "tocomfome-754e1.firebaseapp.com",
@@ -79,177 +150,89 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-/* Função para carregar dados */
+let grafVendas, grafFluxo;
+
+/* RELATÓRIOS */
 function carregarRelatorios(uid){
+
   const q = query(
     collection(db,"pedidos"),
     where("comercioId","==",uid),
     where("status","==","entregue")
   );
 
-  onSnapshot(q, snap=>{
-    if(snap.empty){
-      alert("📭 Nenhuma venda registrada ainda");
-      return;
-    }
+  onSnapshot(q,snap=>{
 
-    // Agrupar vendas por dia
-    const vendasPorDia = {};
-    let fluxoTotal = 0;
+    const vendasDia = {};
+    let faturamento = 0;
 
     snap.forEach(d=>{
       const p = d.data();
       const data = new Date(p.dataHora?.seconds*1000 || Date.now());
       const dia = data.toLocaleDateString("pt-BR");
 
-      if(!vendasPorDia[dia]) vendasPorDia[dia] = 0;
-      vendasPorDia[dia] += Number(p.valor);
-
-      fluxoTotal += Number(p.valor);
+      vendasDia[dia] = (vendasDia[dia] || 0) + Number(p.valor);
+      faturamento += Number(p.valor);
     });
 
-    // Dados para gráfico de vendas por dia
-    const labels = Object.keys(vendasPorDia);
-    const valores = Object.values(vendasPorDia);
+    const labels = Object.keys(vendasDia);
+    const valores = Object.values(vendasDia);
 
-    new Chart(document.getElementById("graficoVendas"), {
-      type: "bar",
-      data: {
+    /* KPIs */
+    document.getElementById("fatTotal").textContent =
+      faturamento.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+
+    document.getElementById("qtdPedidos").textContent = snap.size;
+
+    document.getElementById("ticket").textContent =
+      snap.size
+        ? (faturamento/snap.size).toLocaleString("pt-BR",{style:"currency",currency:"BRL"})
+        : "R$ 0,00";
+
+    /* GRÁFICO BARRA */
+    grafVendas?.destroy();
+    grafVendas = new Chart(document.getElementById("graficoVendas"),{
+      type:"bar",
+      data:{
         labels,
-        datasets: [{
-          label: "Vendas por Dia (R$)",
-          data: valores,
-          backgroundColor: "#ff8c1a"
+        datasets:[{
+          label:"R$",
+          data:valores,
+          backgroundColor:"#ff8c1a"
         }]
+      },
+      options:{
+        plugins:{legend:{display:false}}
       }
     });
 
-    // Fluxo de caixa acumulado
-    new Chart(document.getElementById("graficoFluxo"), {
-      type: "doughnut",
-      data: {
-        labels: ["Total Recebido"],
-        datasets: [{
-          data: [fluxoTotal],
-          backgroundColor: ["#28a745"]
+    /* GRÁFICO ROSCA */
+    grafFluxo?.destroy();
+    grafFluxo = new Chart(document.getElementById("graficoFluxo"),{
+      type:"doughnut",
+      data:{
+        labels:["Total Recebido"],
+        datasets:[{
+          data:[faturamento],
+          backgroundColor:["#22c55e"]
         }]
+      },
+      options:{
+        plugins:{legend:{display:false}}
       }
     });
+
   });
 }
 
-/* Auth */
+/* AUTH */
 onAuthStateChanged(auth,user=>{
   if(!user){
-    location.href="Comercio/login-comercio.html";
+    location.href="/Comercio/login-comercio.html";
     return;
   }
   carregarRelatorios(user.uid);
 });
-</script>
-<script type="module">
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, query, where, onSnapshot, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js";
-
-/* Firebase */
-const firebaseConfig = {
-  apiKey: "AIzaSyD6a29L24aFSgVjmC7NFGXpdWW4g1uQsio",
-  authDomain: "tocomfome-754e1.firebaseapp.com",
-  projectId: "tocomfome-754e1",
-  storageBucket: "tocomfome-754e1.appspot.com",
-  messagingSenderId: "997975886937",
-  appId: "1:997975886937:web:9bf408c35f1ed8aea13548"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const messaging = getMessaging(app);
-
-/* Service Worker */
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/firebase-messaging-sw.js");
-}
-
-/* Registrar Token */
-async function registrarToken(uid){
-
-  const perm = await Notification.requestPermission();
-  if(perm !== "granted") return;
-
-  const reg = await navigator.serviceWorker.ready;
-
-  const token = await getToken(messaging,{
-    vapidKey:"BB3N1EQpjWRYNQQpB_Dwo1lCScMl03xYIq_WrJo_nxs5HcKbRrUze3ATLLlW9B0xV3Trm6Fm_NwAMvQeLcJBTgU",
-    serviceWorkerRegistration: reg
-  });
-
-  if(!token) return;
-
-  await setDoc(doc(db,"tokens",uid),{
-    token,
-    atualizadoEm: serverTimestamp()
-  });
-
-}
-
-/* 🔔 Escutar pedidos (somente notificação) */
-function escutarPedidos(uid){
-
-  const q = query(
-    collection(db,"pedidos"),
-    where("comercioId","==",uid)
-  );
-
-  let primeira = true;
-
-  onSnapshot(q,snap=>{
-
-    if(!primeira){
-
-      snap.docChanges().forEach(change=>{
-
-        if(change.type === "added"){
-
-          const p = change.doc.data();
-
-          new Notification("📦 Novo Pedido!",{
-            body:`${p.clienteNome} pediu ${p.produtoNome}`,
-            icon:"/img/logo.png"
-          });
-
-          const audio = new Audio("/audio/alerta.mp3");
-          audio.play().catch(()=>{});
-
-        }
-
-      });
-
-    }
-
-    primeira = false;
-
-  });
-
-}
-
-/* Auth */
-onAuthStateChanged(auth,user=>{
-
-  if(!user){
-    location.href="/comercio/login-comercio.html";
-    return;
-  }
-
-  registrarToken(user.uid);
-
-  escutarPedidos(user.uid); // 🔥 AGORA NOTIFICA NESSA TELA
-
-});
-
 </script>
 
 </body>
