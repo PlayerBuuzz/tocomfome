@@ -212,19 +212,20 @@ const badgeAtivas = document.getElementById("badgeAtivas");
 const badgeEncerradas = document.getElementById("badgeEncerradas");
 const ganhoDia = document.getElementById("ganhoDia");
 
-/* Util */
-function ehHoje(data){
-  const d = data.toDate();
+/* Verifica se é hoje */
+function ehHoje(timestamp){
+  if(!timestamp) return false;
+  const d = timestamp.toDate();
   const hoje = new Date();
   return d.toDateString() === hoje.toDateString();
 }
 
 /* Escutar pedidos */
-function escutarResumo(uid){
+function escutarResumo(comercioId){
 
   const q = query(
     collection(db,"pedidos"),
-    where("comercioId","==",uid)
+    where("comercioId","==",comercioId)
   );
 
   onSnapshot(q,snap=>{
@@ -235,16 +236,21 @@ function escutarResumo(uid){
 
     snap.forEach(doc=>{
       const p = doc.data();
+      const valor = Number(p.valor || 0);
 
+      /* Contagem */
       if(p.status === "entregue"){
         encerradas++;
-
-        if(p.createdAt && ehHoje(p.createdAt)){
-          totalHoje += Number(p.valorTotal || p.total || 0);
-        }
-
       }else{
         ativas++;
+      }
+
+      /* Soma do dia (pedido + entregue) */
+      if(
+        (p.status === "pedido" || p.status === "entregue") &&
+        ehHoje(p.criadoEm)
+      ){
+        totalHoje += valor;
       }
     });
 
